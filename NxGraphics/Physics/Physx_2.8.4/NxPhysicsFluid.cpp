@@ -233,7 +233,7 @@ NxPhysicsFluid::NxPhysicsFluid( NxPhysicsActor * Actor, const NxParticleDesc & D
 
 	mFluid = new MyFluid( &Actor->GetNxActor()->getScene(), fluidDesc, trackUserData, provideCollisionNormals, particleColor , particlesize);
 	LogMsg("Creating fluid done");
-	assert( Fluid );
+	//assert( Fluid );
 
 	delete[] initParticles;
 }
