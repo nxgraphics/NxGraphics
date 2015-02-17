@@ -54,7 +54,7 @@ if( MSVC )
  
 # from http://www.cmake.org/pipermail/cmake/2007-November/017372.html	 
 SET(NxNetwork_DEF "${NxNetwork_DEF}WIN32;_WINDOWS;_USRDLL;CURL_STATICLIB;BUILDING_LIBCURL;")
-SET(NxNetwork_Deps "../NxDeps/lib/release/" )
+SET(NxNetwork_Deps "../NxDeps/lib/${CMAKE_BUILD_TYPE}/" )
 
 SET( NxNetwork_EXTRALIBS 
 ws2_32.lib
