@@ -2138,13 +2138,11 @@ if( MSVC )
 
 	SET(NxGraphics_Deps 
 	    ${PROJECT_SOURCE_DIR}/../Lib
-		${PROJECT_SOURCE_DIR}/../nxdeps/lib/Release
+		${PROJECT_SOURCE_DIR}/../nxdeps/lib/${CMAKE_BUILD_TYPE}
 		${PROJECT_SOURCE_DIR}/../nxdeps/include/Physx/v2.8.4_win/SDKs/lib/win32
 		
 	)
-	
-	#${PROJECT_SOURCE_DIR}/../nxdeps/include/boost_1_49/lib
-
+ 
 	ADD_DEFINITIONS(/Zm500) 
 
 	LINK_DIRECTORIES( ${NxGraphics_Deps} )
