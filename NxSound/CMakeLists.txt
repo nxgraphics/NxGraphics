@@ -610,7 +610,7 @@ message(  "System is MSVC !" )
 	# from http://www.cmake.org/pipermail/cmake/2007-November/017372.html
 	SET( NxSound_LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
 	SET( NxSound_DEF "${NxSound_DEF}WIN32;_WINDOWS;_USRDLL;WIN32_LEAN_AND_MEAN;__WINDOWS_DS__;__WINDOWS_MM__;")
-	SET( NxSound_Deps "../NxDeps/lib/release/" )
+	SET( NxSound_Deps "../NxDeps/lib/${CMAKE_BUILD_TYPE}/" )
 
  
 	SET(NxSound_EXTRALIBS 
