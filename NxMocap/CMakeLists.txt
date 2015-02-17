@@ -249,7 +249,7 @@ SET( NxMocap_LINK_FLAGS "${NxMocap_LINK_FLAGS} /DELAYLOAD:\"OpenNi2.dll\";\"NiTE
 
 SET( NxMocap_LINK_FLAGS "${NxMocap_LINK_FLAGS} /NODEFAULTLIB:libcmt.lib" )
 
-SET( NxMocap_LINK_FLAGS "${NxMocap_LINK_FLAGS} /LIBPATH:\"../NxDeps/lib/release/\"" )
+SET( NxMocap_LINK_FLAGS "${NxMocap_LINK_FLAGS} /LIBPATH:\"../NxDeps/lib/${CMAKE_BUILD_TYPE}/\"" )
 
 SET( NxMocap_DEF "${NxMocap_DEF}WIN32;_WINDOWS;_USRDLL;")
  
@@ -257,7 +257,7 @@ SET( NxMocap_DEF "${NxMocap_DEF}WIN32;_WINDOWS;_USRDLL;")
 
 SET( NxMocap_EXTRALIBS 
 ws2_32.lib
-libmysql.lib
+libmysql
 ${OPEN_NI_LIBRARY}
 ${NiTE2_LIBRARY}
 ${KINECTSDK_LIBRARY}
