@@ -130,7 +130,7 @@ SOURCE_GROUP("LIBRAIRIES\\OSC\\Sources" FILES
  
 elseif(APPLE)
 
-#set(NxDevice_src ${NxDevice_src} ./NxDevice_XXXXXXX.cpp )
+ 
 
 else()
 
@@ -185,12 +185,12 @@ set(NxDevice_LINK_FLAGS "" )
 if( MSVC )
 
 SET( NxDevice_DEF "${NxDevice_DEF}FTD2XX_EXPORTS;NXDEVICE_NONCLIENT_BUILD;_WINDLL" )
-SET( NxDevice_Deps "../NxDeps/lib/release/" )
+SET( NxDevice_Deps "../NxDeps/lib/${CMAKE_BUILD_TYPE}/" )
 
 SET( NxDevice_EXTRALIBS 
 ws2_32
 winmm
-../NxDeps/lib/release/ftd2xx
+../NxDeps/lib/${CMAKE_BUILD_TYPE}/ftd2xx
 )
 
 
