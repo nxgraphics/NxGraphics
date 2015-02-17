@@ -58,7 +58,7 @@ SET(NxNetwork_Deps "../NxDeps/lib/${CMAKE_BUILD_TYPE}/" )
 
 SET( NxNetwork_EXTRALIBS 
 ws2_32.lib
-../NxDeps/lib/libcurl
+debug ../NxDeps/lib/libcurl_d optimized ../NxDeps/lib/libcurl
 )
 
 else()
