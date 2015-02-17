@@ -160,9 +160,9 @@ winmm.lib
 vfw32.lib
 PGRFlyCapture.lib
 delayimp.lib
-libtheora
-vorbis
-ogg
+debug libtheora_d.lib optimized libtheora.lib
+debug vorbis_d.lib optimized vorbis.lib
+debug ogg_d.lib optimized ogg.lib
 )
 
 add_library(${NxVideo_LIBRARY} SHARED ${NxVideo_src})
