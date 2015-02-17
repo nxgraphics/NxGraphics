@@ -2148,23 +2148,23 @@ if( MSVC )
 	LINK_DIRECTORIES( ${NxGraphics_Deps} )
 
 	SET(NxGraphics_EXTRALIBS
-		NxVideo.lib
-		NxSound.lib
-		NxMocap.lib
-		NxDevice.lib
+		debug NxVideo_d optimized NxVideo
+		debug NxSound_d optimized NxSound
+		debug NxMocap_d optimized NxMocap
+		debug NxDevice_d optimized NxDevice
 		winmm.lib
 		comctl32.lib
 		PhysXLoader.lib
 		PhysXCooking.lib
 		NxCharacter.lib
-		OgreMain.lib
-		OgreOverlay.lib
-		OgrePaging.lib
-		OgreRTShaderSystem.lib
-		OgreTerrain.lib
-		OgreVolume.lib
+		debug OgreMain_d optimized OgreMain
+		debug OgreOverlay_d optimized OgreOverlay
+		debug OgrePaging_d optimized OgrePaging
+		debug OgreRTShaderSystem_d optimized OgreRTShaderSystem
+		debug OgreTerrain_d optimized OgreTerrain 
+		debug OgreVolume_d optimized OgreVolume
 		#OgreProperty.lib
-		OIS.lib
+		debug OIS_d optimized OIS
 		opengl32.lib
 	)
 	
