@@ -257,7 +257,7 @@ SET( NxMocap_DEF "${NxMocap_DEF}WIN32;_WINDOWS;_USRDLL;")
 
 SET( NxMocap_EXTRALIBS 
 ws2_32.lib
-libmysql
+debug libmysql_d optimized libmysql
 ${OPEN_NI_LIBRARY}
 ${NiTE2_LIBRARY}
 ${KINECTSDK_LIBRARY}
