@@ -143,12 +143,12 @@ include_directories(../NxDeps/include/GLEW/include)
 
 SET( NxVideo_LINK_FLAGS "${NxVideo_LINK_FLAGS} /DELAYLOAD:\"PGRFlyCapture.dll\"" )
 SET( NxVideo_LINK_FLAGS "${NxVideo_LINK_FLAGS} /NODEFAULTLIB:libcmt.lib" )
-SET( NxVideo_LINK_FLAGS "${NxVideo_LINK_FLAGS} /LIBPATH:\"../NxDeps/lib/release/\"" )
+SET( NxVideo_LINK_FLAGS "${NxVideo_LINK_FLAGS} /LIBPATH:\"../NxDeps/lib/${CMAKE_BUILD_TYPE}/\"" )
 
 
 
 SET( NxVideo_DEF "${NxVideo_DEF}WIN32;_WINDOWS;_USRDLL;")
-#SET( NxVideo_Deps "../NxDeps/lib/release/" )
+#SET( NxVideo_Deps "../NxDeps/lib/${CMAKE_BUILD_TYPE}/" )
 
 
 SET( NxVideo_EXTRALIBS 
@@ -160,9 +160,9 @@ winmm.lib
 vfw32.lib
 PGRFlyCapture.lib
 delayimp.lib
-libtheora.lib
-vorbis.lib
-ogg.lib
+libtheora
+vorbis
+ogg
 )
 
 add_library(${NxVideo_LIBRARY} SHARED ${NxVideo_src})
