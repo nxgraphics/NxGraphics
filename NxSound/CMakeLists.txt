@@ -614,14 +614,14 @@ message(  "System is MSVC !" )
 
  
 	SET(NxSound_EXTRALIBS 
-	../NxDeps/lib/dsound
-	../NxDeps/lib/openal32
-	${NxSound_Deps}kissfft
-	${NxSound_Deps}ogg
-	${NxSound_Deps}vorbis
-	${NxSound_Deps}vorbisfile
-	${NxSound_Deps}libmad
-	${NxSound_Deps}libflac
+	debug ../NxDeps/lib/openal32_d optimized ../NxDeps/lib/openal32
+	${NxSound_Deps}dsound
+	debug ${NxSound_Deps}kissfft_d optimized ${NxSound_Deps}kissfft
+	debug ${NxSound_Deps}ogg_d optimized ${NxSound_Deps}ogg
+	debug ${NxSound_Deps}vorbis_d optimized ${NxSound_Deps}vorbis
+	debug ${NxSound_Deps}vorbisfile_d optimized ${NxSound_Deps}vorbisfile
+	debug ${NxSound_Deps}libmad_d optimized ${NxSound_Deps}libmad
+	debug ${NxSound_Deps}libflac_d optimized ${NxSound_Deps}libflac
 	winmm
 	wsock32 )
 
