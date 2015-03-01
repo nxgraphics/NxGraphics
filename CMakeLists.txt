@@ -68,11 +68,11 @@ endif ()
 
 
 # by default, install to NxGraphicsSourceSdk subfolder in build directory
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  if (NXGRAPHICSSOURCE_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-      set(CMAKE_INSTALL_PREFIX "${NXGRAPHICSSOURCE_BINARY_DIR}/NxGraphicsSdk" CACHE PATH "Sdk install prefix" FORCE)
-  endif ()
-endif ()
+#if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+#  if (NXGRAPHICSSOURCE_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+      set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/NxGraphicsSdk" CACHE PATH "Sdk install prefix" FORCE)
+#  endif ()
+#endif ()
 
 # enforce that CMAKE_BUILD_TYPE is set, otherwise install commands
 # will not work for Makefile based generators.
@@ -154,7 +154,56 @@ ADD_DEPENDENCIES (NxGraphics NxSound)
 ADD_DEPENDENCIES (NxGraphics NxVideo)
 endif ()
 
+# SDK install
 
  
 
+# header files
+
+file(GLOB NXDEVICE_HEADERS "${CMAKE_SOURCE_DIR}/NxDevice/*.h")
+INSTALL(FILES ${NXDEVICE_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/NxDevice)
+
+file(GLOB NXGRAPHICS_HEADERS "${CMAKE_SOURCE_DIR}/NxGraphics/*.h")
+INSTALL(FILES ${NXGRAPHICS_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/NxGraphics)
+ 
+file(GLOB NXGUI_HEADERS "${CMAKE_SOURCE_DIR}/NxGraphics/NxGui/*.h")
+INSTALL(FILES ${NXGUI_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/NxGraphics/NxGui)
+
+file(GLOB NXGUI_PHYSICS "${CMAKE_SOURCE_DIR}/NxGraphics/Physics/empty/*.h")
+INSTALL(FILES ${NXGUI_PHYSICS} DESTINATION ${CMAKE_INSTALL_PREFIX}/NxGraphics/physics/empty)
+
+file(GLOB NXMOCAP_HEADERS "${CMAKE_SOURCE_DIR}/NxMocap/*.h")
+INSTALL(FILES ${NXMOCAP_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/NxMocap)
+
+file(GLOB NXNETWORK_HEADERS "${CMAKE_SOURCE_DIR}/NxNetwork/*.h")
+INSTALL(FILES ${NXNETWORK_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/NxNetwork)
+
+file(GLOB NXVIDEO_HEADERS "${CMAKE_SOURCE_DIR}/NxVideo/*.h")
+INSTALL(FILES ${NXVIDEO_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/NxVideo)
+
+# lib and dependencies
+
+#install(DIRECTORY ${CMAKE_SOURCE_DIR}/NxDeps/ DESTINATION ${CMAKE_INSTALL_PREFIX}/NxDeps )
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/Lib/ DESTINATION ${CMAKE_INSTALL_PREFIX}/Lib)
+ 
+ 
+
+if (APPLE)
+message( "Detected Apple OS" ) 
+
+elseif(WIN32)
+message( "Detected Windows OS" )
+ 			
+	
+else()
+message( "Detected linux OS" )
+
+# copy and generate nxsamples
+	 	
+		
+endif()
+
+add_subdirectory(NxSamples)
+
+ 
 
