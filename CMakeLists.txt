@@ -193,6 +193,9 @@ message( "Detected Apple OS" )
 
 elseif(WIN32)
 message( "Detected Windows OS" )
+
+elseif(ANDROID)
+message( "Detected ANDROID OS" )
  			
 	
 else()
