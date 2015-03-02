@@ -58,48 +58,55 @@ SOURCE_GROUP("Source Files\\Camera Input" FILES
 
 if( MSVC )
 
-set(NxVideo_src
-${NxVideo_src}
-./NxVideo_Grabber_DirectShow.cpp
-./NxVideo_Grabber_PointGrey.cpp
-./NxVideo_Grabber_VFW.cpp
-./NxVideo_Avi_Player.cpp
-./NxVideo_Avi_Recorder.cpp
-./NxVideo_Mov_Player2.cpp
-./NxVideo_Theora_Player.cpp
-../nxdeps/include/VideoInput/videoInput.cpp
-)
+	set(NxVideo_src
+	${NxVideo_src}
+	./NxVideo_Grabber_DirectShow.cpp
+	./NxVideo_Grabber_PointGrey.cpp
+	./NxVideo_Grabber_VFW.cpp
+	./NxVideo_Avi_Player.cpp
+	./NxVideo_Avi_Recorder.cpp
+	./NxVideo_Mov_Player2.cpp
+	./NxVideo_Theora_Player.cpp
+	../nxdeps/include/VideoInput/videoInput.cpp
+	)
 
-SOURCE_GROUP("LIBRAIRIES\\VIDEOINPUT\\Sources" FILES 
-../nxdeps/include/VideoInput/videoInput.cpp
-)
+	SOURCE_GROUP("LIBRAIRIES\\VIDEOINPUT\\Sources" FILES 
+	../nxdeps/include/VideoInput/videoInput.cpp
+	)
 
-SOURCE_GROUP("Source Files\\Camera Input" FILES 
-./NxVideo_Grabber_DirectShow.cpp
-./NxVideo_Grabber_PointGrey.cpp
-./NxVideo_Grabber_VFW.cpp
-)
+	SOURCE_GROUP("Source Files\\Camera Input" FILES 
+	./NxVideo_Grabber_DirectShow.cpp
+	./NxVideo_Grabber_PointGrey.cpp
+	./NxVideo_Grabber_VFW.cpp
+	)
 
  
 elseif(APPLE)
 
-#set to compile in 32bit mode only.. because of quicktime.. didnt manage to do it auatomaticly
-#set(CMAKE_OSX_ARCHITECTURES i386 CACHE STRING "do not build for 64-bit" FORCE)
-set(ARCH i386)
-#set(WORD_SIZE 32)
+	#set to compile in 32bit mode only.. because of quicktime.. didnt manage to do it auatomaticly
+	#set(CMAKE_OSX_ARCHITECTURES i386 CACHE STRING "do not build for 64-bit" FORCE)
+	set(ARCH i386)
+	#set(WORD_SIZE 32)
 
-set(NxVideo_src 
-${NxVideo_src}
-./NxVideo_Mov_Player2.cpp
-./NxVideo_Theora_Player.cpp
-)
+	set(NxVideo_src 
+	${NxVideo_src}
+	./NxVideo_Mov_Player2.cpp
+	./NxVideo_Theora_Player.cpp
+	)
+	
+elseif(ANDROID)	
+	message( "NxVideo detcted Android !" )
+	set(NxVideo_src 
+	${NxVideo_src}
+	./NxVideo_Theora_Player.cpp
+	)
 
 else()
-message( "NxVideo Linux" )
-set(NxVideo_src 
-${NxVideo_src}
-./NxVideo_Theora_Player.cpp
-)
+	message( "NxVideo Linux" )
+	set(NxVideo_src 
+	${NxVideo_src}
+	./NxVideo_Theora_Player.cpp
+	)
 
 endif()
 
@@ -176,11 +183,10 @@ add_library(${NxVideo_LIBRARY} STATIC ${NxVideo_src})
 
 else()
 
-ADD_DEFINITIONS(-D__TMS320C6X__) #for ogg
-
+#linux or android
+add_definitions(-D__TMS320C6X__) #for ogg
 #disable multichar warning
 add_definitions(-Wno-multichar)
- 
 add_library(${NxVideo_LIBRARY} STATIC ${NxVideo_src})
 
 
