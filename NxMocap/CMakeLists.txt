@@ -95,7 +95,7 @@ elseif(APPLE)
 
 #set(NxMocap_src ${NxMocap_src} ./NxVideo_Mov_Player2.cpp )
 elseif(ANDROID)	
-	message( "NxMocap detcted Android !" )
+	message( "NxMocap detected Android !" )
 	 
 
 else()
