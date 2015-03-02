@@ -599,17 +599,15 @@ ADD_DEFINITIONS(-DOUTSIDE_SPEEX)
 
 if( MSVC )
 
-message(  "System is MSVC !" )
+	message(  "System is MSVC !" )
 	SET( NxSound_src ${NxSound_src} ./NxSound_Effect_VSTWindow.cpp )
 	SET( NxSound_src ${NxSound_src} ./NxSound_Effect_VSTPlugin.cpp )
 
 	SOURCE_GROUP("Source Files\\Effects\\EffectsVST" FILES ./NxSound_Effect_VSTWindow.cpp )
 	SOURCE_GROUP("Source Files\\Effects\\EffectsVST" FILES ./NxSound_Effect_VSTPlugin.cpp )
-
-
+ 
 	# from http://www.cmake.org/pipermail/cmake/2007-November/017372.html
-	
-	
+ 
 	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   		SET( NxSound_LINK_FLAGS "/NODEFAULTLIB:libcmtd.lib")
   	else( )
@@ -633,34 +631,20 @@ message(  "System is MSVC !" )
 	winmm
 	wsock32 )
 
-
-	
 elseif( CYGWIN )	
 
-	#__LINUX_ALSA__, __UNIX_JACK__, and/or __LINUX_OSS__
-
-
-
 	SET( NxSound_DEF "${NxSound_DEF}__LINUX_OSS__;_USRDLL;") 
-ADD_DEFINITIONS(-D_WIN32)
-ADD_DEFINITIONS(-DCYGWIN)
-ADD_DEFINITIONS(-D__CYGWIN__)
-include_directories(../nxdeps/include/libFlac)
+	ADD_DEFINITIONS(-D_WIN32)
+	ADD_DEFINITIONS(-DCYGWIN)
+	ADD_DEFINITIONS(-D__CYGWIN__)
+	include_directories(../nxdeps/include/libFlac)
 
-elseif( UNIX )	
+elseif( ANDROID )	
 
-	message(  "System is Linux !" )
-	 
- 	#find_package(Threads REQUIRED)
-	#list(APPEND NxSound_EXTRALIBS ${CMAKE_THREAD_LIBS_INIT})
- 
-
+	message(  "NxSound detected Android !" )
 	ADD_DEFINITIONS(-D__OPENSLES__) #for stk
 	ADD_DEFINITIONS(-D__OS_LINUX__) # for stk thread.h
 	ADD_DEFINITIONS(-D__LITTLE_ENDIAN__) #for stk
- 
-
-
 	ADD_DEFINITIONS(-D__TMS320C6X__) #for ogg
 	include_directories(../nxdeps/include/libFlac)
  
@@ -670,7 +654,20 @@ elseif( UNIX )
 	SOURCE_GROUP("Source Files\\Effects\\EffectsVST" FILES ./NxSound_Effect_VSTWindowLinux.cpp )
 	SOURCE_GROUP("Source Files\\Effects\\EffectsVST" FILES ./NxSound_Effect_VSTPlugin.cpp )
 
+elseif( UNIX )	
 
+	message(  "NxSound detected Linux !" )
+	ADD_DEFINITIONS(-D__OPENSLES__) #for stk
+	ADD_DEFINITIONS(-D__OS_LINUX__) # for stk thread.h
+	ADD_DEFINITIONS(-D__LITTLE_ENDIAN__) #for stk
+	ADD_DEFINITIONS(-D__TMS320C6X__) #for ogg
+	include_directories(../nxdeps/include/libFlac)
+ 
+	SET( NxSound_src ${NxSound_src} ./NxSound_Effect_VSTWindowLinux.cpp )
+	SET( NxSound_src ${NxSound_src} ./NxSound_Effect_VSTPlugin.cpp )
+
+	SOURCE_GROUP("Source Files\\Effects\\EffectsVST" FILES ./NxSound_Effect_VSTWindowLinux.cpp )
+	SOURCE_GROUP("Source Files\\Effects\\EffectsVST" FILES ./NxSound_Effect_VSTPlugin.cpp )
 
 else()
 
