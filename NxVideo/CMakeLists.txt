@@ -95,7 +95,7 @@ elseif(APPLE)
 	)
 	
 elseif(ANDROID)	
-	message( "NxVideo detcted Android !" )
+	message( "NxVideo detected Android !" )
 	set(NxVideo_src 
 	${NxVideo_src}
 	./NxVideo_Theora_Player.cpp
