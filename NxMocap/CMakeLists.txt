@@ -94,18 +94,16 @@ ${NxMocap_src}
 elseif(APPLE)
 
 #set(NxMocap_src ${NxMocap_src} ./NxVideo_Mov_Player2.cpp )
+elseif(ANDROID)	
+	message( "NxMocap detcted Android !" )
+	 
 
 else()
 
 endif()
 
 #-------------------
-
 include_directories(../nxdeps/include) 
-
-
-
-
 # --------- Setup the Executable output Directory -------------
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../Lib )
 
