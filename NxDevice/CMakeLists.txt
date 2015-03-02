@@ -37,10 +37,6 @@ set(NxDevice_src
 ../nxdeps/include/TinyXml/tinyxmlparser.cpp
 )
 
-
-
- 
-
 SOURCE_GROUP("LIBRAIRIES\\MIDI\\Sources" FILES 
 ../nxdeps/include/PortMidi/pm_common/pmutil.c
 ../nxdeps/include/PortMidi/pm_common/portmidi.c
@@ -62,8 +58,6 @@ SOURCE_GROUP("LIBRAIRIES\\XML\\Sources" FILES
 ../nxdeps/include/TinyXml/tinyxmlparser.cpp
 )
 
-
-
 SOURCE_GROUP("Header Files" FILES 
 ./NxDevice.h	
 ./NxDevice_Hardware.h
@@ -80,53 +74,48 @@ SOURCE_GROUP("Header Files" FILES
 
 if( MSVC )
 
-set(NxDevice_src
-${NxDevice_src}
-./NxDevice_Device_Dmx.cpp	
-./NxDevice_Device_Midi.cpp	
-./NxDevice_Device_Osc.cpp
-./NxDevice_Device_OscOutputMsg.cpp
-../nxdeps/include/SIMPLEDMX/timeddmx.h
-../nxdeps/include/SIMPLEDMX/timedDmx_Interval.h
-../nxdeps/include/SIMPLEDMX/TIMEDDMX.cpp
-../nxdeps/include/PortMidi/pm_win/pmwin.c
-../nxdeps/include/PortMidi/pm_win/pmwinmm.c
-../nxdeps/include/PortMidi/porttime/ptwinmm.c
-../nxdeps/include/OscPack/Ip/Win32/NetworkingUtils.cpp
-../nxdeps/include/OscPack/Ip/Win32/UdpSocket.cpp
+	set(NxDevice_src
+	${NxDevice_src}
+	./NxDevice_Device_Dmx.cpp	
+	./NxDevice_Device_Midi.cpp	
+	./NxDevice_Device_Osc.cpp
+	./NxDevice_Device_OscOutputMsg.cpp
+	../nxdeps/include/SIMPLEDMX/timeddmx.h
+	../nxdeps/include/SIMPLEDMX/timedDmx_Interval.h
+	../nxdeps/include/SIMPLEDMX/TIMEDDMX.cpp
+	../nxdeps/include/PortMidi/pm_win/pmwin.c
+	../nxdeps/include/PortMidi/pm_win/pmwinmm.c
+	../nxdeps/include/PortMidi/porttime/ptwinmm.c
+	../nxdeps/include/OscPack/Ip/Win32/NetworkingUtils.cpp
+	../nxdeps/include/OscPack/Ip/Win32/UdpSocket.cpp
+	)
 
-)
+	SOURCE_GROUP("Source Files\\Devices" FILES 
+	./NxDevice_Device_Dmx.cpp	
+	./NxDevice_Device_Midi.cpp	
+	./NxDevice_Device_Osc.cpp
+	./NxDevice_Device_OscOutputMsg.cpp
+	)
 
-SOURCE_GROUP("Source Files\\Devices" FILES 
-./NxDevice_Device_Dmx.cpp	
-./NxDevice_Device_Midi.cpp	
-./NxDevice_Device_Osc.cpp
-./NxDevice_Device_OscOutputMsg.cpp
-)
+	SOURCE_GROUP("LIBRAIRIES\\DMX\\Sources" FILES 
+	../nxdeps/include/SIMPLEDMX/TIMEDDMX.cpp
+	)
 
-SOURCE_GROUP("LIBRAIRIES\\DMX\\Sources" FILES 
-../nxdeps/include/SIMPLEDMX/TIMEDDMX.cpp
-)
+	SOURCE_GROUP("LIBRAIRIES\\DMX\\Headers" FILES 
+	../nxdeps/include/SIMPLEDMX/timeddmx.h
+	../nxdeps/include/SIMPLEDMX/timedDmx_Interval.h
+	)
 
-SOURCE_GROUP("LIBRAIRIES\\DMX\\Headers" FILES 
-../nxdeps/include/SIMPLEDMX/timeddmx.h
-../nxdeps/include/SIMPLEDMX/timedDmx_Interval.h
-)
+	SOURCE_GROUP("LIBRAIRIES\\MIDI\\Sources" FILES 
+	../nxdeps/include/PortMidi/pm_win/pmwin.c
+	../nxdeps/include/PortMidi/pm_win/pmwinmm.c
+	../nxdeps/include/PortMidi/porttime/ptwinmm.c
+	)
 
-SOURCE_GROUP("LIBRAIRIES\\MIDI\\Sources" FILES 
-../nxdeps/include/PortMidi/pm_win/pmwin.c
-../nxdeps/include/PortMidi/pm_win/pmwinmm.c
-../nxdeps/include/PortMidi/porttime/ptwinmm.c
-)
-
-SOURCE_GROUP("LIBRAIRIES\\OSC\\Sources" FILES 
-../nxdeps/include/OscPack/Ip/Win32/NetworkingUtils.cpp
-../nxdeps/include/OscPack/Ip/Win32/UdpSocket.cpp
-)
-
-
-
-
+	SOURCE_GROUP("LIBRAIRIES\\OSC\\Sources" FILES 
+	../nxdeps/include/OscPack/Ip/Win32/NetworkingUtils.cpp
+	../nxdeps/include/OscPack/Ip/Win32/UdpSocket.cpp
+	)
  
 elseif(APPLE)
 
@@ -134,23 +123,19 @@ elseif(APPLE)
 
 else()
 
-set(NxDevice_src
-${NxDevice_src}
-./NxDevice_Device_Midi.cpp	
-./NxDevice_Device_Osc.cpp
-./NxDevice_Device_OscOutputMsg.cpp
-../nxdeps/include/PortMidi/pm_linux/finddefault.c
-../nxdeps/include/PortMidi/pm_linux/pmlinux.c
-../nxdeps/include/PortMidi/porttime/ptlinux.c
-../nxdeps/include/OscPack/Ip/posix/NetworkingUtils.cpp
-../nxdeps/include/OscPack/Ip/posix/UdpSocket.cpp
-)
-
-
-
+	set(NxDevice_src
+	${NxDevice_src}
+	./NxDevice_Device_Midi.cpp	
+	./NxDevice_Device_Osc.cpp
+	./NxDevice_Device_OscOutputMsg.cpp
+	../nxdeps/include/PortMidi/pm_linux/finddefault.c
+	../nxdeps/include/PortMidi/pm_linux/pmlinux.c
+	../nxdeps/include/PortMidi/porttime/ptlinux.c
+	../nxdeps/include/OscPack/Ip/posix/NetworkingUtils.cpp
+	../nxdeps/include/OscPack/Ip/posix/UdpSocket.cpp
+	)
+	
 endif()
-
-
 
 # --------- Setup the Executable output Directory -------------
 SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../Lib )
@@ -169,8 +154,6 @@ IF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv)")
      SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
    ENDIF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
 ENDIF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv)")
-
- 
 
 include_directories(../nxdeps/include) 
 include_directories(../nxdeps/include/OscPack)
@@ -196,35 +179,30 @@ winmm
 
 elseif(APPLE)
 
- set(NxDevice_DEF "${NxDevice_DEF}__MACOSX_CORE__;")
-	
-        SET(NxDevice_EXTRALIBS /System/Library/Frameworks/CoreAudio.framework )
-        SET(NxDevice_EXTRALIBS /System/Library/Frameworks/AudioUnit.framework ${NxDevice_EXTRALIBS})
-	SET(NxDevice_EXTRALIBS /System/Library/Frameworks/CoreMidi.framework ${NxDevice_EXTRALIBS})
-        SET(NxDevice_EXTRALIBS /System/Library/Frameworks/ApplicationServices.framework ${NxDevice_EXTRALIBS})
+	set(NxDevice_DEF "${NxDevice_DEF}__MACOSX_CORE__;")
+    set(NxDevice_EXTRALIBS /System/Library/Frameworks/CoreAudio.framework )
+    set(NxDevice_EXTRALIBS /System/Library/Frameworks/AudioUnit.framework ${NxDevice_EXTRALIBS})
+	set(NxDevice_EXTRALIBS /System/Library/Frameworks/CoreMidi.framework ${NxDevice_EXTRALIBS})
+	set(NxDevice_EXTRALIBS /System/Library/Frameworks/ApplicationServices.framework ${NxDevice_EXTRALIBS})
 
-        # Some versions of OSX may need the AudioToolbox framework. Add it if it's found.
-        FIND_LIBRARY(AUDIOTOOLBOX_LIBRARY NAMES AudioToolbox PATHS ~/Library/Frameworks
-                           /Library/Frameworks
-                           /System/Library/Frameworks
-                    )
-IF(AUDIOTOOLBOX_LIBRARY)
-SET(NxDevice_EXTRALIBS ${AUDIOTOOLBOX_LIBRARY} ${NxDevice_EXTRALIBS})
-ENDIF()
+    # Some versions of OSX may need the AudioToolbox framework. Add it if it's found.
+    FIND_LIBRARY(AUDIOTOOLBOX_LIBRARY NAMES AudioToolbox PATHS ~/Library/Frameworks /Library/Frameworks /System/Library/Frameworks )
+
+	IF(AUDIOTOOLBOX_LIBRARY)
+		set(NxDevice_EXTRALIBS ${AUDIOTOOLBOX_LIBRARY} ${NxDevice_EXTRALIBS})
+	ENDIF()
  
 else()
 
-ADD_DEFINITIONS(-DOSC_HOST_LITTLE_ENDIAN)
+	ADD_DEFINITIONS(-DOSC_HOST_LITTLE_ENDIAN)
 
-
- 
 endif()
 
  
 if( MSVC )
-add_library(${NxDevice_LIBRARY} SHARED ${NxDevice_src})
+	add_library(${NxDevice_LIBRARY} SHARED ${NxDevice_src})
 else()
-add_library(${NxDevice_LIBRARY} STATIC ${NxDevice_src})
+	add_library(${NxDevice_LIBRARY} STATIC ${NxDevice_src})
 endif()
 
 
