@@ -66,7 +66,7 @@ else()
 
 endif()
 
-SET( ${NxNetwork_LIBRARY} "${NxNetwork_LIBRARY}" LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}"/out/library)
+SET( ${NxNetwork_LIBRARY} "${NxNetwork_LIBRARY}" LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/out/library" )
 set(NxNetwork_DEF "${NxNetwork_DEF}_CRT_SECURE_NO_WARNINGS;")
 if( MSVC )
 add_library(${NxNetwork_LIBRARY} SHARED ${NxNetwork_src})
