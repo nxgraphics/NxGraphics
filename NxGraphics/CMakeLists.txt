@@ -20,6 +20,12 @@ set( NxGraphicsPhysicEngine "empty" )
 set( NxGraphicsPlatform "OSX" )
 message( "MAC : Setting physic system to : empty"  )
 
+elseif(ANDROID)	
+message( "NxGraphics detected Android !"  )
+set( NxGraphicsPhysicEngine "empty" )
+set( NxGraphicsPlatform "Android" )
+message( "Setting physic system to : empty"  )
+
 elseif( UNIX )
 
 set( NxGraphicsPhysicEngine "empty" )
