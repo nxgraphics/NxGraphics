@@ -24,7 +24,7 @@ elseif(ANDROID)
 message( "NxGraphics detected Android !"  )
 set( NxGraphicsPhysicEngine "empty" )
 set( NxGraphicsPlatform "Android" )
-message( "Setting physic system to : empty"  )
+message( "-Setting physic system to : empty"  )
 
 elseif( UNIX )
 
@@ -1598,6 +1598,34 @@ set( NOPRECOMPILED ${NOPRECOMPILED}
 
 message( "Osx : Adding windowing dependencies"  )
 
+elseif(ANDROID)
+
+set( NxGraphics_src ${NxGraphics_src}
+../NxDeps/include/Skia/src/opts/SkBitmapProcState_opts_none.cpp
+../NxDeps/include/Skia/src/opts/SkBlitRow_opts_none.cpp
+../NxDeps/include/Skia/src/opts/SkUtils_opts_none.cpp
+../NxDeps/include/Skia/src/ports/SkDebug_stdio.cpp
+#../NxDeps/include/Skia/src/ports/SkFontHost_android.cpp
+../NxDeps/include/Skia/src/ports/SkFontHost_none.cpp
+../NxDeps/include/Skia/src/ports/SkGlobals_global.cpp
+../NxDeps/include/Skia/src/ports/SkOSFile_stdio.cpp
+../NxDeps/include/Skia/src/ports/SkThread_pthread.cpp
+)
+
+set( NOPRECOMPILED ${NOPRECOMPILED} 
+../NxDeps/include/Skia/src/opts/SkBitmapProcState_opts_none.cpp
+../NxDeps/include/Skia/src/opts/SkBlitRow_opts_none.cpp
+../NxDeps/include/Skia/src/opts/SkUtils_opts_none.cpp
+../NxDeps/include/Skia/src/ports/SkDebug_stdio.cpp
+#../NxDeps/include/Skia/src/ports/SkFontHost_android.cpp
+../NxDeps/include/Skia/src/ports/SkFontHost_none.cpp
+../NxDeps/include/Skia/src/ports/SkGlobals_global.cpp
+../NxDeps/include/Skia/src/ports/SkOSFile_stdio.cpp
+../NxDeps/include/Skia/src/ports/SkThread_pthread.cpp
+)
+ 
+message( "-Adding windowing dependencies"  )
+
 elseif(UNIX)
 
 set( NxGraphics_src ${NxGraphics_src}
@@ -1624,7 +1652,6 @@ set( NOPRECOMPILED ${NOPRECOMPILED}
 ../NxDeps/include/Skia/src/ports/SkThread_pthread.cpp
 )
  
-
 message( "Unix : Adding windowing dependencies"  )
 
 else()
@@ -2039,14 +2066,8 @@ SOURCE_GROUP("LIBRAIRIES\\2D\\SKIA\\Sources\\Effects" FILES
 ../NxDeps/include/Skia/src/effects/SkTransparentShader.cpp
 )
 
-
-
-
+if (MSVC AND NOT NMAKE AND NOT OGRE_UNITY_BUILD)
  
- 
- if (MSVC AND NOT NMAKE AND NOT OGRE_UNITY_BUILD)
- 
-
 	# add definition to use precompiled headers for all files :
 	#add_definitions(/Yu"NxGraphicsPreCompiled.h")	
 
@@ -2199,18 +2220,14 @@ elseif(APPLE)
 	include_directories(./) 
 	include_directories(./Physics/empty)	
 	include_directories(../nxdeps/include/libFlac)
+	
+elseif(ANDROID)
 
-elseif(UNIX)
-
-message( "NxGraphics System is UNIX "  )
-
-#warning messages from NxVideo
-add_definitions(-Wno-multichar)
-
+	 
+	#warning messages from NxVideo
+	add_definitions(-Wno-multichar)
 	include_directories(./) 
 	include_directories(./Physics/empty)
-	
-	
 	include_directories(
 	../nxdeps/include/OGRE/Plugins/OctreeSceneManager
 	../nxdeps/include/OGRE/Plugins/ParticleFX
@@ -2218,43 +2235,37 @@ add_definitions(-Wno-multichar)
 	../nxdeps/include/OGRE/RenderSystems/GLES2/ANDROID	
 	../nxdeps/include/OGRE/RTShaderSystem
 	)	
-	
+ 
+	set( NxGraphics_DEF "${NxGraphics_DEF}"
+		TIXML_USE_STL
+		OGREMAX_SHARED_LIBRARY_EXPORT
+		SK_IGNORE_STDINT_DOT_H
+		PROCEDURAL_NONCLIENT_BUILD
+	)	
 
+elseif(UNIX)
+
+	message( "NxGraphics System is UNIX "  )
+	#warning messages from NxVideo
+	add_definitions(-Wno-multichar)
+	include_directories(./) 
+	include_directories(./Physics/empty)
+	include_directories(
+	../nxdeps/include/OGRE/Plugins/OctreeSceneManager
+	../nxdeps/include/OGRE/Plugins/ParticleFX
+	../nxdeps/include/OGRE/RenderSystems/GLES2
+	../nxdeps/include/OGRE/RenderSystems/GLES2/ANDROID	
+	../nxdeps/include/OGRE/RTShaderSystem
+	)	
+ 
 	set( NxGraphics_DEF "${NxGraphics_DEF}"
 		TIXML_USE_STL
 		OGREMAX_SHARED_LIBRARY_EXPORT
 		SK_IGNORE_STDINT_DOT_H
 		PROCEDURAL_NONCLIENT_BUILD
 	)
-	#SK_BUILD_FOR_ANDROID ??
-
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++98 -fno-common -fno-strict-aliasing -fno-rtti -fno-exceptions -Wall -Wundef -Wno-long-long -pedantic -I/usr/local/include")
-
-# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_FLAGS} -O3")
-
-#list( APPEND CMAKE_CXX_FLAGS "-std=C++98 ${CMAKE_CXX_FLAGS} -g -ftest-coverage -fprofile-arcs")
-
-
+	 
  
-
-
-
-#if(CMAKE_COMPILER_IS_GNUCXX)
- 
-#  if(CMAKE_SYSTEM_NAME MATCHES Linux)
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_FLAGS} -g2")
-#    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${COVERAGE_FLAGS} -O2 -g2")
-#    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${COVERAGE_FLAGS} -fno-inline-functions")
-#    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${COVERAGE_FLAGS} -O0 -g3")
-#  endif(CMAKE_SYSTEM_NAME MATCHES Linux)
- 
-#endif(CMAKE_COMPILER_IS_GNUCXX)
-
-
-
-
 else()
 
 	
