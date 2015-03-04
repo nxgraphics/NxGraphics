@@ -17,19 +17,17 @@ configure_file("${CMAKE_SOURCE_DIR}/CMake/Templates/AndroidManifest.xml.in" "${N
 
 
 function(getNxDevice str )
-
-	set(${str} "yep" )
-
+	set( ${str} "my declarations here" PARENT_SCOPE)
 endfunction()
 
 
 
 
-SET(test " YUPs")  
+SET(test " ")  
 
 getNxDevice( test )
 
-message(   ${test} )
+message( "resuklt"  ${test} )
 
 set( NXDEVICE_INCLUDE ${test} )
 
