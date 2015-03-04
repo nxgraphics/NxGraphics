@@ -14,6 +14,25 @@ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/NxDevice.java" DESTINATION "${NDKOUT}/src
 file(WRITE "${NDKOUT}/default.properties" "target=${ANDROID_TARGET}")
 file(WRITE "${NDKOUT}/jni/Application.mk" "APP_ABI := ${ANDROID_ABI}\nAPP_STL := gnustl_static ")
 configure_file("${CMAKE_SOURCE_DIR}/CMake/Templates/AndroidManifest.xml.in" "${NDKOUT}/AndroidManifest.xml" @ONLY)
+
+
+function(getNxDevice str )
+
+	set(${str} "yep" )
+
+endfunction()
+
+
+
+
+SET(test " YUPs")  
+
+getNxDevice( test )
+
+message(   ${test} )
+
+set( NXDEVICE_INCLUDE ${test} )
+
 configure_file("${CMAKE_SOURCE_DIR}/CMake/Templates/Android.mk.in" "${NDKOUT}/jni/Android.mk" @ONLY)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/NxSamples/Android/media/res/" DESTINATION "${NDKOUT}/res/")
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/NxSamples/Android/media/res/" DESTINATION "${NDKOUT}/res")
