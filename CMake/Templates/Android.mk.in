@@ -32,3 +32,24 @@ NDK_MODULE_PATH := $(LOCAL_PATH)
 
 # ------------ NxDevice --------------
 @NXDEVICE_INCLUDE@
+
+# ------------ NxMocap --------------
+@NXMOCAP_INCLUDE@
+
+# ------------ NxNetwork --------------
+@NXNETWORK_INCLUDE@
+
+# ------------ NxSound --------------
+@NXSOUND_INCLUDE@
+
+# ------------ NxVideo --------------
+@NXVIDEO_INCLUDE@
+
+# ------------ NxGraphics --------------
+@NXGRAPHICS_INCLUDE@
+
+# ------------ Main Application --------------
+@APPLICATION_INCLUDE@
+
+
+

@@ -1,6 +1,4 @@
-package org.fmod.threed;
-
-//import org.fmod.FMODAudioDevice;
+package nx.graphics.device;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -29,7 +27,7 @@ public class Example extends Activity
 	
     static 
     {
-       System.loadLibrary("main");
+       System.loadLibrary("NxDevice");
     }	
     
 	 public native void CreateEngine();
