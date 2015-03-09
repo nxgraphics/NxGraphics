@@ -6,9 +6,14 @@ template<> NxDeviceLog * Singleton<NxDeviceLog>::msSingleton = 0;
 
 NxDeviceLog::NxDeviceLog()
 {
-	std::string NxMediaPath = "NxDevice.log";
+		std::string logPath = "";
+#ifdef __ANDROID__
+		logPath = "/sdcard/NxDevice.log";
+#else
+		logPath = "NxDevice.log";
+#endif
 	this->text = "";
-	logger.open ( NxMediaPath.c_str() , ios::out | ios::ate);
+	logger.open ( logPath.c_str() , ios::out | ios::ate);
 }
 
 NxDeviceLog::~NxDeviceLog()

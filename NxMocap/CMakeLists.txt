@@ -181,21 +181,21 @@ ENDIF()
 
 #NiTE2 lib
 IF(WIN32)
-SET(NITE2_LIBRARY_NAME NiTE2)
+	SET(NITE2_LIBRARY_NAME NiTE2)
 ELSE()
-SET(NITE2_LIBRARY_NAME NiTE2)
+	SET(NITE2_LIBRARY_NAME NiTE2)
 ENDIF()
 
 FIND_LIBRARY(NiTE2_LIBRARY NAMES ${NITE2_LIBRARY_NAME} PATHS ${NITE2_LIB})
 
 IF(NOT NiTE2_LIBRARY)
-SET(NiTE2_LIB $ENV{NiTE2_LIB})
-IF(NOT DEFINED NiTE2_LIB)
-# env is not set
-MESSAGE("OPEN_NI_LIB should be set, Did you install openni framework ? ")
-ELSE()
-FIND_LIBRARY(NiTE2_LIBRARY NAMES NiTE2 PATHS ${NiTE2_LIB})
-ENDIF()
+	SET(NiTE2_LIB $ENV{NiTE2_LIB})
+	IF(NOT DEFINED NiTE2_LIB)
+		# env is not set
+		MESSAGE("OPEN_NI_LIB should be set, Did you install openni framework ? ")
+	ELSE()
+		FIND_LIBRARY(NiTE2_LIBRARY NAMES NiTE2 PATHS ${NiTE2_LIB})
+	ENDIF()
 ENDIF()
 
 # --------------------------------------------------------------
@@ -206,7 +206,7 @@ IF(NOT DEFINED KINECTSDK_INCLUDE)
 # env is not set
 SET(KINECTSDK_INCLUDE $ENV{KINECTSDK10_DIR})
 IF(NOT DEFINED KINECTSDK_INCLUDE)
-MESSAGE("KINECTSDK should be set, Did you install Kinect sdk  Framework ?")
+	MESSAGE("KINECTSDK should be set, Did you install Kinect sdk  Framework ?")
 ENDIF()
 ENDIF()
 INCLUDE_DIRECTORIES("${KINECTSDK_INCLUDE}inc")
@@ -263,6 +263,7 @@ delayimp.lib
 )
 
 add_library(${NxMocap_LIBRARY} SHARED ${NxMocap_src})
+
 else()
 add_library(${NxMocap_LIBRARY} STATIC ${NxMocap_src})
 endif()

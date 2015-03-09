@@ -116,13 +116,9 @@ SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../Lib )
 
 # --------- Setup the Executable output Directory -------------
 SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../Lib )
-
-
+ 
 set(NxVideo_DEF "NXVIDEO_NONCLIENT_BUILD;" )
-
-#set(NxVideo_LINK_FLAGS "" )
-
-
+ 
 # warning level
 IF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv)" )  
    # Use the lowest warning level for visual studio.
@@ -141,55 +137,53 @@ include_directories(../NxDeps/include/libtheora)
 
 if( MSVC )
 
-include_directories(../NxDeps/include/DxSdkFeb2010/DirectShow/BaseClasses) 
-include_directories(../NxDeps/include/Quicktime/CIncludes)
-include_directories(../NxDeps/include/GLEW/include)
+	include_directories(../NxDeps/include/DxSdkFeb2010/DirectShow/BaseClasses) 
+	include_directories(../NxDeps/include/Quicktime/CIncludes)
+	include_directories(../NxDeps/include/GLEW/include)
+ 
+	# from http://www.cmake.org/pipermail/cmake/2007-November/017372.html
+
+	set( NxVideo_LINK_FLAGS "${NxVideo_LINK_FLAGS} /DELAYLOAD:\"PGRFlyCapture.dll\"" )
+	set( NxVideo_LINK_FLAGS "${NxVideo_LINK_FLAGS} /NODEFAULTLIB:libcmt.lib" )
+	set( NxVideo_LINK_FLAGS "${NxVideo_LINK_FLAGS} /LIBPATH:\"../NxDeps/lib/${CMAKE_BUILD_TYPE}/\"" )
 
 
-# from http://www.cmake.org/pipermail/cmake/2007-November/017372.html
 
-SET( NxVideo_LINK_FLAGS "${NxVideo_LINK_FLAGS} /DELAYLOAD:\"PGRFlyCapture.dll\"" )
-SET( NxVideo_LINK_FLAGS "${NxVideo_LINK_FLAGS} /NODEFAULTLIB:libcmt.lib" )
-SET( NxVideo_LINK_FLAGS "${NxVideo_LINK_FLAGS} /LIBPATH:\"../NxDeps/lib/${CMAKE_BUILD_TYPE}/\"" )
+	set( NxVideo_DEF "${NxVideo_DEF}WIN32;_WINDOWS;_USRDLL;")
 
 
 
-SET( NxVideo_DEF "${NxVideo_DEF}WIN32;_WINDOWS;_USRDLL;")
-#SET( NxVideo_Deps "../NxDeps/lib/${CMAKE_BUILD_TYPE}/" )
+	SET( NxVideo_EXTRALIBS 
+	CVClient.lib
+	QTMLClient.lib
+	strmbase.lib
+	ws2_32.lib
+	winmm.lib
+	vfw32.lib
+	PGRFlyCapture.lib
+	delayimp.lib
+	debug libtheora_d.lib optimized libtheora.lib
+	debug vorbis_d.lib optimized vorbis.lib
+	debug ogg_d.lib optimized ogg.lib
+	)
 
-
-SET( NxVideo_EXTRALIBS 
-CVClient.lib
-QTMLClient.lib
-strmbase.lib
-ws2_32.lib
-winmm.lib
-vfw32.lib
-PGRFlyCapture.lib
-delayimp.lib
-debug libtheora_d.lib optimized libtheora.lib
-debug vorbis_d.lib optimized vorbis.lib
-debug ogg_d.lib optimized ogg.lib
-)
-
-add_library(${NxVideo_LIBRARY} SHARED ${NxVideo_src})
+	add_library(${NxVideo_LIBRARY} SHARED ${NxVideo_src})
 
 elseif(APPLE)	
-include_directories(../NxDeps/include/libtheora)
-SET(NxVideo_EXTRALIBS /System/Library/Frameworks/QuickTime.framework )
-set(OSX_ARCHITECTURES "i386")
-message(STATUS "Set the variable CMAKE_OSX_ARCHITECTURE to i386 because QuickTime is i386 only.")
-add_library(${NxVideo_LIBRARY} STATIC ${NxVideo_src})
+	include_directories(../NxDeps/include/libtheora)
+	set(NxVideo_EXTRALIBS /System/Library/Frameworks/QuickTime.framework )
+	set(OSX_ARCHITECTURES "i386")
+	message(STATUS "Set the variable CMAKE_OSX_ARCHITECTURE to i386 because QuickTime is i386 only.")
+	add_library(${NxVideo_LIBRARY} STATIC ${NxVideo_src})
 
 else()
 
-#linux or android
-add_definitions(-D__TMS320C6X__) #for ogg
-#disable multichar warning
-add_definitions(-Wno-multichar)
-add_library(${NxVideo_LIBRARY} STATIC ${NxVideo_src})
-
-
+	#linux or android
+	add_definitions(-D__TMS320C6X__) #for ogg
+	#disable multichar warning
+	add_definitions(-Wno-multichar)
+	add_library(${NxVideo_LIBRARY} STATIC ${NxVideo_src})
+ 
 
 endif()
  

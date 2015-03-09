@@ -9,12 +9,12 @@
 #include <math.h>
 #include "main.h"
 
+/*
 #include <EGL/egl.h>
 #include <android/api-level.h>
 #include <android/native_window_jni.h>
 #include <android/asset_manager.h>
-#include <android/asset_manager_jni.h>
-#include <android/log.h>
+#include <android/asset_manager_jni.h>*/
 #include <android_native_app_glue.h>
 
  
@@ -22,14 +22,14 @@
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
  
-
-
 bool mLostFocus = false;
-static JavaVM* gVM = NULL;
+static JavaVM* mVM = NULL;
+
+using namespace NxDevice_Namespace;
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) 
 {
-	gVM = vm;
+	mVM = vm;
 	return JNI_VERSION_1_4;
 }
 
@@ -37,6 +37,18 @@ JNIEXPORT void JNICALL Java_nx_graphics_device_NxDevice_createNxDevice( JNIEnv *
 
 
 	LOGE("createNxDevice CALLED !" );
+	
+	
+	NxDeviceManager * mMgr = new NxDeviceManager();
+	
+	NxMidiManager * midi = mMgr->GetMidiManager();
+	
+	midi->ListMidiOutputs();
+	 
+	 std::vector<std::string>   MidiOutputList;
+	midi->GetMidiOutputList(  MidiOutputList );
+	
+	LOGE("found num midi output devices: %d" , (int)MidiOutputList.size() );
 
 
 }
@@ -107,7 +119,7 @@ void android_main(struct android_app* state) {
 	app_dummy();
  
 	JNIEnv *env;
-	gVM->AttachCurrentThread(&env, 0);
+	mVM->AttachCurrentThread(&env, 0);
   
 	state->onAppCmd = &handleCmd;
 	state->onInputEvent = &handleInput;
@@ -124,8 +136,8 @@ void android_main(struct android_app* state) {
 			if (state->destroyRequested != 0) { 
 			
 				//release here
-				gVM->DetachCurrentThread();
-				gVM = 0;
+				mVM->DetachCurrentThread();
+				mVM = 0;
 				exit(1) ;
 				return;
 			}
