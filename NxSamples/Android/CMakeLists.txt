@@ -11,9 +11,8 @@ endfunction()
 
  
 
-function(getManifest str package name )
-set( ${str} "
-<?xml version=\"1.0\" encoding=\"utf-8\"?>
+function(getManifest str package activityname appname )
+set( ${str} "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"
     android:versionCode=\"1\"
     android:versionName=\"1.0\" 
@@ -21,16 +20,16 @@ set( ${str} "
     <uses-sdk android:minSdkVersion=\"9\"/>
 
     <application 
-        android:icon=\"@drawable/icon\" 
-        android:label=\"@string/app_name\"
+        android:icon=\"@drawable/ic_launcher\" 
+        android:label=\"${appname}\"
         android:launchMode=\"singleTask\">
         <activity 
             android:noHistory=\"true\"
             android:launchMode=\"singleTask\"
-            android:name=\"${package}.${name}\"
-            android:label=\"@string/app_name\"
+            android:name=\"${package}.${activityname}\"
+            android:label=\"${appname}\"
             android:screenOrientation=\"landscape\"
-			android:configChanges=\"orientation|keyboardHidden|screenSize|smallestScreenSize\"      
+			android:configChanges=\"orientation\"
 			android:theme=\"@android:style/Theme.Black.NoTitleBar.Fullscreen\">
             <intent-filter>
                 <action android:name=\"android.intent.action.MAIN\" />

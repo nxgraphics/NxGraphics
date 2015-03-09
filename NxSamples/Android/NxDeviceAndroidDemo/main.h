@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
- 
+	JNIEXPORT void JNICALL Java_nx_graphics_device_NxDevice_createNxDevice( JNIEnv * env, jobject obj );
  
 
 #ifdef __cplusplus

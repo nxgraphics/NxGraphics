@@ -9,6 +9,7 @@ file(MAKE_DIRECTORY "${NDKOUT}")
 file(MAKE_DIRECTORY "${NDKOUT}/jni")
 file(MAKE_DIRECTORY "${NDKOUT}/assets")
 file(MAKE_DIRECTORY "${NDKOUT}/res")
+file(MAKE_DIRECTORY "${NDKOUT}/res/layout")
 file(MAKE_DIRECTORY "${NDKOUT}/src")
 file(MAKE_DIRECTORY "${NDKOUT}/src/nx")
 file(MAKE_DIRECTORY "${NDKOUT}/src/nx/graphics")
@@ -21,14 +22,17 @@ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/NxDevice.java" DESTINATION "${NDKOUT}/src
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/main.h" DESTINATION "${NDKOUT}/jni")
 
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/main.xml" DESTINATION "${NDKOUT}/res/layout")
+
 #generate default.properties
+set(ANDROID_TARGET android-17 )
 file(WRITE "${NDKOUT}/default.properties" "target=${ANDROID_TARGET}")
 
 #generate Application.mk
 file(WRITE "${NDKOUT}/jni/Application.mk" "APP_ABI := ${ANDROID_ABI}\nAPP_STL := gnustl_static ")
 
 #generate AndroidManifest.xml
-getManifest( MANIFEST "nx.graphics.device" "NxDevice" )
+getManifest( MANIFEST "nx.graphics.device" "NxDevice" "NxDeviceDemo" )
 configure_file("${CMAKE_SOURCE_DIR}/CMake/Templates/AndroidManifest.xml.in" "${NDKOUT}/AndroidManifest.xml" @ONLY)
 
 #set NxDevice dependencies
@@ -44,8 +48,10 @@ LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
 LOCAL_LDLIBS += -landroid -lc -lm -ldl -llog -lEGL -lGLESv2
 LOCAL_CFLAGS := -fexceptions -frtti -x c++ -D___ANDROID___ -DANDROID
 LOCAL_STATIC_LIBRARIES := cpufeatures nxdevice
+LOCAL_STATIC_LIBRARIES += android_native_app_glue
 include $(BUILD_SHARED_LIBRARY)
-$(call import-module,android/cpufeatures)")
+$(call import-module,android/native_app_glue)
+$(call import-module,cpufeatures)")
 
 #generate Android.mk
 configure_file("${CMAKE_SOURCE_DIR}/CMake/Templates/Android.mk.in" "${NDKOUT}/jni/Android.mk" @ONLY)
