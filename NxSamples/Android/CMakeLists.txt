@@ -41,3 +41,5 @@ set( ${str} "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 endfunction()
 
 add_subdirectory(NxDeviceAndroidDemo)
+
+add_subdirectory(NxGraphicsVuforiaDemo)
