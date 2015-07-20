@@ -18,6 +18,13 @@ set( ${str} "<?xml version=\"1.0\" encoding=\"utf-8\"?>
     android:versionName=\"1.0\" 
     package=\"${package}\">
     <uses-sdk android:minSdkVersion=\"9\"/>
+	<uses-feature android:glEsVersion=\"0x00020000\"/>
+    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/> 
+    <uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\"/> 
+    <uses-permission android:name=\"android.permission.INTERNET\"/>
+    <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" /> 
+	<uses-feature android:name=\"android.hardware.camera\" />
+    <uses-permission android:name=\"android.permission.CAMERA\" />
 
     <application 
         android:icon=\"@drawable/ic_launcher\" 
