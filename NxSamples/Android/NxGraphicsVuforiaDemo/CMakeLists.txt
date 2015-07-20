@@ -17,6 +17,27 @@ file(MAKE_DIRECTORY "${NDKOUT}/src/com/hotstuff/main")
 
 #copy java file
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Example.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/NxVideoSurfaceView.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/OgreActivityJNI.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaControl.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaExceptions.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaFreeframe.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaFreeframeGL.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaGlView.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaLoadingDialogHandler.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMenu.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMenuAnimator.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMenuGroup.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMenuInterface.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMenuView.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMesh.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMeshObject.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaSession.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaShaders.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaTargetRenderer.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaTeapot.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaTexture.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaUtils.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
 
 #copy jni file
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" DESTINATION "${NDKOUT}/jni")
@@ -39,6 +60,9 @@ file(WRITE "${NDKOUT}/jni/Application.mk" "APP_ABI := ${ANDROID_ABI}\nAPP_STL :=
 #generate AndroidManifest.xml
 getManifest( MANIFEST "com.hotstuff.main" "Example" "NxGraphicsVuforiaDemo" )
 configure_file("${CMAKE_SOURCE_DIR}/CMake/Templates/AndroidManifest.xml.in" "${NDKOUT}/AndroidManifest.xml" @ONLY)
+
+
+ 
 
 #set NxDevice dependencies
 getNxDevice( NXDEVICE_INCLUDE )
