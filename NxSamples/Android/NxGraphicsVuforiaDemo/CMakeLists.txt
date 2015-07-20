@@ -7,6 +7,7 @@ SET(NDKOUT "${CMAKE_SOURCE_DIR}/NxGraphicsSdk/NxSamples/NxGraphicsVuforiaDemo")
 #create directories
 file(MAKE_DIRECTORY "${NDKOUT}")
 file(MAKE_DIRECTORY "${NDKOUT}/jni")
+file(MAKE_DIRECTORY "${NDKOUT}/libs")
 file(MAKE_DIRECTORY "${NDKOUT}/assets")
 file(MAKE_DIRECTORY "${NDKOUT}/res")
 file(MAKE_DIRECTORY "${NDKOUT}/res/layout")
@@ -44,6 +45,9 @@ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/main.h" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Shaders.h" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMath.h" DESTINATION "${NDKOUT}/jni")
+
+#copy jar lib
+file(COPY "${CMAKE_SOURCE_DIR}/nxdeps/lib/Vuforia.jar" DESTINATION "${NDKOUT}/libs")
 
 #generate default.properties
 set(ANDROID_TARGET android-17 )
