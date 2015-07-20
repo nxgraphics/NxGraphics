@@ -45,8 +45,6 @@ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/main.h" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Shaders.h" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMath.h" DESTINATION "${NDKOUT}/jni")
 
-#file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/main.xml" DESTINATION "${NDKOUT}/res/layout")
-
 #generate default.properties
 set(ANDROID_TARGET android-17 )
 file(WRITE "${NDKOUT}/default.properties" "target=${ANDROID_TARGET}")
@@ -105,7 +103,6 @@ configure_file("${CMAKE_SOURCE_DIR}/CMake/Templates/Android.mk.in" "${NDKOUT}/jn
 #copy res files
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/NxSamples/Android/media/res/" DESTINATION "${NDKOUT}/res")
 
-
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/drawable" DESTINATION "${NDKOUT}/res")
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/layout" DESTINATION "${NDKOUT}/res")
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/values" DESTINATION "${NDKOUT}/res")
@@ -114,4 +111,6 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/values-ldpi" DESTINATION "${N
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/values-mdpi" DESTINATION "${NDKOUT}/res")
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/values-xhdpi" DESTINATION "${NDKOUT}/res")
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/values-xxhdpi" DESTINATION "${NDKOUT}/res")
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/NxSamples/Android/media/assets/" DESTINATION "${NDKOUT}/assets")
 
