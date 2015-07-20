@@ -62,28 +62,56 @@ getManifest( MANIFEST "com.hotstuff.main" "Example" "NxGraphicsVuforiaDemo" )
 configure_file("${CMAKE_SOURCE_DIR}/CMake/Templates/AndroidManifest.xml.in" "${NDKOUT}/AndroidManifest.xml" @ONLY)
 
 
- 
-
 #set NxDevice dependencies
 getNxDevice( NXDEVICE_INCLUDE )
+
+#set NxNetwork dependencies
+getNxNetwork( NXNETWORK_INCLUDE )
+
+#set NxSound dependencies
+getNxSound( NXSOUND_INCLUDE )
+
+#set NxMocap dependencies
+getNxMocap( NXMOCAP_INCLUDE )
+
+#set NxVideo dependencies
+getNxVideo( NXVIDEO_INCLUDE )
+
+#set NxGraphics dependencies
+getNxGraphics( NXGRAPHICS_INCLUDE )
+
  
 #set main application dependencies
 set(APPLICATION_INCLUDE "
 include $(CLEAR_VARS)
-LOCAL_MODULE           := NxDevice
+LOCAL_MODULE := vuforia
+LOCAL_SRC_FILES := ../../../nxdeps/lib/libVuforia.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE           := NxGraphics
 LOCAL_SRC_FILES        := main.cpp
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../NxDevice  $(LOCAL_PATH)/../../../nxdeps/include 
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../nxdeps/include/Vuforia/include $(LOCAL_PATH)/../../../nxdeps/include/OGRE $(LOCAL_PATH)/../../../NxGraphics/physics/empty $(LOCAL_PATH)/../../../NxGraphics $(LOCAL_PATH)/../../../NxMocap $(LOCAL_PATH)/../../../NxDevice $(LOCAL_PATH)/../../../NxSound $(LOCAL_PATH)/../../../NxVideo $(LOCAL_PATH)/../../../NxNetwork $(LOCAL_PATH)/../../../nxdeps/include 
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
 LOCAL_LDLIBS += -landroid -lc -lm -ldl -llog -lEGL -lGLESv2
-LOCAL_CFLAGS := -fexceptions -frtti -x c++ -D___ANDROID___ -DANDROID
-LOCAL_STATIC_LIBRARIES := cpufeatures nxdevice
-LOCAL_STATIC_LIBRARIES += android_native_app_glue
+LOCAL_CFLAGS := -fexceptions -frtti -x c++ -D___ANDROID___ -DANDROID -DZZIP_OMIT_CONFIG_H -DUSE_RTSHADER_SYSTEM=1 -DUSE_QUICKTIME=0
+LOCAL_STATIC_LIBRARIES := vuforia cpufeatures zlib zzip freetype freeimage nxgraphics nxvideo nxsound nxmocap nxnetwork nxdevice
 include $(BUILD_SHARED_LIBRARY)
-$(call import-module,android/native_app_glue)
-$(call import-module,cpufeatures)")
+$(call import-module,android/cpufeatures)")
 
 #generate Android.mk
 configure_file("${CMAKE_SOURCE_DIR}/CMake/Templates/Android.mk.in" "${NDKOUT}/jni/Android.mk" @ONLY)
 
 #copy res files
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/NxSamples/Android/media/res/" DESTINATION "${NDKOUT}/res")
+
+
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/drawable" DESTINATION "${NDKOUT}/res")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/layout" DESTINATION "${NDKOUT}/res")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/values" DESTINATION "${NDKOUT}/res")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/values-hdpi" DESTINATION "${NDKOUT}/res")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/values-ldpi" DESTINATION "${NDKOUT}/res")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/values-mdpi" DESTINATION "${NDKOUT}/res")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/values-xhdpi" DESTINATION "${NDKOUT}/res")
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/res/values-xxhdpi" DESTINATION "${NDKOUT}/res")
+
