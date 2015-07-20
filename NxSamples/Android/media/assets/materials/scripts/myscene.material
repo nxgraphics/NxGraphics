@@ -1,0 +1,13 @@
+material "dedetestmat"
+{
+	technique dedetestmat_technique
+	{
+		pass dedetestmat_standard
+		{
+			ambient 1 0 0 1
+			diffuse 1 0 0 1
+			specular 0.882 0.882 0.882 0.98 96.9
+			emissive 0 0 0 1
+		}
+	}
+}

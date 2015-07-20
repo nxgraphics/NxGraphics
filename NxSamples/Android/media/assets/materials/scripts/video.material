@@ -1,0 +1,46 @@
+vertex_program Examples/GrassWaverVpGLSLES glsles
+{
+	source vertex.glsles
+	profiles glsles
+
+    default_params
+    {
+        param_named_auto worldViewProj worldviewproj_matrix
+    }
+}
+
+fragment_program Examples/GrassWaverFpGLSLES glsles
+{
+	source fragment.glsles
+	profiles glsles
+    default_params
+    {
+        param_named tex0 int 0
+    }
+}
+
+
+material Examples/GrassBlades
+{
+	// Vertex program waving grass
+	technique
+	{
+		pass
+		{
+		vertex_program_ref Examples/GrassWaverVpGLSLES
+		{
+		}
+		fragment_program_ref Examples/GrassWaverFpGLSLES
+		{
+		}
+	cull_hardware none
+	cull_software none
+		texture_unit
+		{
+			texture outside.jpg
+		}
+		}
+	}
+}
+
+
