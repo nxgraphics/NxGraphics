@@ -36,14 +36,14 @@ NX_LINUX_ALSA,  1
 
 */
 
-JNIEXPORT void JNICALL Java_nx_graphics_main_Example_CreateEngine(JNIEnv *env, jobject obj) 
+JNIEXPORT void JNICALL Java_nx_graphics_sound_Example_CreateEngine(JNIEnv *env, jobject obj) 
 {
 	mApi = new NxSoundManager( (NxSoundApi) 7 ); // NX_OPEN_SL 
 	return;
 }
 
 
-JNIEXPORT void JNICALL Java_nx_graphics_main_Example_DeleteEngine(JNIEnv *env, jobject obj) 
+JNIEXPORT void JNICALL Java_nx_graphics_sound_Example_DeleteEngine(JNIEnv *env, jobject obj) 
 {
 	delete mApi;  
 	mApi = NULL;
@@ -51,19 +51,19 @@ JNIEXPORT void JNICALL Java_nx_graphics_main_Example_DeleteEngine(JNIEnv *env, j
 }
 
 
-JNIEXPORT jint JNICALL Java_nx_graphics_main_Example_GetNumDevices(JNIEnv *env, jobject thiz)
+JNIEXPORT jint JNICALL Java_nx_graphics_sound_Example_GetNumDevices(JNIEnv *env, jobject thiz)
 {
 	return mApi->GetNumOutputDevices();
 }
 
-JNIEXPORT void JNICALL Java_nx_graphics_main_Example_CloseDevice(JNIEnv *env, jobject obj ) {
+JNIEXPORT void JNICALL Java_nx_graphics_sound_Example_CloseDevice(JNIEnv *env, jobject obj ) {
 	 
 	mApi->DeleteDeviceOutput( DevOut );
 
 }
 
 
-JNIEXPORT void JNICALL Java_nx_graphics_main_Example_OpenDevice(JNIEnv *env, jobject obj ) {
+JNIEXPORT void JNICALL Java_nx_graphics_sound_Example_OpenDevice(JNIEnv *env, jobject obj ) {
 
 	DevOut = mApi->CreateDeviceOutput( 0 );
 
@@ -84,7 +84,7 @@ void GetJStringContent(JNIEnv *AEnv, jstring AStr, std::string &ARes) {
  std::string mSoundName = "";
  NxSoundMediaFile * mAudioFile = NULL;
 
-JNIEXPORT void JNICALL Java_nx_graphics_main_Example_OpenFile(JNIEnv *env, jobject obj, jstring filepath )
+JNIEXPORT void JNICALL Java_nx_graphics_sound_Example_OpenFile(JNIEnv *env, jobject obj, jstring filepath )
 { 
 	LOGD("OpenFile Started");
 
@@ -111,7 +111,7 @@ JNIEXPORT void JNICALL Java_nx_graphics_main_Example_OpenFile(JNIEnv *env, jobje
  
 }
 
-JNIEXPORT void JNICALL Java_nx_graphics_main_Example_SetRate(JNIEnv *env, jobject obj, jfloat rate ){
+JNIEXPORT void JNICALL Java_nx_graphics_sound_Example_SetRate(JNIEnv *env, jobject obj, jfloat rate ){
  
 	if( mAudioFile )
 	mAudioFile->SetRate( rate ) ;// from 0.0f to 1.0f - 0.5 play half rate
@@ -120,7 +120,7 @@ JNIEXPORT void JNICALL Java_nx_graphics_main_Example_SetRate(JNIEnv *env, jobjec
 
  
 
-JNIEXPORT jstring JNICALL Java_nx_graphics_main_Example_GetDeviceName(JNIEnv *env, jobject obj, jint firstAddend)
+JNIEXPORT jstring JNICALL Java_nx_graphics_sound_Example_GetDeviceName(JNIEnv *env, jobject obj, jint firstAddend)
 { 
 
 	std::vector<NxDeviceInfo> SoundOutputList;

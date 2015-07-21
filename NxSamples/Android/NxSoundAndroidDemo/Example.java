@@ -1,4 +1,4 @@
-package nx.graphics.main;
+package nx.graphics.sound;
 
  
 import java.io.File;
