@@ -44,7 +44,7 @@ set(APPLICATION_INCLUDE "
 include $(CLEAR_VARS)
 LOCAL_MODULE           := main
 LOCAL_SRC_FILES        := main.cpp
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../NxNetwork $(LOCAL_PATH)/../../nxdeps/include
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../NxNetwork $(LOCAL_PATH)/../../../nxdeps/include
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
 LOCAL_STATIC_LIBRARIES := nxnetwork
 include $(BUILD_SHARED_LIBRARY)")
