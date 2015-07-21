@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="10dip" android:orientation="vertical">
+<Button 
+	android:layout_height="wrap_content"
+	android:layout_width="fill_parent" android:id="@+id/button1" android:text="Pause/un-pause 16bit 3d sound (1)" android:onClick="togglePause16bit3d"/>
+<Button android:layout_height="wrap_content" android:id="@+id/button2" android:layout_width="fill_parent" android:text="Pause/un-pause 8bit 3d sound (2)" android:onClick="togglePause8bit3d"></Button>
+<Button android:id="@+id/button3" android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="Play 16bit stereo 2d sound" android:onClick="play16bit2d"></Button>
+<Button android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/button4" android:text="Start/stop listener auto movement" android:onClick="toggleListenerMovement"></Button>
+<TextView android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Listener Position:"></TextView>
+<SeekBar android:id="@+id/seekBar1" android:layout_height="wrap_content" android:layout_width="match_parent"></SeekBar>
+
+<TextView android:text="@string/copyright" android:id="@+id/textView4" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="bottom|center"></TextView>
+</LinearLayout>
