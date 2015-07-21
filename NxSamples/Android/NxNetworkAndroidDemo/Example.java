@@ -109,6 +109,7 @@ public class Example extends Activity
     @Override
     public void onDestroy()
     {
+		super.onDestroy();
     	Log.d("NxSound Java", "Closing device.." );
     	Log.d("NxSound Java", "Deleting engine.." );
     	DeleteEngine();    	
