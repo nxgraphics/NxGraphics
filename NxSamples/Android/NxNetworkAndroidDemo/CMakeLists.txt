@@ -41,12 +41,18 @@ getNxNetwork( NXNETWORK_INCLUDE )
   
 #set main application dependencies
 set(APPLICATION_INCLUDE "
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := nxzlib
+LOCAL_SRC_FILES := ../../../nxdeps/lib/armeabi/libzlib.a
+include $(PREBUILT_STATIC_LIBRARY)
+
 include $(CLEAR_VARS)
 LOCAL_MODULE           := main
 LOCAL_SRC_FILES        := main.cpp
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../NxNetwork $(LOCAL_PATH)/../../../nxdeps/include
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
-LOCAL_STATIC_LIBRARIES := nxnetwork
+LOCAL_STATIC_LIBRARIES := nxzlib nxnetwork
 include $(BUILD_SHARED_LIBRARY)")
 
 #generate Android.mk
