@@ -37,12 +37,14 @@ LOCAL_MODULE := libcurl
 LOCAL_SRC_FILES := ../../../nxdeps/lib/libcurl.a
 include $(PREBUILT_STATIC_LIBRARY)
 
+
+
 include $(CLEAR_VARS)
 LOCAL_MODULE := nxnetwork
 LOCAL_SRC_FILES := ../../../Lib/libNxNetwork.a
 LOCAL_CPPFLAGS  := -fexceptions
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../NxNetwork $(LOCAL_PATH)/../../nxdeps/include
-LOCAL_WHOLE_STATIC_LIBRARIES := libcurl
+LOCAL_WHOLE_STATIC_LIBRARIES :=  libcurl
 include $(PREBUILT_STATIC_LIBRARY)" PARENT_SCOPE)
 endfunction()
 
@@ -130,12 +132,13 @@ LOCAL_MODULE := freetype
 LOCAL_SRC_FILES := ../../../nxdeps/lib/armeabi/libfreetype.a
 include $(PREBUILT_STATIC_LIBRARY)
 
+
 include $(CLEAR_VARS)
 LOCAL_MODULE := zlib
 LOCAL_SRC_FILES := ../../../nxdeps/lib/armeabi/libzlib.a
 include $(PREBUILT_STATIC_LIBRARY)
 
-
+ 
 include $(CLEAR_VARS)
 LOCAL_MODULE := zzip
 LOCAL_SRC_FILES := ../../../nxdeps/lib/armeabi/libzzip.a
