@@ -9,8 +9,8 @@
 extern "C" {
 #endif
 
-JNIEXPORT void JNICALL Java_org_fmod_threed_Example_CreateEngine(JNIEnv *env, jobject );
-JNIEXPORT void JNICALL Java_org_fmod_threed_Example_DeleteEngine(JNIEnv *env, jobject obj);
+JNIEXPORT void JNICALL Java_nx_graphics_main_Example_CreateEngine(JNIEnv *env, jobject );
+JNIEXPORT void JNICALL Java_nx_graphics_main_Example_DeleteEngine(JNIEnv *env, jobject obj);
 
 #ifdef __cplusplus
 }

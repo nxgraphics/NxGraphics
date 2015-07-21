@@ -85,54 +85,33 @@ public class Example extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
-        
         mSeekbar = (SeekBar) findViewById(R.id.seekBar1);
-        
         mSeekbar.setMax(200);
         mSeekbar.setProgress(200);
- 
         mSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
          
         	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        		
         		int value = progress - 100;
-        		
         		float RateValue = (float)value / 100.0f;
         		Log.d("", "Setting rate value : " + RateValue );
-        		
- 
-        		 
- 
         	}
  
             public void onStartTrackingTouch(SeekBar seekBar) {}
             public void onStopTrackingTouch(SeekBar seekBar) {}
  
         });
-         
-         
 
         
-        
-       
-        
-        
     	CreateEngine();
-    	
-        
+   
     }
     
     @Override
     public void onDestroy()
     {
-    	
     	Log.d("NxSound Java", "Closing device.." );
-    
     	Log.d("NxSound Java", "Deleting engine.." );
     	DeleteEngine();    	
-    	
-    	
     }
     
     @Override

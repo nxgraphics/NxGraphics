@@ -12,5 +12,5 @@
 <TextView android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Listener Position:"></TextView>
 <SeekBar android:id="@+id/seekBar1" android:layout_height="wrap_content" android:layout_width="match_parent"></SeekBar>
 
-<TextView android:text="@string/copyright" android:id="@+id/textView4" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="bottom|center"></TextView>
+<TextView android:text="none" android:id="@+id/textView4" android:layout_height="fill_parent" android:layout_width="fill_parent" android:gravity="bottom|center"></TextView>
 </LinearLayout>

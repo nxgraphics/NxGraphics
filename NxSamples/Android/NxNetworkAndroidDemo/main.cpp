@@ -1,11 +1,5 @@
-/*===============================================================================================
- 3d Example
- Copyright (c), Firelight Technologies Pty, Ltd 2014.
-
- This example shows how to basic 3d positioning
-===============================================================================================*/
-
-//#include <jni.h>
+ 
+ 
 #include <android/log.h>
 #include <stdlib.h>
 #include <math.h>
@@ -28,12 +22,10 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
 }
 
  
-JNIEXPORT void JNICALL Java_org_fmod_threed_Example_CreateEngine(JNIEnv *env, jobject obj) 
+JNIEXPORT void JNICALL Java_nx_graphics_main_Example_CreateEngine(JNIEnv *env, jobject obj) 
 {
-
 	mApi = new NxNetworkManager();
 
-	
 	NxNetworkHttpClient * client = new NxNetworkHttpClient();
 
 	std::string url = "http://www.perspective-s.org/wp-content/themes/perspectives/images/vignettes/04.jpg";
@@ -53,8 +45,7 @@ JNIEXPORT void JNICALL Java_org_fmod_threed_Example_CreateEngine(JNIEnv *env, jo
 	char * Buffer = new char[DstSize];
 	std::size_t Size = 0;
 	long retCode = 0;
-	if(client->GetResourceBuffer(url, Buffer, &Size, &retCode))
-	{
+	if(client->GetResourceBuffer(url, Buffer, &Size, &retCode)) {
 
 		LOGD("==> Got image Buffer !");
 		//Log("==> Buffer Size : " + Ogre::StringConverter::toString( Size )  );
@@ -63,18 +54,12 @@ JNIEXPORT void JNICALL Java_org_fmod_threed_Example_CreateEngine(JNIEnv *env, jo
 
 		LOGD(" NO BUFFER !");
 	}
-
-
-
-
-	 
-	
-	 
+ 
 	return;
 }
 
 
-JNIEXPORT void JNICALL Java_org_fmod_threed_Example_DeleteEngine(JNIEnv *env, jobject obj) 
+JNIEXPORT void JNICALL Java_nx_graphics_main_Example_DeleteEngine(JNIEnv *env, jobject obj) 
 {
 	 
 	return;
