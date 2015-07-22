@@ -85,11 +85,8 @@ SOURCE_GROUP("Source Files" FILES
 #--------------------------
 if( MSVC )
 
-set(NxMocap_src
-${NxMocap_src}
-./NxMocap_DeviceKinectOpenNi2.cpp
-./NxMocap_DeviceKinectMicrosoft.cpp
-)
+ 
+
 
 elseif(APPLE)
 
@@ -248,21 +245,38 @@ if( MSVC )
 
 # from http://www.cmake.org/pipermail/cmake/2007-November/017372.html
 
-SET( NxMocap_LINK_FLAGS "${NxMocap_LINK_FLAGS} /DELAYLOAD:\"OpenNi2.dll\";\"NiTE2.dll\"" )
+
 
 SET( NxMocap_LINK_FLAGS "${NxMocap_LINK_FLAGS} /NODEFAULTLIB:libcmt.lib" )
 
 SET( NxMocap_LINK_FLAGS "${NxMocap_LINK_FLAGS} /LIBPATH:\"../NxDeps/lib/${CMAKE_BUILD_TYPE}/\"" )
 
 SET( NxMocap_DEF "${NxMocap_DEF}WIN32;_WINDOWS;_USRDLL;")
+
+
+
  
 IF( DEFINED OPENNI2_INCLUDE)
+	set(NxMocap_src
+	${NxMocap_src}
+	./NxMocap_DeviceKinectOpenNi2.cpp
+	)
+ 
 	SET( NxMocap_EXTRALIBS 
 	${OPEN_NI_LIBRARY}
 	)
+	
+	SET( NxMocap_LINK_FLAGS "${NxMocap_LINK_FLAGS} /DELAYLOAD:\"OpenNi2.dll\";\"NiTE2.dll\"" )
+	
 ENDIF()
 
 IF( DEFINED NITE2_INCLUDE)
+
+	set(NxMocap_src
+	${NxMocap_src}
+	./NxMocap_DeviceKinectMicrosoft.cpp
+	)
+
 	SET( NxMocap_EXTRALIBS 
 	${NxMocap_EXTRALIBS}
 	${NiTE2_LIBRARY}
