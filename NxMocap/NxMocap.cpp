@@ -44,6 +44,8 @@ NxMocapDeviceKinect * NxMocapManager::CreateDeviceKinect( const NxMocapDeviceDes
 		break;
 	}
 
+	return NULL;
+
 }
 
 
