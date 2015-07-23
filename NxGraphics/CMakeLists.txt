@@ -2147,6 +2147,46 @@ if( MSVC )
 
 	include_directories(./) 
 	include_directories(./Physics/Physx_2.8.4)
+	
+#binary 
+	SET( NXGRAPHICS_BINARIES_BASE "${CMAKE_SOURCE_DIR}/nxdeps/bin/${CMAKE_BUILD_TYPE}/" )
+	SET(
+		NXGRAPHICS_BINARIES 
+		"${NXGRAPHICS_BINARIES_BASE}cg.dll" 
+		"${NXGRAPHICS_BINARIES_BASE}OgreMain.dll" 
+		"${NXGRAPHICS_BINARIES_BASE}OgreOverlay.dll" 
+		"${NXGRAPHICS_BINARIES_BASE}OgrePaging.dll" 	
+		"${NXGRAPHICS_BINARIES_BASE}OgreRTShaderSystem.dll" 	
+		"${NXGRAPHICS_BINARIES_BASE}OgreTerrain.dll" 	
+		"${NXGRAPHICS_BINARIES_BASE}OgreVolume.dll" 	
+		"${NXGRAPHICS_BINARIES_BASE}OIS.dll" 		
+		"${NXGRAPHICS_BINARIES_BASE}cudart32_30_9.dll" 	
+		"${NXGRAPHICS_BINARIES_BASE}NxCharacter.dll"
+		"${NXGRAPHICS_BINARIES_BASE}PhysXCooking.dll"
+		"${NXGRAPHICS_BINARIES_BASE}PhysXCore.dll"
+		"${NXGRAPHICS_BINARIES_BASE}physxcudart_20.dll"
+		"${NXGRAPHICS_BINARIES_BASE}PhysXDevice.dll"
+		"${NXGRAPHICS_BINARIES_BASE}PhysXLoader.dll"
+	)
+ 
+	INSTALL(FILES ${NXGRAPHICS_BINARIES} DESTINATION "${CMAKE_INSTALL_PREFIX}/Bin/${CMAKE_BUILD_TYPE}" )
+
+	#binary plugins
+	SET( NXGRAPHICS_BINARY_PLUGINS_BASE "${CMAKE_SOURCE_DIR}/nxdeps/bin/${CMAKE_BUILD_TYPE}/" )
+	SET(
+		NXGRAPHICS_BINARY_PLUGINS
+		"${NXGRAPHICS_BINARY_PLUGINS_BASE}Plugin_BSPSceneManager.dll" 
+		"${NXGRAPHICS_BINARY_PLUGINS_BASE}Plugin_CgProgramManager.dll" 
+		"${NXGRAPHICS_BINARY_PLUGINS_BASE}Plugin_OctreeSceneManager.dll" 	
+		"${NXGRAPHICS_BINARY_PLUGINS_BASE}Plugin_OctreeZone.dll" 	
+		"${NXGRAPHICS_BINARY_PLUGINS_BASE}Plugin_ParticleFX.dll" 		
+		"${NXGRAPHICS_BINARY_PLUGINS_BASE}Plugin_PCZSceneManager.dll" 	
+		"${NXGRAPHICS_BINARY_PLUGINS_BASE}RenderSystem_Direct3D9.dll" 		
+		"${NXGRAPHICS_BINARY_PLUGINS_BASE}RenderSystem_GL.dll" 			
+	)
+
+	INSTALL(FILES ${NXGRAPHICS_BINARY_PLUGINS} DESTINATION "${CMAKE_INSTALL_PREFIX}/Bin/${CMAKE_BUILD_TYPE}/plugins/" )
+	
 
 	# from http:\\www.cmake.org/pipermail/cmake/2007-November/017372.html
 	SET( NxGraphics_LINK_FLAGS "/NODEFAULTLIB:libcmt.lib")
