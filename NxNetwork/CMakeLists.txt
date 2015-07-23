@@ -74,9 +74,13 @@ else()
 add_library(${NxNetwork_LIBRARY} STATIC ${NxNetwork_src})
 endif()
 
-
 set_target_properties(${NxNetwork_LIBRARY} PROPERTIES COMPILE_DEFINITIONS "${NxNetwork_DEF}" LINK_FLAGS_RELEASE "${NxNetwork_LINK_FLAGS}")
 target_link_libraries(${NxNetwork_LIBRARY} ${NxNetwork_EXTRALIBS})
+
+install(TARGETS ${NxNetwork_LIBRARY}
+        RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/Bin/${CMAKE_BUILD_TYPE}"
+        LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/Lib/${CMAKE_BUILD_TYPE}"
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/Lib/${CMAKE_BUILD_TYPE}")
 
 
 
