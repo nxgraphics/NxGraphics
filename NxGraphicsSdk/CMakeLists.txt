@@ -7,6 +7,9 @@ endif ()
 
 project(NxGraphicsSdk)
 
+
+
+
 if (APPLE AND OGRE_BUILD_PLATFORM_APPLE_IOS)
   # Set build variables
   set(CMAKE_OSX_SYSROOT iphoneos)
