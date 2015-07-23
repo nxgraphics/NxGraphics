@@ -201,19 +201,13 @@ else()
 	message( "Detected linux OS" )
 	
 endif()
-
-
-
-# lib and dependencies
-
+ 
 #install(DIRECTORY ${CMAKE_SOURCE_DIR}/NxDeps/ DESTINATION ${CMAKE_INSTALL_PREFIX}/NxDeps )
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/Lib/ DESTINATION ${CMAKE_INSTALL_PREFIX}/Lib)
- 
- 
-
-
-
+  
 add_subdirectory(NxSamples)
+
+add_subdirectory(NxGraphicsSdk)
 
  
 
