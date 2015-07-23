@@ -130,10 +130,10 @@ endmacro()
 
 # setup the individual dependencies
 if (NXGRAPHICSSOURCE_BUILD_NXVIDEO)
-  add_subdirectory(NxVideo)
+	add_subdirectory(NxVideo)
 endif ()
 if (NXGRAPHICSSOURCE_BUILD_NXSOUND)
- add_subdirectory(NxSound)
+	add_subdirectory(NxSound)
 endif ()
 if (NXGRAPHICSSOURCE_BUILD_NXMOCAP)
   add_subdirectory(NxMocap)
@@ -142,20 +142,17 @@ if (NXGRAPHICSSOURCE_BUILD_NXNETWORK)
   add_subdirectory(NxNetwork)
 endif ()
 if (NXGRAPHICSSOURCE_BUILD_NXDEVICE)
-add_subdirectory(NxDevice)
-  endif ()
-
-if (NXGRAPHICSSOURCE_BUILD_NXGRAPHICS)
-add_subdirectory(NxGraphics)
-ADD_DEPENDENCIES (NxGraphics NxDevice)
-ADD_DEPENDENCIES (NxGraphics NxNetwork)
-ADD_DEPENDENCIES (NxGraphics NxMocap)
-ADD_DEPENDENCIES (NxGraphics NxSound)
-ADD_DEPENDENCIES (NxGraphics NxVideo)
+	add_subdirectory(NxDevice)
 endif ()
 
-# SDK install
-
+if (NXGRAPHICSSOURCE_BUILD_NXGRAPHICS)
+	add_subdirectory(NxGraphics)
+	ADD_DEPENDENCIES (NxGraphics NxDevice)
+	ADD_DEPENDENCIES (NxGraphics NxNetwork)
+	ADD_DEPENDENCIES (NxGraphics NxMocap)
+	ADD_DEPENDENCIES (NxGraphics NxSound)
+	ADD_DEPENDENCIES (NxGraphics NxVideo)
+endif ()
  
 
 # header files
@@ -184,6 +181,47 @@ INSTALL(FILES ${NXNETWORK_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/NxNetwork
 file(GLOB NXVIDEO_HEADERS "${CMAKE_SOURCE_DIR}/NxVideo/*.h")
 INSTALL(FILES ${NXVIDEO_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/NxVideo)
 
+
+
+if (APPLE)
+	message( "Detected Apple OS" ) 
+
+elseif(WIN32)
+	message( "Detected Windows OS" )
+#binary files
+
+ 
+	
+	#binary 
+	SET(
+		NXGRAPHICS_BINARIES 
+		"${CMAKE_SOURCE_DIR}/nxdeps/bin/${CMAKE_BUILD_TYPE}/cg.dll" 
+	)
+		
+		
+	INSTALL(FILES ${NXGRAPHICS_BINARIES} DESTINATION "${CMAKE_INSTALL_PREFIX}/Bin/${CMAKE_BUILD_TYPE}" )
+
+	#binary plugins
+	file(MAKE_DIRECTORY "${CMAKE_INSTALL_PREFIX}/Bin/${CMAKE_BUILD_TYPE}/plugins")
+	SET(
+		NXGRAPHICS_BINARY_PLUGINS
+		"${CMAKE_SOURCE_DIR}/nxdeps/bin/${CMAKE_BUILD_TYPE}/Plugin_BSPSceneManager.dll" 
+	)
+
+	INSTALL(FILES ${NXGRAPHICS_BINARY_PLUGINS} DESTINATION "${CMAKE_INSTALL_PREFIX}/Bin/${CMAKE_BUILD_TYPE}/plugins/" )
+
+ 
+
+elseif(ANDROID)
+	message( "Detected ANDROID OS" )
+ 			
+else()
+	message( "Detected linux OS" )
+	
+endif()
+
+
+
 # lib and dependencies
 
 #install(DIRECTORY ${CMAKE_SOURCE_DIR}/NxDeps/ DESTINATION ${CMAKE_INSTALL_PREFIX}/NxDeps )
@@ -191,23 +229,7 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/Lib/ DESTINATION ${CMAKE_INSTALL_PREFIX}/L
  
  
 
-if (APPLE)
-message( "Detected Apple OS" ) 
 
-elseif(WIN32)
-message( "Detected Windows OS" )
-
-elseif(ANDROID)
-message( "Detected ANDROID OS" )
- 			
-	
-else()
-message( "Detected linux OS" )
-
-# copy and generate nxsamples
-	 	
-		
-endif()
 
 add_subdirectory(NxSamples)
 
