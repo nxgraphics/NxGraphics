@@ -189,16 +189,13 @@ if (APPLE)
 elseif(WIN32)
 	message( "Detected Windows OS" )
 #binary files
-
  
-	
 	#binary 
 	SET(
 		NXGRAPHICS_BINARIES 
 		"${CMAKE_SOURCE_DIR}/nxdeps/bin/${CMAKE_BUILD_TYPE}/cg.dll" 
 	)
-		
-		
+ 
 	INSTALL(FILES ${NXGRAPHICS_BINARIES} DESTINATION "${CMAKE_INSTALL_PREFIX}/Bin/${CMAKE_BUILD_TYPE}" )
 
 	#binary plugins
