@@ -50,7 +50,7 @@ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMath.h" DESTINATION "${NDKOUT}/jni
 file(COPY "${CMAKE_SOURCE_DIR}/nxdeps/lib/Vuforia.jar" DESTINATION "${NDKOUT}/libs")
 
 #generate default.properties
-set(ANDROID_TARGET android-17 )
+set(ANDROID_TARGET android-14 )
 file(WRITE "${NDKOUT}/default.properties" "target=${ANDROID_TARGET}")
 
 #generate Application.mk
