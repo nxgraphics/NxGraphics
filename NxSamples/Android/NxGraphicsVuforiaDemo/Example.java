@@ -1647,6 +1647,7 @@ public void DebugTextureFormatState( State state ){
 	
     static 
     {
+       System.loadLibrary("Vuforia");
        System.loadLibrary("NxGraphics");
     }	
  
