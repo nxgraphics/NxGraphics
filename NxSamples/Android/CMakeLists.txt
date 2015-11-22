@@ -235,6 +235,7 @@ endfunction()
 
 add_subdirectory(NxDeviceAndroidDemo)
 add_subdirectory(NxGraphicsVuforiaDemo)
+add_subdirectory(NxGraphicsVuforia5Demo)
 add_subdirectory(NxGraphicsAndroidDemo)
 add_subdirectory(NxNetworkAndroidDemo)
 add_subdirectory(NxSoundAndroidDemo)
