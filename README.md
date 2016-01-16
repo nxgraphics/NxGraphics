@@ -7,7 +7,7 @@ You will need
 - latest Ogre 1.9.
 
 Compilation Android:
-- ndk r10b;
+- ndk r10b 32bits
 - Microsoft Visual Studio 2012 ( for nmake )
 
 Compilation Windows:
