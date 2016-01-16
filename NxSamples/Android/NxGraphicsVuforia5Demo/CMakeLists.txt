@@ -21,6 +21,8 @@ file(MAKE_DIRECTORY "${NDKOUT}/src/com/hotstuff/ivy")
 
 #copy java file
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Example.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/DownloadFilesTask.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/NxFileUploader.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/NxVideoSurfaceView.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/OgreActivityJNI.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaControl.java" DESTINATION "${NDKOUT}/src/com/hotstuff/main")
