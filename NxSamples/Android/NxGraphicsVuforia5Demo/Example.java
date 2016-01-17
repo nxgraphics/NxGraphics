@@ -155,7 +155,7 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 {
 
 	
-	 String ipServer = "10.0.0.3";
+	 String ipServer = "192.168.2.102";
 	
 	protected Handler handler = null;
 	protected SurfaceView  surfaceView = null;
@@ -1736,7 +1736,7 @@ public void DebugTextureFormatState( State state ){
         if (dataSetUserDef == null)
             return false;
         
-        if (!dataSetUserDef.load("Tarmac.xml",
+        if (!dataSetUserDef.load("Stones.xml",
             STORAGE_TYPE.STORAGE_APPRESOURCE))
             return false;
         
@@ -2047,7 +2047,7 @@ public void DebugTextureFormatState( State state ){
     	   layout.setBackgroundColor(Color.TRANSPARENT);
   
     	   ImageView img = new ImageView(this); 
-    	   img.setImageResource(  R.drawable.inapp );
+    	   img.setImageResource(  R.drawable.icon );
     	   img.setOnClickListener( new ImageView.OnClickListener(){
 
 				@Override
