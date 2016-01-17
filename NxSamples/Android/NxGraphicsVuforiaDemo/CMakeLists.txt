@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
-project(NxGraphicsVuforiaDemo)
+project(NxGraphicsFreeTargetVuforiaDemo)
 
 #set sample output destination
-SET(NDKOUT "${CMAKE_SOURCE_DIR}/NxGraphicsSdk/NxSamples/NxGraphicsVuforiaDemo")
+SET(NDKOUT "${CMAKE_SOURCE_DIR}/NxGraphicsSdk/NxSamples/NxGraphicsFreeTargetVuforiaDemo")
 
 #create directories
 file(MAKE_DIRECTORY "${NDKOUT}")
@@ -60,7 +60,7 @@ file(WRITE "${NDKOUT}/jni/Application.mk" "APP_ABI := ${ANDROID_ABI}\nAPP_STL :=
  
 
 #generate AndroidManifest.xml
-getManifest( MANIFEST "com.hotstuff.main" "Example" "NxGraphicsVuforiaDemo" )
+getManifest( MANIFEST "com.hotstuff.main" "Example" "NxGraphicsFreeTargetVuforiaDemo" )
 configure_file("${CMAKE_SOURCE_DIR}/CMake/Templates/AndroidManifest.xml.in" "${NDKOUT}/AndroidManifest.xml" @ONLY)
 
 
@@ -93,7 +93,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE           := NxGraphics
 LOCAL_SRC_FILES        := main.cpp
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../nxdeps/include/Vuforia/include $(LOCAL_PATH)/../../../nxdeps/include/OGRE $(LOCAL_PATH)/../../../NxGraphics/physics/empty $(LOCAL_PATH)/../../../NxGraphics $(LOCAL_PATH)/../../../NxMocap $(LOCAL_PATH)/../../../NxDevice $(LOCAL_PATH)/../../../NxSound $(LOCAL_PATH)/../../../NxVideo $(LOCAL_PATH)/../../../NxNetwork $(LOCAL_PATH)/../../../nxdeps/include 
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../nxdeps/include/Vuforia5/include $(LOCAL_PATH)/../../../nxdeps/include/OGRE $(LOCAL_PATH)/../../../NxGraphics/physics/empty $(LOCAL_PATH)/../../../NxGraphics $(LOCAL_PATH)/../../../NxMocap $(LOCAL_PATH)/../../../NxDevice $(LOCAL_PATH)/../../../NxSound $(LOCAL_PATH)/../../../NxVideo $(LOCAL_PATH)/../../../NxNetwork $(LOCAL_PATH)/../../../nxdeps/include 
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
 LOCAL_LDLIBS += -landroid -lc -lm -ldl -llog -lEGL -lGLESv2
 LOCAL_CFLAGS := -fexceptions -frtti -x c++ -D___ANDROID___ -DANDROID -DZZIP_OMIT_CONFIG_H -DUSE_RTSHADER_SYSTEM=1 -DUSE_QUICKTIME=0
