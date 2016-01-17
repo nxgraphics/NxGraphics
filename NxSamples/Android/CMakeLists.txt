@@ -119,29 +119,29 @@ function(getNxGraphics str )
 set( ${str} "
 include $(CLEAR_VARS)
 LOCAL_MODULE := ois
-LOCAL_SRC_FILES := ../../../nxdeps/lib/armeabi/libOIS.a
+LOCAL_SRC_FILES := ../../../nxdeps/lib/libOIS.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := freeimage
-LOCAL_SRC_FILES := ../../../nxdeps/lib/armeabi/libFreeImage.a
+LOCAL_SRC_FILES := ../../../nxdeps/lib/libFreeImage.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := freetype
-LOCAL_SRC_FILES := ../../../nxdeps/lib/armeabi/libfreetype.a
+LOCAL_SRC_FILES := ../../../nxdeps/lib/libfreetype.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := zlib
-LOCAL_SRC_FILES := ../../../nxdeps/lib/armeabi/libzlib.a
+LOCAL_SRC_FILES := ../../../nxdeps/lib/libzlib.a
 include $(PREBUILT_STATIC_LIBRARY)
 
  
 include $(CLEAR_VARS)
 LOCAL_MODULE := zzip
-LOCAL_SRC_FILES := ../../../nxdeps/lib/armeabi/libzzip.a
+LOCAL_SRC_FILES := ../../../nxdeps/lib/libzziplib.a
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
