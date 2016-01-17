@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
-project(NxGraphicsVuforia5Demo)
+project(NxGraphics360Vuforia5Demo)
 
 #set sample output destination
-SET(NDKOUT "${CMAKE_SOURCE_DIR}/NxGraphicsSdk/NxSamples/NxGraphicsVuforia5Demo")
+SET(NDKOUT "${CMAKE_SOURCE_DIR}/NxGraphicsSdk/NxSamples/NxGraphics360Vuforia5Demo")
 
 #create directories
 file(MAKE_DIRECTORY "${NDKOUT}")
@@ -66,7 +66,7 @@ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Shaders.h" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMath.h" DESTINATION "${NDKOUT}/jni")
 
 #copy jar lib
-file(COPY "${CMAKE_SOURCE_DIR}/nxdeps/lib/Vuforia5.jar" DESTINATION "${NDKOUT}/libs")
+file(COPY "${CMAKE_SOURCE_DIR}/nxdeps/lib/Vuforia.jar" DESTINATION "${NDKOUT}/libs")
 
 #generate default.properties
 set(ANDROID_TARGET android-17 )
@@ -79,7 +79,7 @@ file(WRITE "${NDKOUT}/jni/Application.mk" "APP_ABI := ${ANDROID_ABI}\nAPP_STL :=
  
 
 #generate AndroidManifest.xml
-getManifest( MANIFEST "com.hotstuff.main" "Example" "NxGraphicsVuforia5Demo" )
+getManifest( MANIFEST "com.hotstuff.main" "Example" "NxGraphics360Vuforia5Demo" )
 configure_file("${CMAKE_SOURCE_DIR}/CMake/Templates/AndroidManifest.xml.in" "${NDKOUT}/AndroidManifest.xml" @ONLY)
 
 
@@ -106,13 +106,13 @@ getNxGraphics( NXGRAPHICS_INCLUDE )
 set(APPLICATION_INCLUDE "
 include $(CLEAR_VARS)
 LOCAL_MODULE := vuforia
-LOCAL_SRC_FILES := ../../../nxdeps/lib/libVuforia5.so
+LOCAL_SRC_FILES := ../../../nxdeps/lib/libVuforia.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE           := NxGraphics
 LOCAL_SRC_FILES        := main.cpp
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../nxdeps/include/Vuforia/include $(LOCAL_PATH)/../../../nxdeps/include/OGRE $(LOCAL_PATH)/../../../NxGraphics/physics/empty $(LOCAL_PATH)/../../../NxGraphics $(LOCAL_PATH)/../../../NxMocap $(LOCAL_PATH)/../../../NxDevice $(LOCAL_PATH)/../../../NxSound $(LOCAL_PATH)/../../../NxVideo $(LOCAL_PATH)/../../../NxNetwork $(LOCAL_PATH)/../../../nxdeps/include 
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../nxdeps/include/Vuforia5/include $(LOCAL_PATH)/../../../nxdeps/include/OGRE $(LOCAL_PATH)/../../../NxGraphics/physics/empty $(LOCAL_PATH)/../../../NxGraphics $(LOCAL_PATH)/../../../NxMocap $(LOCAL_PATH)/../../../NxDevice $(LOCAL_PATH)/../../../NxSound $(LOCAL_PATH)/../../../NxVideo $(LOCAL_PATH)/../../../NxNetwork $(LOCAL_PATH)/../../../nxdeps/include 
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
 LOCAL_LDLIBS += -landroid -lc -lm -ldl -llog -lEGL -lGLESv2
 LOCAL_CFLAGS := -fexceptions -frtti -x c++ -D___ANDROID___ -DANDROID -DZZIP_OMIT_CONFIG_H -DUSE_RTSHADER_SYSTEM=1 -DUSE_QUICKTIME=0
