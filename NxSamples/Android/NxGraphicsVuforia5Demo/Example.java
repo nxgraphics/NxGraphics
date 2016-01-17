@@ -1192,7 +1192,7 @@ public void DebugTextureFormatState( State state ){
 									
 									//regler perf video...
 									
-									OgreActivityJNI.OpenTheoraVideo(mVideoFiles.get(0)); // enable when good tracking
+									// OgreActivityJNI.OpenTheoraVideo(mVideoFiles.get(0)); // enable when good tracking
 									
 									/////
 									
