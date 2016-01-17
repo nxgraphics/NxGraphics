@@ -1,7 +1,7 @@
 package com.hotstuff.main;
 
  
-import com.hotstuff.sexy3d.R;
+import com.hotstuff.main.R;
 
 import android.app.Activity;
 import android.graphics.Color;

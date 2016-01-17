@@ -2,7 +2,7 @@ package com.hotstuff.main;
 
 import java.util.ArrayList;
 
-import com.hotstuff.sexy3d.R;
+import com.hotstuff.main.R;
 
  
 

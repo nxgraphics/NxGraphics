@@ -9,7 +9,7 @@ import java.nio.FloatBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import com.hotstuff.sexy3d.R;
+import com.hotstuff.main.R;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;

@@ -15,7 +15,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import com.hotstuff.main.VuforiaGlView;
-import com.hotstuff.sexy3d.R;
+import com.hotstuff.main.R;
 
  
 
