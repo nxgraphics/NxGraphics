@@ -143,8 +143,9 @@ public class VuforiaMenuGroup
         
         
         
-        int drawable = -1;
+        int drawable = R.drawable.ic_launcher;
         
+        /*
         if( command ==  -20  )
         	drawable = R.drawable.france;
         else if( command ==  -30  )
@@ -157,7 +158,7 @@ public class VuforiaMenuGroup
         	drawable = R.drawable.belgique; 
         else if( command ==  -70  )
         	drawable = R.drawable.colombie;            
-        	
+        	*/
         
         newTextView.setImageResource( drawable );//R.drawable.caprice);
         
