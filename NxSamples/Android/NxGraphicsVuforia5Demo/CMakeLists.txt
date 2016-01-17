@@ -9,6 +9,8 @@ file(MAKE_DIRECTORY "${NDKOUT}")
 file(MAKE_DIRECTORY "${NDKOUT}/jni")
 file(MAKE_DIRECTORY "${NDKOUT}/libs")
 file(MAKE_DIRECTORY "${NDKOUT}/assets")
+file(MAKE_DIRECTORY "${NDKOUT}/www")
+file(MAKE_DIRECTORY "${NDKOUT}/www/img")
 file(MAKE_DIRECTORY "${NDKOUT}/res")
 file(MAKE_DIRECTORY "${NDKOUT}/res/layout")
 file(MAKE_DIRECTORY "${NDKOUT}/src")
@@ -64,6 +66,9 @@ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/main.h" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Shaders.h" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMath.h" DESTINATION "${NDKOUT}/jni")
+
+
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/upload.php" DESTINATION "${NDKOUT}/www")
 
 #copy jar lib
 file(COPY "${CMAKE_SOURCE_DIR}/nxdeps/lib/Vuforia.jar" DESTINATION "${NDKOUT}/libs")
