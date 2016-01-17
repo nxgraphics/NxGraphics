@@ -194,7 +194,7 @@ LOCAL_WHOLE_STATIC_LIBRARIES :=  ogre ogreoctree ogreparticles ogregles2 ogrerts
 include $(PREBUILT_STATIC_LIBRARY)" PARENT_SCOPE)
 endfunction()
  
-
+# was there before  android:noHistory=\"true\"
  
 
 function(getManifest str package activityname appname )
@@ -217,7 +217,6 @@ set( ${str} "<?xml version=\"1.0\" encoding=\"utf-8\"?>
         android:label=\"${appname}\"
         android:launchMode=\"singleTask\">
         <activity 
-            android:noHistory=\"true\"
             android:launchMode=\"singleTask\"
             android:name=\"${package}.${activityname}\"
             android:label=\"${appname}\"
