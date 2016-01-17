@@ -589,11 +589,11 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 			  
 			 
 			  
-			  /*
+			   
 			  sendFile( folderPicture + filePicture );
 			  
 		        downloadFiles( "http://"+ipServer+"/img/" ,  folderWithPictures  );
-			  */
+			  
 		         
 		     	mInstance = this;
 
