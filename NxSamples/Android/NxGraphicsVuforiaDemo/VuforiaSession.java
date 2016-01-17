@@ -341,7 +341,9 @@ public class VuforiaSession implements UpdateCallbackInterface
             // Prevent the onDestroy() method to overlap with initialization:
             synchronized (mShutdownLock)
             {
-                Vuforia.setInitParameters(m_activity, mVuforiaFlags);
+                //Vuforia.setInitParameters(m_activity, mVuforiaFlags);
+            	Vuforia.setInitParameters(m_activity, mVuforiaFlags, "AWXnSMf/////AAAAAcZf3u8xkEMgh9V0NLg1BVo90TQlLzf+hMh5xBnRy6LyQEjBXkwVRsnItW9L22Ub5IK2vgOIbW7WNkROnM3GKg6JvBoogRv8ADyWqIGHoDGkVO88gbJ6It6WEztDJOQmyR6NwJf4GXWZWsYQV31O1DmRQsGwIrRe54cn2IRUNo+Ft2TREHhK8kfQmVkDnw0I2xtsGgoJ4XULbejVtNWpoX7ii+1IzfmOSK9Rb7tK5IdJOjB9iWEHDv9ZwXqRLN4vlC2KKfnHcMquos+IuaLNZ4py1uc9tyT55C6zsNXeZPJEY2etDA3VhPtmZwPr07ZguBpRQ2oFmtrVwAdtkUb4iM6xv3zzrhqWf7EDR3ZT8V6I");
+                
                 
                 do
                 {
@@ -582,7 +584,7 @@ Log.d("=========>>> FOV IS : ",  Double.toString( fovDegrees  )  );
   
         VideoBackgroundConfig config = new VideoBackgroundConfig();
         config.setEnabled(true);
-        config.setSynchronous(true);
+        //config.setSynchronous(true);
         config.setPosition(new Vec2I(0, 0));
         
         xSize = 0;

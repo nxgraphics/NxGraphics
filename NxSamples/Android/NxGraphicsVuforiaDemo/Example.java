@@ -25,10 +25,12 @@ import com.qualcomm.vuforia.DataSet;
 import com.qualcomm.vuforia.Frame;
 import com.qualcomm.vuforia.Image;
 import com.qualcomm.vuforia.ImageTargetBuilder;
-import com.qualcomm.vuforia.ImageTracker;
+//import com.qualcomm.vuforia.ImageTracker;
 import com.qualcomm.vuforia.Matrix44F;
+import com.qualcomm.vuforia.ObjectTracker;
 import com.qualcomm.vuforia.PIXEL_FORMAT;
 import com.qualcomm.vuforia.Renderer;
+import com.qualcomm.vuforia.STORAGE_TYPE;
 import com.qualcomm.vuforia.State;
 import com.qualcomm.vuforia.Tool;
 import com.qualcomm.vuforia.Trackable;
@@ -951,11 +953,11 @@ public void DebugTextureFormatState( State state ){
         Log.d(LOGTAG, "startUserDefinedTargets");
         
         TrackerManager trackerManager = TrackerManager.getInstance();
-        ImageTracker imageTracker = (ImageTracker) (trackerManager
-            .getTracker(ImageTracker.getClassType()));
-        if (imageTracker != null)
-        {
-            ImageTargetBuilder targetBuilder = imageTracker
+        ObjectTracker objectTracker = (ObjectTracker) (trackerManager
+                .getTracker(ObjectTracker.getClassType()));
+            if (objectTracker != null)
+            {
+            ImageTargetBuilder targetBuilder = objectTracker
                 .getImageTargetBuilder();
             
             if (targetBuilder != null)
@@ -964,7 +966,7 @@ public void DebugTextureFormatState( State state ){
                 if (targetBuilder.getFrameQuality() != ImageTargetBuilder.FRAME_QUALITY.FRAME_QUALITY_NONE)
                     targetBuilder.stopScan();
                 
-                imageTracker.stop();
+                objectTracker.stop();
                 
                 targetBuilder.startScan();
                 
@@ -979,12 +981,13 @@ public void DebugTextureFormatState( State state ){
     boolean isUserDefinedTargetsRunning()
     {
         TrackerManager trackerManager = TrackerManager.getInstance();
-        ImageTracker imageTracker = (ImageTracker) trackerManager
-            .getTracker(ImageTracker.getClassType());
+        ObjectTracker objectTracker = (ObjectTracker) (trackerManager
+                .getTracker(ObjectTracker.getClassType()));
+      
         
-        if (imageTracker != null)
+        if (objectTracker != null)
         {
-            ImageTargetBuilder targetBuilder = imageTracker
+            ImageTargetBuilder targetBuilder = objectTracker
                 .getImageTargetBuilder();
             if (targetBuilder != null)
             {
@@ -1001,12 +1004,13 @@ public void DebugTextureFormatState( State state ){
     void startBuild()
     {
         TrackerManager trackerManager = TrackerManager.getInstance();
-        ImageTracker imageTracker = (ImageTracker) trackerManager
-            .getTracker(ImageTracker.getClassType());
+        ObjectTracker objectTracker = (ObjectTracker) (trackerManager
+                .getTracker(ObjectTracker.getClassType()));
+      
         
-        if (imageTracker != null)
+        if (objectTracker != null)
         {
-            ImageTargetBuilder targetBuilder = imageTracker
+            ImageTargetBuilder targetBuilder = objectTracker
                 .getImageTargetBuilder();
             if (targetBuilder != null)
             {
@@ -1047,7 +1051,7 @@ public void DebugTextureFormatState( State state ){
         
         // Initialize the image tracker:
         TrackerManager trackerManager = TrackerManager.getInstance();
-        Tracker tracker = trackerManager.initTracker(ImageTracker
+        Tracker tracker = trackerManager.initTracker(ObjectTracker
             .getClassType());
         if (tracker == null)
         {
@@ -1065,6 +1069,40 @@ public void DebugTextureFormatState( State state ){
     @Override
     public boolean doLoadTrackersData()
     {
+    	
+        TrackerManager tManager = TrackerManager.getInstance();
+        ObjectTracker objectTracker = (ObjectTracker) tManager
+            .getTracker(ObjectTracker.getClassType());
+        if (objectTracker == null)
+            return false;
+        
+        dataSetUserDef = objectTracker.createDataSet();
+        if (dataSetUserDef == null)
+            return false;
+        
+        /*
+        if (!dataSetUserDef.load("Stones.xml",
+            STORAGE_TYPE.STORAGE_APPRESOURCE))
+            return false;*/
+        
+        if (!objectTracker.activateDataSet(dataSetUserDef))
+            return false;
+        
+        /*
+        int numTrackables = dataSetUserDef.getNumTrackables();
+        for (int count = 0; count < numTrackables; count++)
+        {
+            String name = "Tarmac : "
+                + dataSetUserDef.getTrackable(count).getName();
+            dataSetUserDef.getTrackable(count).setUserData(name);
+            Log.d(LOGTAG, "UserData:Set the following user data "
+                + (String) dataSetUserDef.getTrackable(count).getUserData());
+        }*/
+        
+        return true;    	
+    	
+    	
+    	/*
         // Get the image tracker:
         TrackerManager trackerManager = TrackerManager.getInstance();
         ImageTracker imageTracker = (ImageTracker) trackerManager
@@ -1092,7 +1130,7 @@ public void DebugTextureFormatState( State state ){
         }
         
         Log.d(LOGTAG, "Successfully loaded and activated data set.");
-        return true;
+        return true;*/
     }
     
     
@@ -1102,10 +1140,10 @@ public void DebugTextureFormatState( State state ){
         // Indicate if the trackers were started correctly
         boolean result = true;
         
-        Tracker imageTracker = TrackerManager.getInstance().getTracker(
-            ImageTracker.getClassType());
-        if (imageTracker != null)
-            imageTracker.start();
+        Tracker objectTracker = TrackerManager.getInstance().getTracker(
+                ObjectTracker.getClassType());
+            if (objectTracker != null)
+                objectTracker.start();
         
         return result;
     }
@@ -1117,10 +1155,10 @@ public void DebugTextureFormatState( State state ){
         // Indicate if the trackers were stopped correctly
         boolean result = true;
         
-        Tracker imageTracker = TrackerManager.getInstance().getTracker(
-            ImageTracker.getClassType());
-        if (imageTracker != null)
-            imageTracker.stop();
+        Tracker objectTracker = TrackerManager.getInstance().getTracker(
+                ObjectTracker.getClassType());
+            if (objectTracker != null)
+                objectTracker.stop();
         
         return result;
     }
@@ -1132,22 +1170,21 @@ public void DebugTextureFormatState( State state ){
         // Indicate if the trackers were unloaded correctly
         boolean result = true;
         
-        // Get the image tracker:
         TrackerManager trackerManager = TrackerManager.getInstance();
-        ImageTracker imageTracker = (ImageTracker) trackerManager
-            .getTracker(ImageTracker.getClassType());
-        if (imageTracker == null)
+        ObjectTracker objectTracker = (ObjectTracker) trackerManager
+            .getTracker(ObjectTracker.getClassType());
+        if (objectTracker == null)
         {
             result = false;
             Log.d(
                 LOGTAG,
-                "Failed to destroy the tracking data set because the ImageTracker has not been initialized.");
+                "Failed to destroy the tracking data set because the ObjectTracker has not been initialized.");
         }
         
         if (dataSetUserDef != null)
         {
-            if (imageTracker.getActiveDataSet() != null
-                && !imageTracker.deactivateDataSet(dataSetUserDef))
+            if (objectTracker.getActiveDataSet() != null
+                && !objectTracker.deactivateDataSet(dataSetUserDef))
             {
                 Log.d(
                     LOGTAG,
@@ -1155,7 +1192,7 @@ public void DebugTextureFormatState( State state ){
                 result = false;
             }
             
-            if (!imageTracker.destroyDataSet(dataSetUserDef))
+            if (!objectTracker.destroyDataSet(dataSetUserDef))
             {
                 Log.d(LOGTAG, "Failed to destroy the tracking data set.");
                 result = false;
@@ -1165,7 +1202,8 @@ public void DebugTextureFormatState( State state ){
             dataSetUserDef = null;
         }
         
-        return result;
+        return result; 
+        
     }
     
     
@@ -1179,7 +1217,7 @@ public void DebugTextureFormatState( State state ){
             refFreeFrame.deInit();
         
         TrackerManager tManager = TrackerManager.getInstance();
-        tManager.deinitTracker(ImageTracker.getClassType());
+        tManager.deinitTracker(ObjectTracker.getClassType());
         
         return result;
     }
@@ -1289,15 +1327,15 @@ public void DebugTextureFormatState( State state ){
     public void onQCARUpdate(State state)
     {
         TrackerManager trackerManager = TrackerManager.getInstance();
-        ImageTracker imageTracker = (ImageTracker) trackerManager
-            .getTracker(ImageTracker.getClassType());
+        ObjectTracker objectTracker = (ObjectTracker) trackerManager
+            .getTracker(ObjectTracker.getClassType());
         
         if (refFreeFrame.hasNewTrackableSource())
         {
             Log.d(LOGTAG, "Attempting to transfer the trackable source to the dataset");
             
             // Deactivate current dataset
-            imageTracker.deactivateDataSet(imageTracker.getActiveDataSet());
+            objectTracker.deactivateDataSet(objectTracker.getActiveDataSet());
             
             // Clear the oldest target if the dataset is full or the dataset
             // already contains five user-defined targets.
@@ -1317,7 +1355,7 @@ public void DebugTextureFormatState( State state ){
             Trackable trackable = dataSetUserDef.createTrackable(refFreeFrame.getNewTrackableSource());
             
             // Reactivate current dataset
-            imageTracker.activateDataSet(dataSetUserDef);
+            objectTracker.activateDataSet(dataSetUserDef);
             
             if (mExtendedTracking) {
                 trackable.startExtendedTracking();

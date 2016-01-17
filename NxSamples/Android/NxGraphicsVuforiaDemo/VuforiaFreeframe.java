@@ -4,7 +4,8 @@ package com.hotstuff.main;
 import android.util.Log;
 
 import com.qualcomm.vuforia.ImageTargetBuilder;
-import com.qualcomm.vuforia.ImageTracker;
+//import com.qualcomm.vuforia.ImageTracker;
+import com.qualcomm.vuforia.ObjectTracker;
 import com.qualcomm.vuforia.Renderer;
 import com.qualcomm.vuforia.TrackableSource;
 import com.qualcomm.vuforia.TrackerManager;
@@ -93,6 +94,23 @@ public class VuforiaFreeframe
     
     void deInit()
     {
+    	
+    	
+        TrackerManager trackerManager = TrackerManager.getInstance();
+        ObjectTracker imageTracker = (ObjectTracker) (trackerManager
+            .getTracker(ObjectTracker.getClassType()));
+        if (imageTracker != null)
+        {
+            ImageTargetBuilder targetBuilder = imageTracker.getImageTargetBuilder();
+            if (targetBuilder != null
+                && (targetBuilder.getFrameQuality() != ImageTargetBuilder.FRAME_QUALITY.FRAME_QUALITY_NONE))
+            {
+                targetBuilder.stopScan();
+            }
+        }    	
+    	
+    	
+    	/*
         TrackerManager trackerManager = TrackerManager.getInstance();
         ImageTracker imageTracker = (ImageTracker) (trackerManager
             .getTracker(ImageTracker.getClassType()));
@@ -104,7 +122,7 @@ public class VuforiaFreeframe
             {
                 targetBuilder.stopScan();
             }
-        }
+        }*/
     }
     
     
@@ -214,7 +232,7 @@ public class VuforiaFreeframe
     {
         // Get the image tracker
         TrackerManager trackerManager = TrackerManager.getInstance();
-        ImageTracker imageTracker = (ImageTracker) (trackerManager.getTracker(ImageTracker.getClassType()));
+        ObjectTracker imageTracker = (ObjectTracker) (trackerManager.getTracker(ObjectTracker.getClassType()));
         
         // Get the frame quality from the target builder
         ImageTargetBuilder targetBuilder = imageTracker.getImageTargetBuilder();
