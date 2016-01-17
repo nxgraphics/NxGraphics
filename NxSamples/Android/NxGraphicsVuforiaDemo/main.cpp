@@ -38,19 +38,19 @@
 #include <QCAR/VideoBackgroundTextureInfo.h> */
 
 
-#include <QCAR5/QCAR.h>
-#include <QCAR5/CameraDevice.h>
-#include <QCAR5/Renderer.h>
-#include <QCAR5/VideoBackgroundConfig.h>
-#include <QCAR5/Trackable.h>
-#include <QCAR5/TrackableResult.h>
-#include <QCAR5/Tool.h>
-#include <QCAR5/Tracker.h>
-#include <QCAR5/TrackerManager.h>
+#include <QCAR/QCAR.h>
+#include <QCAR/CameraDevice.h>
+#include <QCAR/Renderer.h>
+#include <QCAR/VideoBackgroundConfig.h>
+#include <QCAR/Trackable.h>
+#include <QCAR/TrackableResult.h>
+#include <QCAR/Tool.h>
+#include <QCAR/Tracker.h>
+#include <QCAR/TrackerManager.h>
 //#include <QCAR5/ImageTracker.h>
-#include <QCAR5/CameraCalibration.h>
-#include <QCAR5/DataSet.h>
-#include <QCAR5/VideoBackgroundTextureInfo.h>
+#include <QCAR/CameraCalibration.h>
+#include <QCAR/DataSet.h>
+#include <QCAR/VideoBackgroundTextureInfo.h>
 
 #include "VuforiaMath.h"
 #include "Shaders.h"
