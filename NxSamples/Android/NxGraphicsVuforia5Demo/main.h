@@ -20,6 +20,7 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_DeleteEngine(JNIEn
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_renderOneFrame(JNIEnv * env, jobject obj);
 JNIEXPORT jlong JNICALL Java_com_hotstuff_main_OgreActivityJNI_GetEngineContext() ;
 JNIEXPORT jint JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateBackGroundTexture(JNIEnv * env, jobject obj/*, jint width, jint height, jint pixelformat */ );
+JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetThreshHoldDistance(JNIEnv * env, jobject obj,  jfloat distance  );
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetViewportSize(JNIEnv * env, jobject obj,  jfloat Left, jfloat Top, jfloat Width, jfloat Height );
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetScreenSize(JNIEnv * env, jobject obj,  jint Width, jint Height ) ;
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_ViewportClear(JNIEnv * env, jobject obj);

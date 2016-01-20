@@ -14,10 +14,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -29,6 +31,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -458,13 +461,26 @@ public class VuforiaMenu
 
 		AlertDialog.Builder alert = new AlertDialog.Builder( mActivity  );
 		alert.setTitle("Configuration");
-		//alert.setMessage("Message");
+		alert.setMessage("veuillez changer les valeurs :");
 		
 		SharedPreferences preferencesInput = PreferenceManager.getDefaultSharedPreferences( mActivity );
 		
 		// MAIN LAYOUT
 		LinearLayout layMain = new LinearLayout( mActivity );
-		layMain.setLayoutParams(  new LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.MATCH_PARENT) );
+		//layMain.setLayoutParams(  new LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.MATCH_PARENT) );
+		
+		
+		Rect displayRectangle = new Rect();
+		Window window = mActivity.getWindow();
+		window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
+
+		// inflate and adjust layout
+		 
+		layMain.setMinimumWidth((int)(displayRectangle.width() * 0.6f));
+		layMain.setMinimumHeight((int)(displayRectangle.height() * 0.5f));		
+		
+		
+		
 		layMain.setOrientation( LinearLayout.VERTICAL );
 		
 		// IP
@@ -555,17 +571,99 @@ public class VuforiaMenu
 		
 		layMain.addView( laySecond );		
 		
+		// SPLASH SCREEN
+		 
+		// mDataSplash = preferencesRead.getString("splashName", null );
+		// mDataSplashFromPath = preferencesRead.getBoolean("splashNameFromPath", false );
 		
 		
+		 
+		// SPLASH LAYOUT
+		LinearLayout layThird = new LinearLayout( mActivity );
+		layThird.setLayoutParams(  new LinearLayout.LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.WRAP_CONTENT  ) );
+		layThird.setWeightSum(10);
+		// MARKER TEXT
+		final TextView inputSplashText = new TextView ( mActivity );
+		inputSplashText.setLayoutParams( new LinearLayout.LayoutParams( 0, LayoutParams.MATCH_PARENT, 5) );
+		
+		String tmpSplash = preferencesInput.getString( "splashName", null );
+		
+		if( -1 == tmpSplash.lastIndexOf("/") ) { // name only
+			
+			inputSplashText.setText( tmpSplash  );
+		}else { //path
+			String name =  tmpSplash.substring(tmpSplash.lastIndexOf("/")+1, tmpSplash.length());  
+			inputSplashText.setText( name  );
+			
+		}
+ 
+		
+		layThird.addView( inputSplashText );
+		// MARKER BUTTON
+		final Button chooseSplashButton = new Button( mActivity );
+		chooseSplashButton.setText("Choose");
+		chooseSplashButton.setLayoutParams( new LinearLayout.LayoutParams( 0, LayoutParams.MATCH_PARENT, 5) );
+		layThird.addView( chooseSplashButton  );
+		chooseSplashButton.setOnClickListener(  new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				
+				FileChooser choose = new FileChooser(mActivity, ".jpg");
+				choose.setFileListener(  new FileSelectedListener() {
+					
+					@Override
+					public void fileSelected(File file) {
+						
+						String tmp = file.getAbsolutePath();	
+						String name =  tmp.substring(tmp.lastIndexOf("/")+1, tmp.length() ); 
+						inputSplashText.setText( name  );
+						SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mActivity );
+						SharedPreferences.Editor editor = preferences.edit();
+					    editor.putString("splashName", tmp );
+					    editor.putBoolean("splashNameFromPath", true );
+					    editor.commit(); 						
+						Toast.makeText( mActivity , "selected splash: "+ name, Toast.LENGTH_SHORT  ).show();							
+						 
+ 
+					}
+				} ).showDialog();
+ 	
+				
+			}
+		});		
+		
+		layMain.addView( layThird );	
 		
 		
+		// threshold distance
+ 
+		// mDatathresholdDistance = preferencesRead.getFloat("thresholdDistance", 1.0f );
 		
+		LinearLayout layFourth = new LinearLayout( mActivity );
+		layFourth.setLayoutParams(  new LinearLayout.LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.WRAP_CONTENT  ) );
+		layFourth.setWeightSum(10);
+		// MARKER TEXT
+		final EditText inputthresholdText = new EditText ( mActivity );
+		inputthresholdText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
+		inputthresholdText.setLayoutParams( new LinearLayout.LayoutParams( 0, LayoutParams.MATCH_PARENT, 10) );
+		layFourth.addView( inputthresholdText );
+		float val = preferencesInput.getFloat("thresholdDistance", 1.0f );
 		
+		inputthresholdText.setText( String.valueOf( val ) );
+		layMain.addView( layFourth );	
+ 
 		alert.setView( layMain );
 		
 		alert.setPositiveButton("Redemarrer", new DialogInterface.OnClickListener() {
 		public void onClick(DialogInterface dialog, int whichButton) {
- 
+			
+			try{
+				Float val = Float.valueOf( inputthresholdText.getText().toString() ) ;
+				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mActivity );
+				SharedPreferences.Editor editor = preferences.edit();
+			    editor.putFloat("thresholdDistance", val );
+			    editor.commit(); 
+			    
 			    // restart the app
 			    Intent i = mActivity.getBaseContext().getPackageManager().getLaunchIntentForPackage( mActivity.getBaseContext().getPackageName() );
 				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -573,7 +671,18 @@ public class VuforiaMenu
 				mActivity.startActivity(i); 
 			
 				android.os.Process.killProcess(android.os.Process.myPid());
-		        System.exit(0);
+		        System.exit(0);		    
+			
+			
+			}catch( NumberFormatException e ) { 
+				
+				Toast.makeText( mActivity , "selected distance not valid: "+ inputthresholdText.getText().toString(), Toast.LENGTH_SHORT  ).show();		
+				
+				
+			}
+				 
+ 
+
  
 		  }
 		});

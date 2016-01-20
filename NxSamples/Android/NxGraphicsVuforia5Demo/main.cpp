@@ -52,19 +52,18 @@ NxGraphics * NxGraph = NULL;
 Nx3D_Scene * Scene3DPlayer;
 bool isReady = false;
 NxEntity * NxBoxLeft = NULL;
-
-
+ 
 NxNode * ModelNode = NULL;
 NxEntity * NxModel = NULL;
-
-
-
+ 
 NxNode * TheaterNode = NULL;
 NxEntity * NxTheaterModel = NULL;
-
-
+ 
 NxNode * ScreenNode = NULL;
 NxEntity * NxScreenModel = NULL;
+
+float mThresholdDistance = 1.0f; // is set later in function
+
 
 const int numBoxes = 1;
 std::vector<NxEntity * > mBoxes;
@@ -320,12 +319,6 @@ JNIEXPORT jlong JNICALL Java_com_hotstuff_main_OgreActivityJNI_GetEngineContext(
  
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEnv *env, jobject obj, jobject surface, jobject assetManager, jstring splashName ) 
 {
-	
-	
-	
-
-	
-	
  
 	LOGD("----> NDK CreateEngine CALLED !!! ");
 
@@ -701,6 +694,15 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_DeleteEngine(JNIEn
 
 	return;
 }
+
+
+
+JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetThreshHoldDistance(JNIEnv * env, jobject obj,  jfloat distance  ) {
+
+	mThresholdDistance = distance;
+ 
+}
+ 
 
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetViewportSize(JNIEnv * env, jobject obj,  jfloat Left, jfloat Top, jfloat Width, jfloat Height ) {
 
@@ -1257,11 +1259,11 @@ Nx::Matrix4 transform = Nx::Matrix4::IDENTITY;
         
        // float ratio = 100 * position.z;
         
-        position.z = position.z +   ZReduc ;
+        position.z = position.z + ZReduc ;
         
         
         
-        if( misFirstScene && position.z < 500  ) {   
+        if( misFirstScene && position.z < mThresholdDistance  ) {    // 500
             
             Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetPosition(  position  );
             
@@ -1270,7 +1272,7 @@ Nx::Matrix4 transform = Nx::Matrix4::IDENTITY;
         
         
         
-        }else {  
+        }else {  // second room
             
             misFirstScene = false;
             

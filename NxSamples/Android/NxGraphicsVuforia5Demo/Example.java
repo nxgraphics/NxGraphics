@@ -131,13 +131,23 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	// defaults for first install
  	String ipServer = "192.168.1.15";
 	String markerName = "Stones";
+	String splashName = "NxLogo.jpg";
+	float thresholdDistance = 700.0f;
 
 	
 	 public static   boolean useLeftMenu = false;
 	
 	String mDataIp = null;
+	
+	
 	String mDataMarker = null;
 	Boolean mDataMarkerFromPath = null;
+	
+	String mDataSplash = null;
+	Boolean mDataSplashFromPath = null;		
+	
+	float mDatathresholdDistance = 1.0f;	
+	
 	
 	protected Handler handler = null;
 	protected SurfaceView  surfaceView = null;
@@ -698,9 +708,19 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
  
 			SharedPreferences.Editor editor = preferences.edit();
 			editor.putBoolean("firstInit", true);
-		    editor.putString("ip" , ipServer );
+		    editor.putString("ip", ipServer );
+		    
 		    editor.putString("markerName", markerName );
 		    editor.putBoolean("markerFromPath", false );
+		    
+		    
+		    editor.putString("splashName", splashName );
+		    editor.putBoolean("splashNameFromPath", false );
+		    
+		    editor.putFloat("thresholdDistance", thresholdDistance );
+		    
+		    
+		    
 		    editor.commit(); 
 		    
 		 } 
@@ -709,10 +729,18 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		 
 		 SharedPreferences preferencesRead = PreferenceManager.getDefaultSharedPreferences( this );
 		 mDataIp = preferencesRead.getString("ip", null );
-		 mDataMarker = preferencesRead.getString("markerName", null );
 		 
+		 mDataMarker = preferencesRead.getString("markerName", null );
 		 mDataMarkerFromPath = preferencesRead.getBoolean("markerFromPath", false );
 		 
+		 mDataSplash = preferencesRead.getString("splashName", null );
+		 mDataSplashFromPath = preferencesRead.getBoolean("splashNameFromPath", false );
+		 
+		 
+		 mDatathresholdDistance = preferencesRead.getFloat("thresholdDistance", 1.0f );
+		 
+		 
+		  
 		 
 		 
 		 
@@ -1029,10 +1057,26 @@ public void DebugTextureFormatState( State state ){
 									assetMgr = getResources().getAssets();
 									 
 								}
-								
+ 
+								String splashName = null;
+								if(mDataSplashFromPath == true) { //check if file exists
+									
+									File testExists = new File( mDataSplash );
+									if( !testExists.exists() ) { // doesnt exists
+										splashName = "NxLogo.jpg";
+										Toast.makeText(  getApplicationContext(), "Cant load startup screen: " + mDataSplash , Toast.LENGTH_LONG ).show();
+									}else { 
+										splashName = mDataSplash;	
+									}
+								}else { 
+									splashName = "NxLogo.jpg";
+								}
 								//File testSplashExists = new File();
  
-							   OgreActivityJNI.CreateEngine( lastSurface, assetMgr, "/sdcard/intro.jpg" /*"NxLogo.jpg"*/ ); //
+							   OgreActivityJNI.CreateEngine( lastSurface, assetMgr, splashName ) ;
+							   
+							   OgreActivityJNI.SetThreshHoldDistance( mDatathresholdDistance );
+							   
 							   OgreActivityJNI.ViewportSetClearEveryFrame( false );
 			 
 							   Vuforia.onSurfaceCreated();
