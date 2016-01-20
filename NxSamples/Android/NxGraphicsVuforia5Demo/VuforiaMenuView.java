@@ -15,6 +15,7 @@ public class VuforiaMenuView extends LinearLayout
     
     
     
+    
     public VuforiaMenuView(Context context)
     {
         super(context);

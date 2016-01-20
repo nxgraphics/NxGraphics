@@ -702,6 +702,7 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		    editor.putString("markerName", markerName );
 		    editor.putBoolean("markerFromPath", false );
 		    editor.commit(); 
+		    
 		 } 
 		 
 		 // now get information
@@ -1028,8 +1029,10 @@ public void DebugTextureFormatState( State state ){
 									assetMgr = getResources().getAssets();
 									 
 								}
+								
+								//File testSplashExists = new File();
  
-							   OgreActivityJNI.CreateEngine( lastSurface, assetMgr ); 
+							   OgreActivityJNI.CreateEngine( lastSurface, assetMgr, "/sdcard/intro.jpg" /*"NxLogo.jpg"*/ ); //
 							   OgreActivityJNI.ViewportSetClearEveryFrame( false );
 			 
 							   Vuforia.onSurfaceCreated();

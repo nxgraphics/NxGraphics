@@ -9,7 +9,7 @@ import android.content.res.AssetManager;
 public class OgreActivityJNI {	
 
 	public native static void renderOneFrame();
-	public native static void CreateEngine( Surface surface, AssetManager mgr );
+	public native static void CreateEngine( Surface surface, AssetManager mgr, String splashName );
 	public native static void DeleteEngine();
 	public native static EGLContext GetEngineContext();
 	public native static int CreateBackGroundTexture( /*int width, int height, int pixelformat*/  );

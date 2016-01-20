@@ -30,6 +30,7 @@ public class NxFileUploader  extends AsyncTask<String, Void, Boolean> {
     	mUrl = url;
 		mFileName = filename; 
 		
+		
     }
 
 	 public boolean sendFile( String filePath, String urlString) { 

@@ -270,6 +270,7 @@ public class VuforiaMenu
 // public boolean useLeftMenu = false;
  
  
+ 
  public void showMenu()
  {
 	// if( !useLeftMenu ) return;
