@@ -516,10 +516,12 @@ void NxEngine::InitializeEngine( const NxGraphicsDesc& engineDesc )
 	mRoot->initialise( false );
 	//unsigned int NumMonitors = Ogre::Root::getSingleton().getDisplayMonitorCount();
 
-	#ifdef __ANDROID__
+#ifdef __ANDROID__
 	mAssetMgr = engineDesc.mAssetMgr;
 	if ( mAssetMgr ) {
+		// add files android support
 		ArchiveManager::getSingleton().addArchiveFactory( new APKFileSystemArchiveFactory((AAssetManager*)mAssetMgr) );
+		// add zip file support
 		ArchiveManager::getSingleton().addArchiveFactory( new APKZipArchiveFactory((AAssetManager*)mAssetMgr) );
 	}
 #endif
@@ -607,10 +609,29 @@ void NxEngine::InitializeEngine( const NxGraphicsDesc& engineDesc )
 	//lodlist.push_back(8.0);
 	//lodlist.push_back(128.0);
 	//Ogre::DistanceLodStrategy *start = new Ogre::DistanceLodStrategy() ;// lodlist);
-
 	//start->assertSorted(  lodlist );
-
 	//LodStrategyManager::getSingleton().setDefaultStrategy(start);
+	
+	
+	// load splash screen texture name if it doesnt exists
+	LogMsg("==> loading splash screen texture ");
+//	if( !TextureManager::getSingleton().resourceExists ( engineDesc.mSplashTexture ) ) {
+ 	if( !Ogre::ResourceGroupManager::getSingleton().resourceExistsInAnyGroup ( engineDesc.mSplashTexture ) ) {
+	
+		LogMsg("==> texture doesnt exist : creating " + engineDesc.mSplashTexture);
+	
+		NxTextureImage * splashTexture = NxTextureManager::getSingleton().CreateTextureImage( engineDesc.mSplashTexture, engineDesc.mSplashTexture );
+	
+ 
+	
+	}
+	
+	
+	
+	//engineDesc.mSplashTexture
+	
+	
+	
 	LogMsg("==> progress bar .. ");
   
 	mProgressBar = new ProgressBar();
