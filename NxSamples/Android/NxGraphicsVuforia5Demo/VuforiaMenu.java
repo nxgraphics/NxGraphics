@@ -1,16 +1,23 @@
 package com.hotstuff.main;
 
+import java.io.File;
 import java.util.ArrayList;
 
+import com.hotstuff.main.FileChooser.FileSelectedListener;
 import com.hotstuff.main.R;
 
  
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -18,12 +25,16 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
  
 
@@ -161,15 +172,11 @@ public class VuforiaMenu
          setSwipingMenu(false);
          
          // Hides the menu if it is not docked when releasing
-         if (!isMenuDisplaying()
-             || getViewX(mMovableView) < (mScreenWidth * SETTINGS_MENU_SCREEN_PERCENTAGE))
+         if (!isMenuDisplaying() || getViewX(mMovableView) < (mScreenWidth * SETTINGS_MENU_SCREEN_PERCENTAGE))
          {
-             if (isMenuDisplaying()
-                 || getViewX(mMovableView) < (mScreenWidth * SETTINGS_MENU_SCREEN_MIN_PERCENTAGE_TO_SHOW))
-             {
+             if (isMenuDisplaying() || getViewX(mMovableView) < (mScreenWidth * SETTINGS_MENU_SCREEN_MIN_PERCENTAGE_TO_SHOW)) {
                  hideMenu();
-             } else
-             {
+             } else {
                  showMenu();
              }
          }
@@ -260,9 +267,14 @@ public class VuforiaMenu
      return x;
  }
  
+// public boolean useLeftMenu = false;
+ 
  
  public void showMenu()
  {
+	// if( !useLeftMenu ) return;
+	 
+	 
      if (!mIsBelowICS)
      {
          startViewsAnimation(true);
@@ -276,15 +288,14 @@ public class VuforiaMenu
  
  public void hideMenu()
  {
-     if (!mIsBelowICS)
-     {
+     if (!mIsBelowICS) {
          if (!mMenuAnimator.isRunning())
          {
              startViewsAnimation(false);
              setMenuDisplaying(false);
          }
-     } else
-     {
+     } 
+     else {
          hide();
          setMenuDisplaying(false);
      }
@@ -348,8 +359,7 @@ public class VuforiaMenu
  }
  
  // Process the gestures to handle the menu
- private class GestureListener extends
-     GestureDetector.SimpleOnGestureListener
+ private class GestureListener extends GestureDetector.SimpleOnGestureListener
  {
      // Minimum distance to start displaying the menu
      int DISTANCE_TRESHOLD = 10;
@@ -362,30 +372,25 @@ public class VuforiaMenu
      
      // Called when dragging
      @Override
-     public boolean onScroll(MotionEvent e1, MotionEvent e2,
-         float distanceX, float distanceY)
-     {
-         if (Math.abs(distanceX) > DISTANCE_TRESHOLD && !mSwipingMenu)
-         {
+     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+    	 
+    	 
+    	 if( !Example.useLeftMenu ) return true;
+    	 
+         if (Math.abs(distanceX) > DISTANCE_TRESHOLD && !mSwipingMenu) {
              mSwipingMenu = true;
              mParentMenuView.setVisibility(View.VISIBLE);
              
-             if (mAdditionalViews != null && !mIsBelowICS
-                 && !mStartMenuDisplaying)
-             {
-                 for (int i = 0; i < mAdditionalViews.size(); i++)
-                 {
-                     mInitialAdditionalViewsX[i] = getViewX(mAdditionalViews
-                         .get(i));
+             if (mAdditionalViews != null && !mIsBelowICS && !mStartMenuDisplaying) {
+                 for (int i = 0; i < mAdditionalViews.size(); i++) {
+                     mInitialAdditionalViewsX[i] = getViewX(mAdditionalViews.get(i));
                  }
              }
          }
          
-         if (mSwipingMenu && mMovableView != null
-             && (getViewX(mMovableView) - distanceX > 0))
+         if (mSwipingMenu && mMovableView != null && (getViewX(mMovableView) - distanceX > 0))
          {
-             float deltaX = Math.min(mMaxXSwipe, getViewX(mMovableView)
-                 - distanceX);
+             float deltaX = Math.min(mMaxXSwipe, getViewX(mMovableView) - distanceX);
              
              setViewX(mMovableView, deltaX);
              
@@ -422,9 +427,11 @@ public class VuforiaMenu
      
      
      @Override
-     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-         float velocityY)
+     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
      {
+    	 
+    	 if( !Example.useLeftMenu ) return true;
+    	 
          if (velocityX > VELOCITY_TRESHOLD && !isMenuDisplaying())
          {
              showMenu();
@@ -443,9 +450,157 @@ public class VuforiaMenu
      }
      
      
+     
+     public void showDialog() { 
+    	 
+
+
+		AlertDialog.Builder alert = new AlertDialog.Builder( mActivity  );
+		alert.setTitle("Configuration");
+		//alert.setMessage("Message");
+		
+		SharedPreferences preferencesInput = PreferenceManager.getDefaultSharedPreferences( mActivity );
+		
+		// MAIN LAYOUT
+		LinearLayout layMain = new LinearLayout( mActivity );
+		layMain.setLayoutParams(  new LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.MATCH_PARENT) );
+		layMain.setOrientation( LinearLayout.VERTICAL );
+		
+		// IP
+		// IP LAYOUT
+		LinearLayout layFirst = new LinearLayout( mActivity );
+		layFirst.setLayoutParams(  new LinearLayout.LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.WRAP_CONTENT  ) );
+		layFirst.setWeightSum(10);
+		// IP TEXT
+		final EditText inputIpText = new EditText ( mActivity );
+		inputIpText.setLayoutParams( new LinearLayout.LayoutParams( 0, LayoutParams.MATCH_PARENT, 5) );
+		inputIpText.setText( preferencesInput.getString( "ip", null )  );
+		layFirst.addView( inputIpText );
+		// IP BUTTON
+		final Button buttonIp = new Button( mActivity );
+		buttonIp.setText("test ip");
+		buttonIp.setLayoutParams( new LinearLayout.LayoutParams( 0, LayoutParams.MATCH_PARENT, 5) );
+		layFirst.addView( buttonIp  );
+		buttonIp.setOnClickListener(  new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Toast.makeText( mActivity , "Pinged !", Toast.LENGTH_SHORT  ).show();
+			}
+		});
+ 
+		layMain.addView( layFirst );
+		
+		
+		// MARKER
+		// MARKER LAYOUT
+		LinearLayout laySecond = new LinearLayout( mActivity );
+		laySecond.setLayoutParams(  new LinearLayout.LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.WRAP_CONTENT  ) );
+		laySecond.setWeightSum(10);
+		// MARKER TEXT
+		final TextView inputMarkerText = new TextView ( mActivity );
+		inputMarkerText.setLayoutParams( new LinearLayout.LayoutParams( 0, LayoutParams.MATCH_PARENT, 5) );
+		
+		String tmp = preferencesInput.getString( "markerName", null );
+		
+		if( -1 == tmp.lastIndexOf("/") ) { // name only
+			
+			inputMarkerText.setText( tmp  );
+		}else { //path
+			String name =  tmp.substring(tmp.lastIndexOf("/"), tmp.length()-1);  
+			inputMarkerText.setText( name  );
+			
+		}
+ 
+		laySecond.addView( inputMarkerText );
+		// MARKER BUTTON
+		final Button chooseMarkerButton = new Button( mActivity );
+		chooseMarkerButton.setText("Choose");
+		chooseMarkerButton.setLayoutParams( new LinearLayout.LayoutParams( 0, LayoutParams.MATCH_PARENT, 5) );
+		laySecond.addView( chooseMarkerButton  );
+		chooseMarkerButton.setOnClickListener(  new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				
+				FileChooser choose = new FileChooser(mActivity, ".xml");
+				choose.setFileListener(  new FileSelectedListener() {
+					
+					@Override
+					public void fileSelected(File file) {
+						
+						String tmp = file.getAbsolutePath();
+						String pathAndName = tmp.substring(0, tmp.length()-4);
+						File testDat = new File( pathAndName + ".dat" );
+						if( !testDat.exists() ) { 
+							
+							Toast.makeText( mActivity, "cant find associated .dat file !" , Toast.LENGTH_SHORT  ).show();			
+						}else { // found .dat file
+							
+							String name =  pathAndName.substring(tmp.lastIndexOf("/")+1, pathAndName.length() ); 
+							inputMarkerText.setText( name  );
+							SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mActivity );
+							SharedPreferences.Editor editor = preferences.edit();
+						    editor.putString("markerName", pathAndName );
+						    editor.putBoolean("markerFromPath", true );
+						    editor.commit(); 						
+							Toast.makeText( mActivity , "selected marker: "+pathAndName, Toast.LENGTH_SHORT  ).show();							
+						}
+ 
+					}
+				} ).showDialog();
+ 	
+				
+			}
+		});		
+		
+		layMain.addView( laySecond );		
+		
+		
+		
+		
+		
+		
+		
+		alert.setView( layMain );
+		
+		alert.setPositiveButton("Redemarrer", new DialogInterface.OnClickListener() {
+		public void onClick(DialogInterface dialog, int whichButton) {
+ 
+			    // restart the app
+			    Intent i = mActivity.getBaseContext().getPackageManager().getLaunchIntentForPackage( mActivity.getBaseContext().getPackageName() );
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
+				mActivity.finish();
+				mActivity.startActivity(i); 
+			
+				android.os.Process.killProcess(android.os.Process.myPid());
+		        System.exit(0);
+ 
+		  }
+		});
+		
+		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		  public void onClick(DialogInterface dialog, int whichButton) {
+		      // Canceled.
+		  }
+		});
+		alert.show();
+
+    	 
+    	 
+    	 
+     }
+    
+     
+     
      @Override
      public boolean onDoubleTap(MotionEvent e)
      {
+    	 
+    	 
+    	 showDialog();
+    	 
+    	 if( !Example.useLeftMenu ) return true;
+    	 
+    	 
          if (!isMenuDisplaying())
          {
              if (!mIsBelowICS)

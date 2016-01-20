@@ -318,8 +318,14 @@ JNIEXPORT jlong JNICALL Java_com_hotstuff_main_OgreActivityJNI_GetEngineContext(
 	return (long)&context;
 }
  
-JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEnv *env, jobject obj, jobject surface, jobject assetManager ) 
+JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEnv *env, jobject obj, jobject surface, jobject assetManager, jstring splashName ) 
 {
+	
+	
+	
+
+	
+	
  
 	LOGD("----> NDK CreateEngine CALLED !!! ");
 
@@ -348,12 +354,19 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEn
 	EngineDesc.mSplashSize[2] = 0.5f;
 	EngineDesc.mSplashSize[3] = 0.9f;*/
     
-    	EngineDesc.mSplashSize[0] = 0.0f;
+    EngineDesc.mSplashSize[0] = 0.0f;
 	EngineDesc.mSplashSize[1] = 0.0f;
 	EngineDesc.mSplashSize[2] = 1.0f;
 	EngineDesc.mSplashSize[3] = 1.0f;
+	
+	
+		const char *splashNameJni = env->GetStringUTFChars(  splashName, NULL );
+		
+		EngineDesc.mSplashTexture = splashNameJni;
+ 
+	env->ReleaseStringUTFChars( splashName, splashNameJni );
 
-	EngineDesc.mSplashTexture = "NxLogo.jpg";
+	//EngineDesc.mSplashTexture =  "/sdcard/intro.jpg";//"NxLogo.jpg";
 
 
 	//LOGD("----> mNativeWnd : %d ", (int)EngineDesc.mNativeWnd  );
@@ -384,9 +397,66 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEn
 	
 	
 	ModelNode = Scene3DPlayer->CreateNxNode( "TheaterNode" + NxVideoUtils::ToString( 0 ) );
+	
+	/*
 	NxModel = ModelNode->CreateNxEntity( "room.mesh" );
-	NxModel->SetPosition( Nx::Vector3( 0 , 0 , 0)); 	
-	NxModel->SetScale( Nx::Vector3( 1,1,1)); 
+	NxModel->SetPosition( Nx::Vector3( 0, 0, 0)); 	
+	NxModel->SetScale( Nx::Vector3(1,1,1)); */
+	
+	NxModel = ModelNode->CreateNxEntity( "room1.mesh" );
+	NxModel->SetPosition( Nx::Vector3( 0, 0, 0)); 	
+	NxModel->SetScale( Nx::Vector3(1,1,1)); 
+
+ 
+	NxEntity * NxChairsRoom1BackLeft = ModelNode->CreateNxEntity( "chairs_room1_back_left.mesh" );
+	NxChairsRoom1BackLeft->SetPosition( Nx::Vector3( 0, 0, 0)); 	
+	NxChairsRoom1BackLeft->SetScale( Nx::Vector3(1,1,1)); 	
+	
+	
+	NxEntity * NxChairsRoom1BackRight = ModelNode->CreateNxEntity( "chairs_room1_back_right.mesh" );
+	NxChairsRoom1BackRight->SetPosition( Nx::Vector3( 0, 0, 0)); 	
+	NxChairsRoom1BackRight->SetScale( Nx::Vector3(1,1,1)); 		
+	
+	
+	NxEntity * NxChairsRoom1FrontLeft = ModelNode->CreateNxEntity( "chairs_room1_front_left.mesh" );
+	NxChairsRoom1FrontLeft->SetPosition( Nx::Vector3( 0, 0, 0)); 	
+	NxChairsRoom1FrontLeft->SetScale( Nx::Vector3(1,1,1)); 		
+
+	NxEntity * NxChairsRoom1FrontRight = ModelNode->CreateNxEntity( "chairs_room1_front_right.mesh" );
+	NxChairsRoom1FrontRight->SetPosition( Nx::Vector3( 0, 0, 0)); 	
+	NxChairsRoom1FrontRight->SetScale( Nx::Vector3(1,1,1)); 		
+	
+	
+	
+	
+	NxEntity * NxRoom2 = ModelNode->CreateNxEntity( "room2.mesh" );
+	NxRoom2->SetPosition( Nx::Vector3( 0, 0, 0)); 	
+	NxRoom2->SetScale( Nx::Vector3(1,1,1)); 
+
+	 
+	NxEntity * NxChairsRoom2BackLeft = ModelNode->CreateNxEntity( "chairs_room2_back_left.mesh" );
+	NxChairsRoom2BackLeft->SetPosition( Nx::Vector3( 0, 0, 0)); 	
+	NxChairsRoom2BackLeft->SetScale( Nx::Vector3(1,1,1)); 	
+	
+	
+	NxEntity * NxChairsRoom2BackRight = ModelNode->CreateNxEntity( "chairs_room2_back_right.mesh" );
+	NxChairsRoom2BackRight->SetPosition( Nx::Vector3( 0, 0, 0)); 	
+	NxChairsRoom2BackRight->SetScale( Nx::Vector3(1,1,1)); 	
+
+
+	NxEntity * NxChairsRoom2FrontLeft = ModelNode->CreateNxEntity( "chairs_room2_front_left.mesh" );
+	NxChairsRoom2FrontLeft->SetPosition( Nx::Vector3( 0, 0, 0)); 	
+	NxChairsRoom2FrontLeft->SetScale( Nx::Vector3(1,1,1)); 		
+	
+	
+	NxEntity * NxChairsRoom2FrontRight = ModelNode->CreateNxEntity( "chairs_room2_front_right.mesh" );
+	NxChairsRoom2FrontRight->SetPosition( Nx::Vector3( 0, 0, 0)); 	
+	NxChairsRoom2FrontRight->SetScale( Nx::Vector3(1,1,1)); 		
+	 
+	
+ 
+	
+	
     
     
 	ScreenNode = Scene3DPlayer->CreateNxNode( "ScreenNode" + NxVideoUtils::ToString( 0 ) );
@@ -398,16 +468,17 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEn
  
     
     
-    
+    LOGD("----> loading test.jpg on sdcard... "  );
     NxTextureImage * tex =  NxTextureManager::getSingleton().CreateTextureImage( "photo" + NxVideoUtils::ToString( 0 ), "/sdcard/test.jpg" );
 	MaterialNx * MatLeft1 =  NxMaterialManager::getSingleton().CreateMaterial("photomat" + NxVideoUtils::ToString( 0) );
 	NxTechnique * MatLeftTechnique1 = MatLeft1->CreateTechnique("");
 	NxPass * MatLeftPass1 =  MatLeftTechnique1->CreatePass("");
 	MatLeftPass1->SetLightingEnabled(false);
+	LOGD("----> assigning file to texture unit... "  );
 	NxTextureUnit * MatLeftUnit1 = MatLeftPass1->CreateTextureUnit("");
 	MatLeftUnit1->SetTextureName(  "photo" + NxVideoUtils::ToString( 0 )  );
     MatLeftUnit1->SetTextureScale( 1.0, -1.0f );
-    
+     LOGD("----> loading test.jpg on sdcard: DONE "  );
     
    //NxScreenModel->SetMaterialName( MatLeft1->GetName()  );
     
@@ -449,6 +520,8 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEn
 	//	mBoxes.push_back( NxTheaterModel );
  
 	 
+	 
+	 /*
 	MaterialNx * MatLeft =  NxMaterialManager::getSingleton().CreateMaterial("BoxesMaterial");
 	NxTechnique * MatLeftTechnique = MatLeft->CreateTechnique("");
 	NxPass * MatLeftPass =  MatLeftTechnique->CreatePass("");
@@ -459,7 +532,7 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEn
 	MatLeftPass->SetCullingMode(NXCULL_CLOCKWISE);
 	NxTextureUnit * MatLeftUnit = MatLeftPass->CreateTextureUnit("");
 	MatLeftUnit->SetTextureAddressingMode(TEXTURE_BORDER);
-	MatLeftUnit->SetTextureName("NxLogo.jpg");
+	MatLeftUnit->SetTextureName("NxLogo.jpg"); */
 
 	//BackGroundColour->getTechnique(0)->getPass(0)->createTextureUnitState( "NxBorderCenter.png" );
 	// MatLeftUnit->SetTextureName(texname); 

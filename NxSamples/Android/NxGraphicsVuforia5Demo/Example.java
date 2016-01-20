@@ -26,13 +26,6 @@ import com.hotstuff.main.DownloadFilesTask.DownloadCallback;
 import com.hotstuff.main.VuforiaGlView;
 import com.hotstuff.main.R;
 
-
-
-
- 
-
- 
-
 import com.qualcomm.vuforia.CameraCalibration;
 import com.qualcomm.vuforia.CameraDevice;
 import com.qualcomm.vuforia.DataSet;
@@ -58,10 +51,6 @@ import com.qualcomm.vuforia.VideoBackgroundConfig;
 import com.qualcomm.vuforia.VideoBackgroundTextureInfo;
 import com.qualcomm.vuforia.VideoMode;
 import com.qualcomm.vuforia.Vuforia;
- 
- 
- 
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -69,6 +58,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
@@ -105,6 +95,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -131,31 +122,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
- /*
-add on server a file: upload.php
-
-<?php
-
-$uploaddir = './img/';
-$uploadfile = $uploaddir . basename($_FILES['uploadedfile']['name']);
-if (move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $uploadfile)) {
-    echo "upload success\n";
-} else {
-    echo "upload failed\n";
-}
  
-?>
-
-
- */
  
 
 
 public class Example extends Activity implements SensorEventListener, VuforiaControl, VuforiaMenuInterface
 {
+	// defaults for first install
+ 	String ipServer = "192.168.1.15";
+	String markerName = "Stones";
 
 	
-	 String ipServer = "192.168.2.102";
+	 public static   boolean useLeftMenu = false;
+	
+	String mDataIp = null;
+	String mDataMarker = null;
+	Boolean mDataMarkerFromPath = null;
 	
 	protected Handler handler = null;
 	protected SurfaceView  surfaceView = null;
@@ -202,55 +184,54 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
     
     byte [] mBuffer =null;
 	   
-   public void sendFile( String filepath ) { 
+   public Boolean sendFile( String filepath ) { 
 	   
-	   NxFileUploader up = new NxFileUploader( "http://"+ipServer+"/upload.php", filepath );
 	   
+	
+	   
+	   NxFileUploader up = new NxFileUploader( "http://"+mDataIp+"/upload.php", filepath );
 	   try {
-		up.execute("" , null, null).get();
-	} catch (InterruptedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (ExecutionException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-   
+		   return up.execute("" , null, null).get();
+	   } catch (InterruptedException e) {
+		   e.printStackTrace();
+	   } catch (ExecutionException e) {
+		   e.printStackTrace();
+	   }
+	   return false;
    }
-   
-   
+
    public void downloadFiles(  String folderUrl , String whereLocal ) { 
 	   
 	   
-		ArrayList<String> insertMediaFiles = new ArrayList<String>();
-		ArrayList<String> insertMediaDstFolders = new ArrayList<String>();
+	   
+	   
+	   ArrayList<String> insertMediaFiles = new ArrayList<String>();
+	   ArrayList<String> insertMediaDstFolders = new ArrayList<String>();
+	   File f = new File( whereLocal );
+	   if( !f.exists() ) f.mkdirs();
 		
-		
-		File f = new File( whereLocal );
-		if( !f.exists() ) f.mkdirs();
-		
-		insertMediaFiles.add( folderUrl );
-    	insertMediaDstFolders.add(  whereLocal );//Environment.getExternalStorageDirectory()+"/" );  
+	   insertMediaFiles.add( folderUrl );
+	   insertMediaDstFolders.add(  whereLocal );  
 	   
 	   boolean isFileToDownload = false;
 	   try {
 		new DownloadFilesTask(  isFileToDownload, insertMediaFiles, insertMediaDstFolders, null,
-					new DownloadCallback(){
-				    	@Override
-				    	public void onMessage( String msg, int progress1, int progress2) {
-				    	 		//sendTaskMsg( "", msg, progress1, progress2 );	
-				    	}
+			new DownloadCallback(){
+		    	@Override
+		    	public void onMessage( String msg, int progress1, int progress2) {
+		    	 		//sendTaskMsg( "", msg, progress1, progress2 );	
+		    	}
 
-				    	@Override
-						public void OnFinished() { 
-				    		Log.i("MEDIA INSERT", "===> Downloads Done !" );
-						
-						}
-				    	
-				    	@Override
-				    	public void onError( int errorType ) { 
-				    		
-				    	}
+		    	@Override
+				public void OnFinished() { 
+		    		Log.i("MEDIA INSERT", "===> Downloads Done !" );
+				
+				}
+		    	
+		    	@Override
+		    	public void onError( int errorType ) { 
+		    		
+		    	}
 					}
 			 ).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get() ;
 	} catch (InterruptedException e) {
@@ -263,12 +244,13 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	   
 	   
    }
+   
+   ////////////
+   
 
-
-    	 
-
-    
-    
+   
+   ///////////////
+ 
     private Camera openFrontFacingCameraGingerbread() {
 	    int cameraCount = 0;
 	    Camera cam = null;
@@ -290,11 +272,7 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
     
     HandlerThread mCameraThread;
     Handler mCameraHandler;
-    
-    
-    
-    
-    
+ 
     class PreviewCallback implements Camera.PreviewCallback {
 
     	  //private static final String TAGd = PreviewCallback.class.getSimpleName();
@@ -304,9 +282,7 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
     	  private int previewMessage;
 
     	  PreviewCallback( ) {
-    		  
-    		 
-    	     
+  
     	  }
 
     	  void setHandler(Handler previewHandler, int previewMessage) {
@@ -334,6 +310,7 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
     VuforiaFreeframe refFreeFrame;
     
     boolean mIsDroidDevice = false;	
+    
  
     
     
@@ -344,6 +321,33 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		 return  mInstance; 
 	 }
 	 
+	 /*
+	 
+	   @Override
+	   public boolean onKeyDown(int keyCode, KeyEvent event)  {
+		   
+		   
+		   Log.e("", "============== CALLED ==========>>>>> " + String.valueOf( keyCode )  );
+		   
+		  	   Toast.makeText(this,  String.valueOf( keyCode ) , Toast.LENGTH_LONG ).show();
+		    //  if ( keyCode == KeyEvent.KEYCODE_MENU ) {
+		  	   
+		  	 if ((keyCode == KeyEvent.KEYCODE_HOME)) {
+		         Toast.makeText(this, "You pressed the home button!", Toast.LENGTH_LONG).show();                     
+		         return true;
+		     }
+		   
+	       if (Integer.parseInt(android.os.Build.VERSION.SDK) > 5
+	               && keyCode == KeyEvent.KEYCODE_BACK
+	               && event.getRepeatCount() == 0) {
+	           Log.d("CDA", "onKeyDown Called");
+	           //onBackPressed();
+	           return true; 
+	       }
+	       return super.onKeyDown(keyCode, event);
+	   }
+	 	 
+	 */
 	 
 	 @Override
 		public void onBackPressed() {
@@ -530,99 +534,82 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	 
 	 @Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// TODO Auto-generated method stub
+	 
 		super.onActivityResult(requestCode, resultCode, data);
 		
 		
-		  if(requestCode == TAKE_PICTURE)
-		     {
-		        // Bitmap picture = (Bitmap) data.getExtras().get("data");
-		        // ImageView image = (ImageView) findViewById(R.id.imageView1);
-		        // image.setImageBitmap(picture);
+		if( requestCode == TAKE_PICTURE ) {
 		         
-		         /*
-		         Intent i=new Intent( this, Example.class);
-	             //i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	             i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-	          
-	             startActivity(i);
-	             */
 			  
-			  BitmapFactory.Options options = new BitmapFactory.Options();
-			//  options.inPreferredConfig = Bitmap.Config.
-			  Bitmap photo = BitmapFactory.decodeFile( folderPicture + filePicture , options);
-			  
-			  
-			  //here rotation 90 degrees
-			  
-			  
-			//  Bitmap photo = (Bitmap) "your Bitmap image";
-			  photo = Bitmap.createScaledBitmap(photo, 512, 512, false);
-			  ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-			  photo.compress(Bitmap.CompressFormat.JPEG, 70, bytes);
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			Bitmap photo = BitmapFactory.decodeFile( folderPicture + filePicture , options);
+			photo = Bitmap.createScaledBitmap(photo, 512, 512, false);
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+			photo.compress(Bitmap.CompressFormat.JPEG, 70, bytes);
 
-			  File f = new File( folderPicture + filePicture );
-			  f.delete();
-			  try {
+			File f = new File( folderPicture + filePicture );
+			f.delete(); // ??? delete 
+			try {
 				f.createNewFile();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			  FileOutputStream fo = null;
+			FileOutputStream fo = null;
 			try {
 				fo = new FileOutputStream(f);
-			
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		
-			  try {
+			try {
 				fo.write(bytes.toByteArray());
 				fo.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			  
-			  
-
-			   
-			   File to = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +"test.jpg");
-			    
-	     
-			   try {
-				copyDirectory(  f , to );
+			      
+			File to = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +"test.jpg");
+			try {
+				copyDirectory( f, to );
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			   
 			  
-			  
-			  
-			 
-			  
-			   
-			  sendFile( folderPicture + filePicture );
-			  
-		        downloadFiles( "http://"+ipServer+"/img/" ,  folderWithPictures  );
-			  
-		         
-		     	mInstance = this;
-
-				CopyRessouresIfNeeded();
-
+			// send picture to the server
+			if( sendFile( folderPicture + filePicture )) { 
 				
-				 
-				handler = new Handler();
-				sysInit();
+				
+			
+				
+				
+				// download all pics
+				downloadFiles( "http://"+mDataIp+"/img/", folderWithPictures );
+ 
+				
+			}else { 
+				
+				 Toast.makeText( this, "le server de destination: http://"+mDataIp+"/img/ n'est pas joinable", Toast.LENGTH_LONG ).show();
+				
+				
+				
+			}
+			
+			
+			mInstance = this;
+
+			CopyRessouresIfNeeded();
+
+			
+			 
+			handler = new Handler();
+			sysInit();	
+			  
+		
 		         
 		         
 		         
-		         Toast.makeText( this, "vvvv", Toast.LENGTH_LONG ).show();
+		        
 		     }//if		
 		
 		
@@ -704,106 +691,54 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 			     }
 			 }
 	 
+	 public void setDefaultDataIfNecessary() { 
+		 
+		 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( this );
+		 if( !preferences.contains("firstInit")) {  // first install
+ 
+			SharedPreferences.Editor editor = preferences.edit();
+			editor.putBoolean("firstInit", true);
+		    editor.putString("ip" , ipServer );
+		    editor.putString("markerName", markerName );
+		    editor.putBoolean("markerFromPath", false );
+		    editor.commit(); 
+		 } 
+		 
+		 // now get information
+		 
+		 SharedPreferences preferencesRead = PreferenceManager.getDefaultSharedPreferences( this );
+		 mDataIp = preferencesRead.getString("ip", null );
+		 mDataMarker = preferencesRead.getString("markerName", null );
+		 
+		 mDataMarkerFromPath = preferencesRead.getBoolean("markerFromPath", false );
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+	 }
+	 
 	 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		setDefaultDataIfNecessary();
 		
-		
-		//File tempFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
-                /*+ "/myfolder"*///);
-        //tempFolder.mkdir();
-        
 		folderPicture = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
 		filePicture =   String.valueOf(System.currentTimeMillis()) + ".jpg";
 		 
-		   File file = new File(folderPicture, filePicture);
-		   
-		   
-		 
-		   
-		   /*
-		   File from = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + String.valueOf(System.currentTimeMillis()) + ".jpg");
-		   File to = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +"test.jpg");
-		   
-		   try {
-			to.createNewFile();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		   
-		   from.renameTo(to);		   
-		   */
-		   
-		   /*
-		   File dst = new File( Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "test.jpg");
-		   if(!dst.exists()){ 
-			   try {
-				dst.createNewFile();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		   }
-		   
-		   try {
-			
-			copy( file , dst);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		   
-		   
-		   
-			//folderPicture = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
-			//filePicture =  "test"/*String.valueOf(System.currentTimeMillis())*/ + ".jpg";
-		   
-		   
-	        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-	        
-	        //intent.setAction(Intent.ACTION_MAIN);
-	        //intent.addCategory(Intent.CATEGORY_LAUNCHER);
-	        
-	        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-	        startActivityForResult(intent, TAKE_PICTURE); 	
+		File file = new File(folderPicture, filePicture);
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+        startActivityForResult(intent, TAKE_PICTURE); 	
 		
 	        
-	        
-		/*
-	        
-	      */  
 
-		 
-		
-	
-	    
-	    
-		 /* // param.setPreviewSize(preview_size.width,preview_size.height);
-		  // mCamera.setParameters(param);
-		   Size previewSize=mCamera.getParameters().getPreviewSize();
-		   int dataBufferSize=(int)(previewSize.height*previewSize.width*(ImageFormat.getBitsPerPixel(mCamera.getParameters().getPreviewFormat())/8.0));
-		   mBuffer = new byte[dataBufferSize];
-		   //mCamera.addCallbackBuffer( mBuffer ); 
-		   PreviewCallback d = new PreviewCallback();
-		  // mCamera.setPreviewCallbackWithBuffer(d);	
-		   
-		   mCamera.setPreviewCallback(d);
-		   mCamera.startPreview(); */
-	 
-		
-	 
-		/*
-		mInstance = this;
-
-		CopyRessouresIfNeeded();
-
-		
-		 
-		handler = new Handler();
-		sysInit(); */
+ 
 
 	}
 
@@ -1075,12 +1010,6 @@ public void DebugTextureFormatState( State state ){
 	 Camera  mCamera;
  
 	private void sysInit() {
-		
-
-		
-		
-		
-		
  
 		final Runnable initRunnable = new Runnable() {
 			public void run() {
@@ -1099,30 +1028,12 @@ public void DebugTextureFormatState( State state ){
 									assetMgr = getResources().getAssets();
 									 
 								}
-								
-								
-							        
-								
-								
-								// startCamera();
-								
-								
-							 
-					 
-							   OgreActivityJNI.CreateEngine(lastSurface, assetMgr); 
+ 
+							   OgreActivityJNI.CreateEngine( lastSurface, assetMgr ); 
 							   OgreActivityJNI.ViewportSetClearEveryFrame( false );
 			 
 							   Vuforia.onSurfaceCreated();
-							  
-							      
-								 
-
-							   
-							
-							  
-							//  mFrontView.requestRender();
-							  
-							   
+ 
 							   mExtendedTracking = true;// ??? doesnt work
 							   
 								vuforiaAppSession = new VuforiaSession(mInstance);
@@ -1134,13 +1045,7 @@ public void DebugTextureFormatState( State state ){
 								mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith("droid");	
 								wndCreate = true;
 								handler.post(this);
-								
-								
-								
-						
-								  
-								
-	 
+ 
 								return;
 							}
 							
@@ -1151,9 +1056,7 @@ public void DebugTextureFormatState( State state ){
 							}
 
 							 if (initOGRE && wndCreate && initvuforia){ 
-								 
-								
-								
+	 
 								 if( !setsize ){
 									 VideoBackgroundConfig  conf =   Renderer.getInstance().getVideoBackgroundConfig( );								
 									 OgreActivityJNI.SetScreenSize(  conf.getSize().getData()[0] , conf.getSize().getData()[1]  );	
@@ -1733,12 +1636,23 @@ public void DebugTextureFormatState( State state ){
             return false;
         
         dataSetUserDef = objectTracker.createDataSet();
-        if (dataSetUserDef == null)
-            return false;
+        if (dataSetUserDef == null) return false;
         
-        if (!dataSetUserDef.load("Stones.xml",
-            STORAGE_TYPE.STORAGE_APPRESOURCE))
-            return false;
+        
+		if( mDataMarkerFromPath == true ) { 
+			
+		    if (!dataSetUserDef.load( mDataMarker + ".xml", STORAGE_TYPE.STORAGE_ABSOLUTE ))
+		        return false;				
+			
+			
+		}else { // from assets
+			
+		    if (!dataSetUserDef.load( mDataMarker + ".xml", STORAGE_TYPE.STORAGE_APPRESOURCE))
+		        return false;	
+			
+		}
+        
+
         
         if (!objectTracker.activateDataSet(dataSetUserDef))
             return false;

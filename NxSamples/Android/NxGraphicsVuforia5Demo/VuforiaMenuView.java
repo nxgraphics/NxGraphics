@@ -14,6 +14,7 @@ public class VuforiaMenuView extends LinearLayout
     int horizontalClipping = 0;
     
     
+    
     public VuforiaMenuView(Context context)
     {
         super(context);

@@ -1,77 +1,52 @@
 package com.hotstuff.main;
 
-import java.io.BufferedInputStream;
+ 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-//import org.apache.commons.codec.binary.Base64;
-import org.apache.http.util.ByteArrayBuffer;
-
 import android.os.AsyncTask;
 import android.util.Log;
 
-//Read more: http://getablogger.blogspot.com/2008/01/android-how-to-post-file-to-php-server.html#ixzz3rreXb2jp
-
-
-public class NxFileUploader  extends AsyncTask<String, Void, String> {
+ 
+public class NxFileUploader  extends AsyncTask<String, Void, Boolean> {
 	
 	
-	 HttpURLConnection conn = null;
+	HttpURLConnection conn = null; 
+	String mFileName = null;
+	String mUrl = null;
 	 
-	 String mFileName = null;
-	 String mUrl = null;
 	 
-	 
-    protected String doInBackground(String... urls) {
-    	
-    	
-    	sendFile( mFileName , mUrl );
-    	
-    return "";
+    protected Boolean doInBackground(String... urls) {
+    	return sendFile( mFileName , mUrl );
     }
-	
-	
+ 
+    public NxFileUploader( String url, String filename ) { 
+    	mUrl = url;
+		mFileName = filename; 
+		
+    }
 
+	 public boolean sendFile( String filePath, String urlString) { 
 	 
-	 public NxFileUploader( String url, String filename ) { 
-		 mUrl = url;
-		 mFileName = filename;
-		 
-		 
-	 }
-
- public   void sendFile( String filePath , String urlString) { 
-	 
-	 
-	  String exsistingFileName = filePath;//"/sdcard/uploader/data/testfile";
-
+	  String exsistingFileName = filePath;
       String lineEnd = "\r\n";
       String twoHyphens = "--";
       String boundary = "*****";
       try {
-          // ------------------ CLIENT REQUEST
-
-        //  Log.e(Tag, "Inside second Method");
-
-          FileInputStream fileInputStream = new FileInputStream(new File(
-                  exsistingFileName));
-
-          // open a URL connection to the Servlet
-
+ 
+          FileInputStream fileInputStream = new FileInputStream(new File( exsistingFileName));
           URL url = new URL(urlString);
-
-          // Open a HTTP connection to the URL
-
-            conn = (HttpURLConnection) url.openConnection();
+          conn = (HttpURLConnection) url.openConnection();
+          
+          conn.setConnectTimeout(1000 * 10); // 10 seconds
+          conn.setReadTimeout( 1000 * 60 * 5);   // 5 minutes       
+          
 
           // Allow Inputs
           conn.setDoInput(true);
@@ -87,21 +62,16 @@ public class NxFileUploader  extends AsyncTask<String, Void, String> {
 
           conn.setRequestProperty("Connection", "Keep-Alive");
 
-          conn.setRequestProperty("Content-Type",
-                  "multipart/form-data;boundary=" + boundary);
+          conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
 
           DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
 
           dos.writeBytes(twoHyphens + boundary + lineEnd);
-          dos
-                  .writeBytes("Content-Disposition: post-data; name=uploadedfile;filename="
-                          + exsistingFileName + "" + lineEnd);
+          dos.writeBytes("Content-Disposition: post-data; name=uploadedfile;filename=" + exsistingFileName + "" + lineEnd);
           dos.writeBytes(lineEnd);
 
-        //  Log.e(Tag, "Headers are written");
-
+       
           // create a buffer of maximum size
-
           int bytesAvailable = fileInputStream.available();
           int maxBufferSize = 1000;
           // int bufferSize = Math.min(bytesAvailable, maxBufferSize);
@@ -131,15 +101,16 @@ public class NxFileUploader  extends AsyncTask<String, Void, String> {
 
       } catch (MalformedURLException ex) {
           Log.e("", "error: " + ex.getMessage(), ex);
+          return false;
       }
 
       catch (IOException ioe) {
           Log.e("", "error: " + ioe.getMessage(), ioe);
+          return false;
       }
 
       try {
-          BufferedReader rd = new BufferedReader(new InputStreamReader(conn
-                  .getInputStream()));
+          BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
           String line;
           while ((line = rd.readLine()) != null) {
               Log.e("Dialoge Box", "Message: " + line);
@@ -148,7 +119,10 @@ public class NxFileUploader  extends AsyncTask<String, Void, String> {
 
       } catch (IOException ioex) {
           Log.e("MediaPlayer", "error: " + ioex.getMessage(), ioex);
-      }	 
+          return false;
+      }	
+      
+      return true;
 	 
 	 
  }
