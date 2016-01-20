@@ -23,6 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+
+import org.apache.http.NameValuePair;
 
 import  com.apache.ivy.CopyProgressListener;
 
@@ -162,6 +165,8 @@ public interface URLHandler {
     public URLInfo getURLInfo(URL url, int timeout);
 
     public InputStream openStream(URL url) throws IOException;
+    
+    public InputStream openStreamPost(URL url, ArrayList<NameValuePair> postData) throws IOException;
 
     public void download(URL src, File dest, CopyProgressListener l) throws IOException;
 

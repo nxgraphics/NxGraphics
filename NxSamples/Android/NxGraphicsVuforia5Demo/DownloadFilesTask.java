@@ -15,8 +15,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -56,15 +58,22 @@ public class DownloadFilesTask extends AsyncTask<Void, Integer, String> {
 	 private ArrayList<String> mMedia = null; 
 	 private String mSessionId = null;
 	 private DownloadFilesTaskMethod mMethod = null;
-	 private String mMethodParameters = null;	 
+	 private String mMethodParameters = null;	
+	 private ArrayList<NameValuePair> mPostData = null;
+	 
+		
+	 
 
-	 public DownloadFilesTask( Boolean isFiles, ArrayList<String> media, ArrayList<String> dstFolder, String sessionId, DownloadCallback call ) { 
+	 public DownloadFilesTask( Boolean isFiles, ArrayList<String> media, ArrayList<String> dstFolder, String sessionId, ArrayList<NameValuePair> postData,  DownloadCallback call ) { 
 		 mCallback = call;
 		 mIsFiles = isFiles; 
 		 mMedia = media;
 		 mDstFolder = dstFolder;
 		 mSessionId = sessionId;
 		 mMethod = DownloadFilesTaskMethod.MethodGet;
+		 
+		 mPostData = postData;
+		 
 	 }
 	 
 	 public DownloadFilesTask setMethod( DownloadFilesTaskMethod method, String parameters ) { 
@@ -98,7 +107,7 @@ public class DownloadFilesTask extends AsyncTask<Void, Integer, String> {
 	    }
  	  }	  	
 
-	public void CopyContents( String urli, File folder ) {			 
+	public void CopyContents( String urli, File folder, ArrayList<NameValuePair> postData ) {			 
 		if(  !UrlExists( urli ) ) { 
 			Log.d( TAG, "Warning: remote url folder doesnt exist : " + urli );
 			return; 	
@@ -115,12 +124,18 @@ public class DownloadFilesTask extends AsyncTask<Void, Integer, String> {
        List files = null;
        List folders = null;
 		try {
-			files = lister.listFiles(url);
+			
+			
+		
+			
+			files = lister.listFiles(url, postData);
 			folders = lister.listDirectories(url);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 
+		
+		// files
        for( Iterator iter = files.iterator(); iter.hasNext(); ) {
            URL fileUrl = (URL) iter.next();
            try {
@@ -130,13 +145,14 @@ public class DownloadFilesTask extends AsyncTask<Void, Integer, String> {
 			}
        }
 
+       //folders
        for ( Iterator iter = folders.iterator(); iter.hasNext();) {
            URL folderUrl = (URL) iter.next();
            try {
            	File foldertocreate = new File( folderUrl.getPath() );
            	String dtf = folder.getAbsolutePath()+"/"+foldertocreate.getName()+"/" ;
            	String Dst = "http://"+folderUrl.getHost()+folderUrl.getPath(); 
-           	downloadFolderToLocal( Dst, dtf ); 
+           	downloadFolderToLocal( Dst, dtf, postData ); 
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -145,13 +161,16 @@ public class DownloadFilesTask extends AsyncTask<Void, Integer, String> {
 	} 	    
 
 	// TODO : make one function for the two below, param boolean.
-	public void downloadFolderToLocal( String urlFile, String dstFolder ) {
+	public void downloadFolderToLocal( String urlFile, String dstFolder, ArrayList<NameValuePair> postData  ) {
+		
+	
+		
 		File file2 = new File( dstFolder );	
 		if( !file2.exists() ) { 
 			if( !file2.mkdirs() ) Log.e(TAG,"could not create directory in downloadFolderToLocal at: " + dstFolder);
 		}				 
 		try { 
-			CopyContents( urlFile, file2 );
+			CopyContents( urlFile, file2, postData );
 		} catch ( Exception e ) {	
 			Log.e(TAG,"downloadFileToLocal => httpFileDownload Error :" + e.getMessage());	          
 		}
@@ -424,7 +443,7 @@ public class DownloadFilesTask extends AsyncTask<Void, Integer, String> {
 	    		if( mIsFiles ) { 
 	    			downloadFileToLocal( mMedia.get(i), mDstFolder.get(i) );
 	    		}else{ 
-	    			downloadFolderToLocal( mMedia.get(i), mDstFolder.get(i) );
+	    			downloadFolderToLocal( mMedia.get(i), mDstFolder.get(i), mPostData );
 	    		}
 	    		TotalProgress += 100/mMedia.size();
 	    		mCurrentprogress02 = TotalProgress;

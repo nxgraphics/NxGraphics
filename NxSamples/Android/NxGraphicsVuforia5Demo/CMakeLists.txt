@@ -68,7 +68,7 @@ file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/main.h" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/Shaders.h" DESTINATION "${NDKOUT}/jni")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/VuforiaMath.h" DESTINATION "${NDKOUT}/jni")
 
-
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/index.php" DESTINATION "${NDKOUT}/www/img")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/upload.php" DESTINATION "${NDKOUT}/www")
 
 #copy jar lib

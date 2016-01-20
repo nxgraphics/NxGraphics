@@ -15,6 +15,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
@@ -81,9 +83,11 @@ import android.hardware.Camera.CameraInfo;
 import android.net.Uri;
 import javax.microedition.khronos.egl.EGLContext;
 
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -133,6 +137,9 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	String markerName = "Stones";
 	String splashName = "NxLogo.jpg";
 	float thresholdDistance = 700.0f;
+	
+	
+	int maxPictures = 5;
 
 	
 	 public static   boolean useLeftMenu = false;
@@ -209,6 +216,27 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	   }
 	   return false;
    }
+   
+   
+   public static String implodeArray( ArrayList<String> inputArray, String glueString) {
+
+	   /** Output variable */
+	   String output = "";
+
+	   if (inputArray.size() > 0) {
+	   	StringBuilder sb = new StringBuilder();
+	   	sb.append(inputArray.get(0));
+
+	   	for (int i=1; i<inputArray.size(); i++) {
+	   		sb.append(glueString);
+	   		sb.append(inputArray.get(i));
+	   	}
+
+	   	output = sb.toString();
+	   }
+
+	   return output;
+	   }
 
    public void downloadFiles(  String folderUrl , String whereLocal ) { 
 	   
@@ -223,9 +251,32 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	   insertMediaFiles.add( folderUrl );
 	   insertMediaDstFolders.add(  whereLocal );  
 	   
+	   
+	   ArrayList<NameValuePair> postData = new ArrayList<NameValuePair>();
+	   
+	   ArrayList<String> filesLocal = new ArrayList<String>();
+	   
+	   ArrayList<File> files = new ArrayList<File>();
+		listfiles("/sdcard/diego_img/", files);	
+		
+		
+		for( int i = 0 ; i < files.size(); i++ ) { 
+			
+			filesLocal.add( files.get(i).getName()    );
+			
+		}
+
+       
+ 
+
+	   
+	   postData.add(new BasicNameValuePair("postData", implodeArray( filesLocal, ",")  ));
+	   
+	   here check post data !!!!
+	   
 	   boolean isFileToDownload = false;
 	   try {
-		new DownloadFilesTask(  isFileToDownload, insertMediaFiles, insertMediaDstFolders, null,
+		new DownloadFilesTask(  isFileToDownload, insertMediaFiles, insertMediaDstFolders, null, postData,
 			new DownloadCallback(){
 		    	@Override
 		    	public void onMessage( String msg, int progress1, int progress2) {
@@ -943,10 +994,10 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	}
 	
 	
-	public void listfiles(String directoryName, ArrayList<File> files) {
+	public void listfiles( String directoryName, ArrayList<File> files ) {
+		
+		
 		File directory = new File(directoryName);
-		
-		
 		if(directory.exists()) { 
 			
 			// get all the files from a directory
@@ -1144,12 +1195,25 @@ public void DebugTextureFormatState( State state ){
 									listfiles("/sdcard/diego_img/", files);
 									
 									
-									for(int i = 0 ; i < files.size(); i++) { 
-										 Log.i( "","FOUND FILE = " + files.get(i).getAbsolutePath()  );
-										OgreActivityJNI.CreateTextureFromPath( files.get(i).getAbsolutePath() ) ;
+									final File[] sortedByDate = files.toArray(new File[files.size()]);
+ 		
+									if (sortedByDate != null && sortedByDate.length > 1) {
+								        Arrays.sort(sortedByDate, new Comparator<File>() {
+								             @Override
+								             public int compare(File object1, File object2) {
+								                return (int) ((object1.lastModified() > object2.lastModified()) ? object1.lastModified(): object2.lastModified());
+								             }
+								    });
+								}
+									
+									
+									
+									for(int i = 0 ; i < sortedByDate.length; i++) { 
 										
+										if( i+1 == maxPictures ) break;
 										
-										
+										 Log.i( "","FOUND FILE = " + sortedByDate[i].getAbsolutePath()  );
+										OgreActivityJNI.CreateTextureFromPath( sortedByDate[i].getAbsolutePath() ) ;	
 									}
 									
 									

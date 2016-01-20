@@ -19,6 +19,7 @@ package com.apache.ivy;
  */
 
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,10 +27,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.NameValuePair;
 
 import com.apache.ivy.ApacheURLLister;
 import com.apache.ivy.CopyProgressListener;
@@ -149,6 +158,77 @@ public class BasicURLHandler extends AbstractURLHandler {
         }
         return false;
     }
+    
+    
+    private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException
+    {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        for (NameValuePair pair : params)
+        {
+            if (first)
+                first = false;
+            else
+                result.append("&");
+
+            result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
+        }
+
+        return result.toString();
+    }    
+    
+    
+    public InputStream openStreamPost(URL url, ArrayList<NameValuePair> postData) throws IOException {
+        // Install the IvyAuthenticator
+        if ("http".equals(url.getProtocol()) || "https".equals(url.getProtocol())) {
+            IvyAuthenticator.install();
+        }
+
+        URLConnection conn = null;
+        try {
+            url = normalizeToURL(url);
+            conn = url.openConnection();
+            conn.setRequestProperty("User-Agent", "Apache Ivy/1.0");// + Ivy.getIvyVersion());
+            conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
+            
+ 
+            
+            
+            if (conn instanceof HttpURLConnection) {
+                HttpURLConnection httpCon = (HttpURLConnection) conn;
+                
+                httpCon.setRequestMethod("POST");
+                httpCon.setDoInput(true);
+                httpCon.setDoOutput(true);
+                
+                
+                if (!checkStatusCode(url, httpCon)) {
+                    throw new IOException("The HTTP response code for " + url + " did not indicate a success."+ " See log for more detail.");
+                }
+                
+                
+                
+            }
+            InputStream inStream = getDecodingInputStream(conn.getContentEncoding(), conn.getInputStream());
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            
+            
+            outStream.write(  getQuery(postData).getBytes(Charset.forName("UTF-8")) ); 
+            
+        
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int len;
+            while ((len = inStream.read(buffer)) > 0) {
+                outStream.write(buffer, 0, len);
+            }
+            return new ByteArrayInputStream(outStream.toByteArray());
+        } finally {
+            disconnect(conn);
+        }
+    }    
 
     public InputStream openStream(URL url) throws IOException {
         // Install the IvyAuthenticator
@@ -170,8 +250,7 @@ public class BasicURLHandler extends AbstractURLHandler {
                                 + " See log for more detail.");
                 }
             }
-            InputStream inStream = getDecodingInputStream(conn.getContentEncoding(),
-                                                          conn.getInputStream());
+            InputStream inStream = getDecodingInputStream(conn.getContentEncoding(), conn.getInputStream());
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 
             byte[] buffer = new byte[BUFFER_SIZE];

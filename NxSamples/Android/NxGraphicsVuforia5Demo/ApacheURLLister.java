@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.NameValuePair;
+
  
 
 /**
@@ -56,7 +58,7 @@ public class ApacheURLLister {
      *             If an error occures retrieving the HTML.
      */
     public List listAll(URL url) throws IOException {
-        return retrieveListing(url, true, true);
+        return retrieveListing(url, true, true, null);
     }
 
     /**
@@ -69,7 +71,7 @@ public class ApacheURLLister {
      *             If an error occures retrieving the HTML.
      */
     public List listDirectories(URL url) throws IOException {
-        return retrieveListing(url, false, true);
+        return retrieveListing(url, false, true, null);
     }
 
     /**
@@ -82,8 +84,8 @@ public class ApacheURLLister {
      * @throws IOException
      *             If an error occures retrieving the HTML.
      */
-    public List listFiles(URL url) throws IOException {
-        return retrieveListing(url, true, false);
+    public List listFiles(URL url, ArrayList<NameValuePair> postData ) throws IOException {
+        return retrieveListing(url, true, false, postData);
     }
 
     /**
@@ -100,7 +102,7 @@ public class ApacheURLLister {
      * @throws IOException
      *             If an error occures retrieving the HTML.
      */
-    public List retrieveListing(URL url, boolean includeFiles, boolean includeDirectories)
+    public List retrieveListing(URL url, boolean includeFiles, boolean includeDirectories, ArrayList<NameValuePair> postData)
             throws IOException {
         List urlList = new ArrayList();
 
@@ -114,8 +116,17 @@ public class ApacheURLLister {
         String charset = urlHandler.getURLInfo(url).getBodyCharset();
         InputStream contentStream = urlHandler.openStream(url);
         */
+        BufferedReader r = null;
+        if( postData == null ) { 
+        	 r = new BufferedReader(new InputStreamReader(URLHandlerRegistry.getDefault().openStream(url)));
+        	
+        }else { 
+        	 r = new BufferedReader(new InputStreamReader(URLHandlerRegistry.getDefault().openStreamPost(url, postData )));
+        	
+        	
+        }
 
-	BufferedReader r = new BufferedReader(new InputStreamReader(URLHandlerRegistry.getDefault().openStream(url)));
+
         
         //BufferedReader r = new BufferedReader(new InputStreamReader(contentStream, charset));
 
