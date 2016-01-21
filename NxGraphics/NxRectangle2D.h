@@ -42,6 +42,8 @@ public:
 	~NxRectangle2D();
 	// virtuals
 	void SetMaterialName( const std::string & MaterialName );
+	void SetRenderQueueGroup( unsigned char renderGroup );
+	
 	void Update( float time );
 	// methods
 	void SetUVs( const Nx::Vector2 & topLeft, const Nx::Vector2 & bottomLeft, const Nx::Vector2 & topRight, const Nx::Vector2 & bottomRight ); 	

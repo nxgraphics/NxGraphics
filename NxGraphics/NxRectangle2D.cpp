@@ -32,6 +32,11 @@ NxRectangle2D::~NxRectangle2D()
 
 }
 
+void NxRectangle2D::SetRenderQueueGroup( unsigned char renderGroup )
+{
+	mRectangle->setRenderQueueGroup( renderGroup );
+}
+
 void NxRectangle2D::Update( float time )
 {
 	//NxScene3DObjectEntity::Update(time);

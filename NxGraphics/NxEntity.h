@@ -46,6 +46,8 @@ public :
 	virtual ~NxEntity();
 	//! set NxEntity Lod
 	bool SetLodDetails( std::vector<float> mLodValues, float reductionvalue );
+	// set render group
+	virtual void SetRenderQueueGroup( unsigned char renderGroup  );
 	//! Update From Timestep.
 	virtual void Update( float time );
 	//! Get Entity Type, see NxType;
@@ -116,7 +118,7 @@ public :
 	void AddChild( NxEntity * obj );
 
 
-	void SetRenderQueueGroup( unsigned char renderGroup  );
+	
   
 	//! OnMouseMoved
 	virtual void OnMouseMoved( const OIS::MouseEvent &e );
