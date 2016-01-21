@@ -137,12 +137,9 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	String markerName = "Stones";
 	String splashName = "NxLogo.jpg";
 	float thresholdDistance = 700.0f;
-	
-	
-	int maxPictures = 5;
-
-	
-	 public static   boolean useLeftMenu = false;
+	float calibrationOffset = 0.0f;
+	int maxPictures = 50;// 50 last pictures to load, from more recent to last
+	public static boolean useLeftMenu = false;
 	
 	String mDataIp = null;
 	
@@ -771,6 +768,12 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		    editor.putFloat("thresholdDistance", thresholdDistance );
 		    
 		    
+		  
+		    editor.putFloat("calibrationOffset", calibrationOffset  );
+		     
+		    
+		    
+		    
 		    
 		    editor.commit(); 
 		    
@@ -789,6 +792,9 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		 
 		 
 		 mDatathresholdDistance = preferencesRead.getFloat("thresholdDistance", 1.0f );
+		 
+		 OgreActivityJNI.SetGyroscopeOffset( preferencesRead.getFloat("calibrationOffset", 1.0f ) );
+		 
 		 
 		 
 		  

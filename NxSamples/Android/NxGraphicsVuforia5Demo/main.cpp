@@ -103,6 +103,11 @@ int mScreenWidth = 0;
 int mScreenHeight = 0;
 
 
+ 
+bool calibrateTrackingDone = false;
+float mOffsetRotationY = 0.0f;
+
+
 ////////////
 #define LOOPER_ID 1
 #define SAMP_PER_SEC 100
@@ -169,6 +174,35 @@ void multiplyQuat(Nx::Quaternion* q1, Nx::Quaternion* q2){
 }
 
 */
+
+
+ Nx::Quaternion  mGyroscopeOrientation;
+ float mGyroscopeOrientationYOsset =  -177;
+ 
+
+ JNIEXPORT jfloat JNICALL Java_com_hotstuff_main_OgreActivityJNI_GetGyroscopeY(JNIEnv * env, jobject obj ) {
+	 
+	 return (jfloat) mGyroscopeOrientation.getRoll().valueDegrees();
+	 
+	 
+ }
+ 
+ 
+ JNIEXPORT jfloat JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetGyroscopeOffset(JNIEnv * env, jobject obj, jfloat value ) {
+	 
+	
+	 mGyroscopeOrientationYOsset = value;
+	 
+	 
+	 calibrateTrackingDone = false;
+	 
+	  LOGD( "SETTING OFFSET TO %f : " , mGyroscopeOrientationYOsset  ); // -83.0
+	 
+	 
+	 
+ }
+ 
+ 
  
  
 
@@ -196,6 +230,9 @@ Nx3DSceneDefault  * ptr = (Nx3DSceneDefault*) data;
             float q[4];
             getQuaternionFromVector(q, event.data );
             Nx::Quaternion  ori( q[0], -q[2],  q[1],  q[3]);
+			
+			mGyroscopeOrientation = ori;
+			
             Nx::Quaternion x = Nx::Quaternion( Nx::Degree( -90 ), Nx::Vector3::UNIT_X); //  -90 landscape mode
             
             
@@ -210,15 +247,37 @@ Nx3DSceneDefault  * ptr = (Nx3DSceneDefault*) data;
         //      Nx::Quaternion y180 = Nx::Quaternion( Nx::Degree(180.0f), Nx::Vector3::UNIT_Y);// 180.0f
             
             
-         
-            
+        
+		 
+			/*
+			LOGD( "rotation YAW %f : " , ori.getYaw().valueDegrees()  ); //  
+			LOGD( "rotation PITCH %f : " , ori.getPitch().valueDegrees()  ); */
+			// LOGD( "rotation ROLL %f : " , ori.getRoll().valueDegrees()  ); //is Y
+		 
+  			if( !calibrateTrackingDone ) { 
+			
+			
+			 
+			
+				mOffsetRotationY = 	(   (-177 - mGyroscopeOrientationYOsset) ) ;//- (  180.0f + ori.getRoll().valueDegrees()); // if Y  -180 to 180
+			
+				calibrateTrackingDone = true;
+				
+				LOGD( "OFFSET rotation ROOL %f : " , mOffsetRotationY  ); // -83.0
+			}
+			
+			 
             
             //
-            Nx::Quaternion z = Nx::Quaternion( Nx::Degree(-30 )  , Nx::Vector3::UNIT_Z);  // -180 -*- UNIT_Z
+            Nx::Quaternion z = Nx::Quaternion( Nx::Degree(  mOffsetRotationY   )  , Nx::Vector3::UNIT_Z);  
+			
+			Nx::Quaternion mGyroscopeOrientation =  x * z * ori;
+			
+
             
             
             
-            ptr->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetOrientation(  x * z * ori );	// x * z * ori
+            ptr->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetOrientation(  mGyroscopeOrientation );	// x * z * ori
 
         }
 
@@ -1176,11 +1235,20 @@ Nx::Vector2 GetScreenDimensions() {
 	size.y = config.mSize.data[1];
 }
  
+ 
+
+ 
 
 
 bool misFirstScene = true;
-
+ 
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetModelPose(JNIEnv * env, jobject obj, jfloatArray mat  ) {
+	
+	
+	// check to see if its the first time we see the marker, in order to calculate the offset rotation
+	
+	 
+	
  
 
 	jfloat* fltmat = env->GetFloatArrayElements( mat ,0);
@@ -1209,7 +1277,7 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetModelPose(JNIEn
 	Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetFarPlane(5000.0f);//500 ok
 	Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetFieldOfView( 90.0f  );//GetFovDegrees() );
 	
-Nx::Matrix4 transform = Nx::Matrix4::IDENTITY;
+	Nx::Matrix4 transform = Nx::Matrix4::IDENTITY;
 	transform.setTrans( Nx::Vector3(0,0,widthBox/2)  ); // << add offset Z here
 	transform.setScale( Nx::Vector3(1,1,1) );
 
@@ -1244,7 +1312,7 @@ Nx::Matrix4 transform = Nx::Matrix4::IDENTITY;
         
         ScreenNode->SetOrientation( Nx::Quaternion::IDENTITY );
         ScreenNode->SetPosition( Nx::Vector3(0,0,0));
-	   NxScreenModel->SetOrientation(  y180  ); // right orientation  
+		NxScreenModel->SetOrientation(  y180  ); // right orientation  
         
         
 		NxModel->SetOrientation( Nx::Quaternion::IDENTITY );
@@ -1253,25 +1321,16 @@ Nx::Matrix4 transform = Nx::Matrix4::IDENTITY;
         
         
         float ZReduc = 700.0f;//500.0f;
-        
-        position.y = 180.0f;
-        position.x = 0.0f;
-        
-       // float ratio = 100 * position.z;
-        
+ 
         position.z = position.z + ZReduc ;
-        
-        
-        
-        if( misFirstScene && position.z < mThresholdDistance  ) {    // 500
+ 
+        if( misFirstScene && position.z < mThresholdDistance ) {
+			
+			position.y = 180.0f; // height
+			position.x = 0.0f;
             
             Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetPosition(  position  );
-            
-            
-            
-        
-        
-        
+ 
         }else {  // second room
             
             misFirstScene = false;

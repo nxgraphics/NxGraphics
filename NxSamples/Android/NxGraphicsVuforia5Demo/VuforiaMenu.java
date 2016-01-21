@@ -636,21 +636,63 @@ public class VuforiaMenu
 		
 		
 		// threshold distance
- 
-		// mDatathresholdDistance = preferencesRead.getFloat("thresholdDistance", 1.0f );
-		
 		LinearLayout layFourth = new LinearLayout( mActivity );
 		layFourth.setLayoutParams(  new LinearLayout.LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.WRAP_CONTENT  ) );
 		layFourth.setWeightSum(10);
-		// MARKER TEXT
+		// threshold TEXT
 		final EditText inputthresholdText = new EditText ( mActivity );
 		inputthresholdText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
-		inputthresholdText.setLayoutParams( new LinearLayout.LayoutParams( 0, LayoutParams.MATCH_PARENT, 10) );
+		inputthresholdText.setLayoutParams( new LinearLayout.LayoutParams( 0, LayoutParams.MATCH_PARENT, 5) );
 		layFourth.addView( inputthresholdText );
 		float val = preferencesInput.getFloat("thresholdDistance", 1.0f );
-		
 		inputthresholdText.setText( String.valueOf( val ) );
-		layMain.addView( layFourth );	
+		
+		
+		final Button applyThresholdButton = new Button( mActivity );
+		applyThresholdButton.setText("Apply");
+		applyThresholdButton.setLayoutParams( new LinearLayout.LayoutParams( 0, LayoutParams.MATCH_PARENT, 5) );
+		layFourth.addView( applyThresholdButton  );
+		applyThresholdButton.setOnClickListener( new OnClickListener() {
+			@Override
+			public void onClick(View v) { 
+				Toast.makeText(mActivity, "TO DO apply",  Toast.LENGTH_LONG ).show();
+			}
+		});
+		layMain.addView( layFourth );
+		///////
+		
+	
+		
+		// threshold distance
+		LinearLayout layFifth = new LinearLayout( mActivity );
+		layFifth.setLayoutParams(  new LinearLayout.LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.WRAP_CONTENT  ) );
+		layFifth.setWeightSum(10);
+		 
+		
+		
+		final Button applyCalibrateButton = new Button( mActivity );
+		applyCalibrateButton.setText("CALIBRATE");
+		applyCalibrateButton.setLayoutParams( new LinearLayout.LayoutParams( 0, LayoutParams.MATCH_PARENT, 10) );
+		layFifth.addView( applyCalibrateButton  );
+		applyCalibrateButton.setOnClickListener( new OnClickListener() {
+			@Override
+			public void onClick(View v) { 
+				
+				
+				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences( mActivity );
+				SharedPreferences.Editor editor = preferences.edit();
+			    editor.putFloat("calibrationOffset", OgreActivityJNI.GetGyroscopeY()  );
+			    editor.commit(); 
+	 
+				OgreActivityJNI.SetGyroscopeOffset( OgreActivityJNI.GetGyroscopeY() );
+				
+				
+				Toast.makeText(mActivity, "calibrated : " + String.valueOf( OgreActivityJNI.GetGyroscopeY() ),  Toast.LENGTH_LONG ).show();
+			}
+		});
+		layMain.addView( layFifth );
+		
+		///////
  
 		alert.setView( layMain );
 		

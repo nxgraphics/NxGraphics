@@ -22,6 +22,8 @@ public class OgreActivityJNI {
 	public native static void ViewportSetCurrent();
 	public native static void ViewportSize( float x, float y, float width, float height );
 	
+	public native static float GetGyroscopeY();
+	public native static void SetGyroscopeOffset( float degrees );
 	public native static void SetModelPose( float [] mat44  );
 	public native static void SetTextureTransform(  float [] trans, float [] rotate, float [] scale ); 
 	public native static void SetTextureFOV( double fovyRadians, double fovRadians ); 
