@@ -272,7 +272,7 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	   
 	   postData.add(new BasicNameValuePair("postData", implodeArray( filesLocal, ",")  ));
 	   
-	   here check post data !!!!
+	   //here check post data !!!!
 	   
 	   boolean isFileToDownload = false;
 	   try {

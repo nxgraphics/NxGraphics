@@ -205,25 +205,36 @@ public class BasicURLHandler extends AbstractURLHandler {
                 httpCon.setDoOutput(true);
                 
                 
+                byte[] postDataBytes = getQuery(postData).getBytes(Charset.forName("UTF-8"));
+                String contentLength = String.valueOf(postDataBytes.length);
+                httpCon.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                httpCon.setRequestProperty("Content-Length", contentLength );
+                httpCon.setDoOutput(true);
+                
+                httpCon.connect();
+                
+                
+                httpCon.getOutputStream().write(postDataBytes);
+                
+                conn.getOutputStream().flush();                
+ 
                 if (!checkStatusCode(url, httpCon)) {
                     throw new IOException("The HTTP response code for " + url + " did not indicate a success."+ " See log for more detail.");
                 }
-                
-                
-                
+    
             }
+ 
+            // read the output
             InputStream inStream = getDecodingInputStream(conn.getContentEncoding(), conn.getInputStream());
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-            
-            
-            outStream.write(  getQuery(postData).getBytes(Charset.forName("UTF-8")) ); 
-            
-        
             byte[] buffer = new byte[BUFFER_SIZE];
             int len;
             while ((len = inStream.read(buffer)) > 0) {
                 outStream.write(buffer, 0, len);
             }
+            
+            
+            
             return new ByteArrayInputStream(outStream.toByteArray());
         } finally {
             disconnect(conn);
