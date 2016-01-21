@@ -1,8 +1,5 @@
 <?php
 
-
- 
-
 function showFilesListingFromExisting(  $existingFiles   ) { // argument is array
  
     $dir = "./";
@@ -16,8 +13,6 @@ function showFilesListingFromExisting(  $existingFiles   ) { // argument is arra
     $result=array_diff($currentLocalFiles,  $existingFiles );
     
     foreach( $result as $key => $value ) { 
-        
-        
         echo '<tr><td valign="top">
             <img src="/icons/image2.gif" alt="[IMG]"></td>
             <td><a href="'.$value.'">'.$value.'</a>      </td>
@@ -28,12 +23,7 @@ function showFilesListingFromExisting(  $existingFiles   ) { // argument is arra
     
     
     }
-
-
-
 }
-
-
 
 ?>
 
@@ -49,14 +39,16 @@ function showFilesListingFromExisting(  $existingFiles   ) { // argument is arra
  
       <?php 
       
-      
-      file_put_contents("./text.txt", var_export($_POST, true) . PHP_EOL, FILE_APPEND);
+      //$headers = apache_request_headers();
+	  //file_put_contents("./text.txt", var_export($headers,true) . PHP_EOL, FILE_APPEND);
+     // file_put_contents("./text.txt", var_export($_POST, true) . PHP_EOL, FILE_APPEND);
       
       if( isset( $_POST['postData'] ) ){ 
         $fileList = explode(',', $_POST['postData']);
-          
-          
-          
+		
+		//file_put_contents("./text.txt", "GOT DATA: " . $_POST['postData'] . PHP_EOL, FILE_APPEND);
+		
+ 
       } else { 
         $fileList = array();
       }
