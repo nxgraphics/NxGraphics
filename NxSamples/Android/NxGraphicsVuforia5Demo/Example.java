@@ -71,6 +71,7 @@ import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.graphics.drawable.ColorDrawable;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
@@ -124,12 +125,7 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
-
  
- 
-
-
 public class Example extends Activity implements SensorEventListener, VuforiaControl, VuforiaMenuInterface
 {
 	// defaults for first install
@@ -197,12 +193,29 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
     private View mFlashOptionView;
     
     byte [] mBuffer =null;
+    
+    int TAKE_PICTURE = 15; 
+	String filePicture = null;
+	String folderPicture = null; 
+	String folderWithPictures = Environment.getExternalStorageDirectory()+"/diego_img/";    
+    
+    // NxVideoFrontCameraView mFrontView = null;
+    
+    private VuforiaLoadingDialogHandler loadingDialogHandler = new VuforiaLoadingDialogHandler(this);
+    
+    VuforiaFreeframe refFreeFrame;
+    
+    boolean mIsDroidDevice = false;	
+    static Example mInstance;
+	 
+	static Example GetInstance(){  
+		return mInstance; 
+	}    
+    
+    
 	   
-   public Boolean sendFile( String filepath ) { 
-	   
-	   
-	
-	   
+    /* upload a file to server */
+    public Boolean sendFile( String filepath ) {
 	   NxFileUploader up = new NxFileUploader( "http://"+mDataIp+"/upload.php", filepath );
 	   try {
 		   return up.execute("" , null, null).get();
@@ -214,63 +227,40 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	   return false;
    }
    
-   
+   /* implode array to string using a delimiter */
    public static String implodeArray( ArrayList<String> inputArray, String glueString) {
 
-	   /** Output variable */
 	   String output = "";
-
 	   if (inputArray.size() > 0) {
-	   	StringBuilder sb = new StringBuilder();
-	   	sb.append(inputArray.get(0));
-
-	   	for (int i=1; i<inputArray.size(); i++) {
-	   		sb.append(glueString);
-	   		sb.append(inputArray.get(i));
-	   	}
-
-	   	output = sb.toString();
+		   StringBuilder sb = new StringBuilder();
+	   		sb.append(inputArray.get(0));
+	   		for (int i=1; i<inputArray.size(); i++) {
+	   			sb.append(glueString);
+	   			sb.append(inputArray.get(i));
+	   		}
+	   		output = sb.toString();
 	   }
-
 	   return output;
-	   }
+   }
 
-   public void downloadFiles(  String folderUrl , String whereLocal ) { 
-	   
-	   
-	   
-	   
+   /* download specified files from server */
+   public void downloadFiles( String folderUrl, String whereLocal ) { 
+ 
 	   ArrayList<String> insertMediaFiles = new ArrayList<String>();
 	   ArrayList<String> insertMediaDstFolders = new ArrayList<String>();
 	   File f = new File( whereLocal );
 	   if( !f.exists() ) f.mkdirs();
 		
 	   insertMediaFiles.add( folderUrl );
-	   insertMediaDstFolders.add(  whereLocal );  
-	   
-	   
+	   insertMediaDstFolders.add( whereLocal );  
 	   ArrayList<NameValuePair> postData = new ArrayList<NameValuePair>();
-	   
 	   ArrayList<String> filesLocal = new ArrayList<String>();
-	   
 	   ArrayList<File> files = new ArrayList<File>();
-		listfiles("/sdcard/diego_img/", files);	
-		
-		
-		for( int i = 0 ; i < files.size(); i++ ) { 
-			
-			filesLocal.add( files.get(i).getName()    );
-			
-		}
-
-       
- 
-
-	   
+	   listfiles("/sdcard/diego_img/", files);	
+	   for( int i = 0 ; i < files.size(); i++ ) { 
+			filesLocal.add( files.get(i).getName() );
+	   }
 	   postData.add(new BasicNameValuePair("postData", implodeArray( filesLocal, ",")  ));
-	   
-	   //here check post data !!!!
-	   
 	   boolean isFileToDownload = false;
 	   try {
 		new DownloadFilesTask(  isFileToDownload, insertMediaFiles, insertMediaDstFolders, null, postData,
@@ -290,13 +280,11 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		    	public void onError( int errorType ) { 
 		    		
 		    	}
-					}
-			 ).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get() ;
+			}
+		).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get() ;
 	} catch (InterruptedException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	} catch (ExecutionException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}// execute downloads 	   
 	   
@@ -328,14 +316,84 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	    return cam;
 	}	
     
+    
+    public void copy(File src, File dst) throws IOException {
+        InputStream in = new FileInputStream(src);
+        OutputStream out = new FileOutputStream(dst);
+
+        // Transfer bytes from in to out
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+        in.close();
+        out.close();
+    }
+    
+
+	 private class TakePictureTask extends AsyncTask<Void, Void, Void> {
+
+		 Camera mCamera ;
+		 @Override
+		protected void onPreExecute() {
+			 super.onPreExecute();
+		     mCamera = openFrontFacingCameraGingerbread();//Camera.open();
+		     Size previewSize=mCamera.getParameters().getPreviewSize();
+			 int dataBufferSize=(int)(previewSize.height*previewSize.width*(ImageFormat.getBitsPerPixel(mCamera.getParameters().getPreviewFormat())/8.0));
+			 mBuffer = new byte[dataBufferSize];
+			// PreviewCallback d = new PreviewCallback();
+			// mCamera.setPreviewCallback(d);
+			 // mCamera.startPreview();
+			 
+			 
+
+		}
+		 
+		    @Override
+		    protected void onPostExecute(Void result) {
+		    	
+		    	// set image to 3d scene
+		    	
+		    	
+				//folderPicture = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
+				//filePicture =   String.valueOf(System.currentTimeMillis()) + ".jpg";
+		    	
+		    
+		    }
+
+		    @Override
+		    protected Void doInBackground(Void... params) {
+		    	
+		    	//boolean vari = true;
+		    	//while( vari ) { 
+		    		
+			        // Sleep for however long, you could store this in a variable and
+			        // have it updated by a menu item which the user selects.
+			        try {
+			            Thread.sleep(5000); // 3 second preview
+			            
+						 PreviewCallback d = new PreviewCallback();
+						 mCamera.setOneShotPreviewCallback( d );
+						 mCamera.startPreview();
+			            
+			            
+			        } catch (InterruptedException e) {
+			            // TODO Auto-generated catch block
+			            e.printStackTrace();
+			        }
+
+		    	//}
+		        return null;
+		    }
+
+		}    
+    
+    
     HandlerThread mCameraThread;
     Handler mCameraHandler;
  
     class PreviewCallback implements Camera.PreviewCallback {
-
-    	  //private static final String TAGd = PreviewCallback.class.getSimpleName();
-
-    	  
     	  private Handler previewHandler;
     	  private int previewMessage;
 
@@ -350,91 +408,105 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 
     	  @Override
     	  public void onPreviewFrame(byte[] data, Camera camera) {
-    		  
-    		  
-    		  Log.e("", "-------------------------------------");
-    		  
-    
+ 
+    		  Camera.Parameters parameters = camera.getParameters();
+    		    int width = parameters.getPreviewSize().width;
+    		    int height = parameters.getPreviewSize().height;
+
+    		    YuvImage yuv = new YuvImage(data, parameters.getPreviewFormat(), width, height, null);
+
+    		    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    		    yuv.compressToJpeg(new Rect(0, 0, width, height), 50, out);
+
+    		    byte[] bytes = out.toByteArray();
+    		    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);  
+    		    bitmap = Bitmap.createScaledBitmap(bitmap, 512, 512, false);
+    		    
+				FileOutputStream outer = null;
+				try {
+				    outer = new FileOutputStream( Environment.getExternalStorageDirectory() + File.separator + "test2.jpg");
+				    bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outer); 
+				} catch (Exception e) {
+				    e.printStackTrace();
+				} finally {
+				    try {
+				        if (outer != null) {
+				        	outer.close();
+				        }
+				    } catch (IOException e) {
+				        e.printStackTrace();
+				    }
+				} 
+				
+				
+				////////			
+				
+				 File from = new File(Environment.getExternalStorageDirectory() + File.separator + "test2.jpg");
+		    	 String sendFileName = Environment.getExternalStorageDirectory() + File.separator + String.valueOf(System.currentTimeMillis()) + ".jpg";
+		    	 File to = new File( sendFileName );
+		    	 
+		    	 try {
+					copy( from, to );
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		    	 
+		    	 
+		    	OgreActivityJNI.SetScreenImage( Environment.getExternalStorageDirectory() + File.separator + "test2.jpg" );
+		    	 
+		        	
+		    	
+		    	// upload to server
+		    	if( sendFile( sendFileName )) { 
+		    		
+		    		camera.setPreviewCallback(null);
+		    		camera.stopPreview();
+		    	    camera.release();
+		    	    camera = null;
+		    		
+		    		from.delete();
+		    		to.delete();
+		    		
+					downloadFiles( "http://"+mDataIp+"/img/", folderWithPictures ); // download all pics
+					
+					triggerLaunchVuforia();
+					
+					
+				}else { 
+					 Toast.makeText( Example.this, "le server de destination: http://"+mDataIp+"/img/ n'est pas joinable", Toast.LENGTH_LONG ).show();
+				}
+ 				
+				
+				
+				
+				
     	  }
 
     	}    
-     
-    
-    
-    // NxVideoFrontCameraView mFrontView = null;
-    
-    private VuforiaLoadingDialogHandler loadingDialogHandler = new VuforiaLoadingDialogHandler(this);
-    
-    VuforiaFreeframe refFreeFrame;
-    
-    boolean mIsDroidDevice = false;	
-    
  
-    
-    
-    static Example mInstance;
-	 
-	 static Example GetInstance(){ 
-		 
-		 return  mInstance; 
-	 }
-	 
-	 /*
-	 
-	   @Override
-	   public boolean onKeyDown(int keyCode, KeyEvent event)  {
-		   
-		   
-		   Log.e("", "============== CALLED ==========>>>>> " + String.valueOf( keyCode )  );
-		   
-		  	   Toast.makeText(this,  String.valueOf( keyCode ) , Toast.LENGTH_LONG ).show();
-		    //  if ( keyCode == KeyEvent.KEYCODE_MENU ) {
-		  	   
-		  	 if ((keyCode == KeyEvent.KEYCODE_HOME)) {
-		         Toast.makeText(this, "You pressed the home button!", Toast.LENGTH_LONG).show();                     
-		         return true;
-		     }
-		   
-	       if (Integer.parseInt(android.os.Build.VERSION.SDK) > 5
-	               && keyCode == KeyEvent.KEYCODE_BACK
-	               && event.getRepeatCount() == 0) {
-	           Log.d("CDA", "onKeyDown Called");
-	           //onBackPressed();
-	           return true; 
-	       }
-	       return super.onKeyDown(keyCode, event);
-	   }
-	 	 
-	 */
-	 
 	 @Override
-		public void onBackPressed() {
-		    final AlertDialog.Builder alert = new AlertDialog.Builder( this );
-		    final TextView input = new TextView( this );
-		    input.setText( " Close Application ? "    );
-		    alert.setView(input);
-		    alert.setPositiveButton( "Yes",  new AlertDialog.OnClickListener() {
-		        public void onClick(DialogInterface dialog, int whichButton) {
-		        	initOGRE = false;
-		        	
-		        	deleteOGRE = true;
-		        	
-		        	 
-		        	
-		        	 handler.removeCallbacks(renderer);
-		        
-		              finish();
-		        }
-		    });
+	 public void onBackPressed() {
+		 final AlertDialog.Builder alert = new AlertDialog.Builder( this );
+		 final TextView input = new TextView( this );
+		 input.setText( " Close Application ? "    );
+		 alert.setView(input);
+		 alert.setPositiveButton( "Yes",  new AlertDialog.OnClickListener() {
+			 public void onClick(DialogInterface dialog, int whichButton) {
+		     initOGRE = false;   	
+		     deleteOGRE = true;   	
+		     handler.removeCallbacks(renderer);   
+		     finish(); 
+		}
+		});
 				        
-		    alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
-		        public void onClick(DialogInterface dialog, int whichButton) {
+		alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
 		
-		        }
-		    });
+		    }
+		});
 		    
-		    alert.show(); 
-		}	
+		alert.show(); 
+	 }	
 	 
 	 
 	 public void CopyRessouresIfNeeded() {
@@ -511,94 +583,15 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	 
 	 
 	 
-	 private class TakePictureTask extends AsyncTask<Void, Void, Void> {
-
-		 Camera mCamera ;
-		 @Override
-		protected void onPreExecute() {
-		// TODO Auto-generated method stub
-		super.onPreExecute();
-		
-		     mCamera = openFrontFacingCameraGingerbread();//Camera.open();
-		
-		     Size previewSize=mCamera.getParameters().getPreviewSize();
-			   int dataBufferSize=(int)(previewSize.height*previewSize.width*(ImageFormat.getBitsPerPixel(mCamera.getParameters().getPreviewFormat())/8.0));
-			   mBuffer = new byte[dataBufferSize];
-			   //mCamera.addCallbackBuffer( mBuffer ); 
-			   PreviewCallback d = new PreviewCallback();
-			  // mCamera.setPreviewCallbackWithBuffer(d);	
-			   
-			   mCamera.setPreviewCallback(d);
-			   mCamera.startPreview();
-		}
-		 
-		    @Override
-		    protected void onPostExecute(Void result) {
-		        // This returns the preview back to the live camera feed
-		        //
-		        
-		    	  
-		    	
-		    	
-		    	/*
-		        mCamera.setPreviewCallback(new PreviewCallback() {
-				    
-
-					@Override
-					public void onPreviewFrame(byte[] arg0, Camera arg1) {
-						 Log.e("", "------------------------------------");
-						
-					}
-					   });
-		        
-		        mCamera.startPreview();*/
-		        
-		    }
-
-		    @Override
-		    protected Void doInBackground(Void... params) {
-		    	
-		    	boolean vari = true;
-		    	while( vari ) { 
-		    		
-			        // Sleep for however long, you could store this in a variable and
-			        // have it updated by a menu item which the user selects.
-			        try {
-			            Thread.sleep(3000); // 3 second preview
-			        } catch (InterruptedException e) {
-			            // TODO Auto-generated catch block
-			            e.printStackTrace();
-			        }
-		    		
-		    		
-		    	}
-		       
-
-
-
-		        return null;
-		    }
-
-		}
 	 
-	 int TAKE_PICTURE = 15;
-	 
-	 
-	 String filePicture = null;
-	 String folderPicture = null;
-	 
-	 
-	 String folderWithPictures = Environment.getExternalStorageDirectory()+"/diego_img/";
+
 	 
 	 @Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	 
 		super.onActivityResult(requestCode, resultCode, data);
-		
-		
 		if( requestCode == TAKE_PICTURE ) {
-		         
-			  
+
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			Bitmap photo = BitmapFactory.decodeFile( folderPicture + filePicture , options);
 			photo = Bitmap.createScaledBitmap(photo, 512, 512, false);
@@ -636,118 +629,53 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 			  
 			// send picture to the server
 			if( sendFile( folderPicture + filePicture )) { 
-				
-				
-			
-				
-				
-				// download all pics
-				downloadFiles( "http://"+mDataIp+"/img/", folderWithPictures );
- 
-				
+				downloadFiles( "http://"+mDataIp+"/img/", folderWithPictures ); // download all pics
 			}else { 
-				
 				 Toast.makeText( this, "le server de destination: http://"+mDataIp+"/img/ n'est pas joinable", Toast.LENGTH_LONG ).show();
-				
-				
-				
 			}
 			
-			
-			mInstance = this;
-
 			CopyRessouresIfNeeded();
-
-			
-			 
+			mInstance = this;
 			handler = new Handler();
 			sysInit();	
-			  
-		
-		         
-		         
-		         
-		        
-		     }//if		
-		
-		
-		
-		// Toast.makeText( this, "vvvv", Toast.LENGTH_LONG ).show();
-		
-	}
-	 
-	 
-	 /*
-	 public void onActivityResult(int req, int res, Intent data) throws NullPointerException
-	 {
-	     try{
+    
+		}//if		
+ 
+	 }
+ 
+	 public void copyDirectory(File sourceLocation , File targetLocation) throws IOException {
 
-	     super.onActivityResult(req, res, data);
-	     
-	     
-	     if(req == TAKE_PICTURE)
-	     {
-	         Bitmap picture = (Bitmap) data.getExtras().get("data");
-	        // ImageView image = (ImageView) findViewById(R.id.imageView1);
-	        // image.setImageBitmap(picture);
-	         
-	         
-	         Intent i=new Intent( this, Example.class);
-             //i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-             i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-          
-             startActivity(i);
-	         
-	         
-	         
-	         Toast.makeText( this, "vvvv", Toast.LENGTH_LONG ).show();
-	     }//if
-	     else
-	     {
-	         Toast.makeText(getApplicationContext(), "No picture taken", 4);
-	     }//else
-	     }catch (NullPointerException e){
-	         String error = "null pointer exception";
-	         Toast.makeText(getApplicationContext(), error, 4);
-	     }
-	 }//onActivityResult	
-	 
-	 */
-	 public void copyDirectory(File sourceLocation , File targetLocation)
-			 throws IOException {
+	     if (sourceLocation.isDirectory()) {
+	         if (!targetLocation.exists() && !targetLocation.mkdirs()) {
+	             throw new IOException("Cannot create dir " + targetLocation.getAbsolutePath());
+	         }
 
-			     if (sourceLocation.isDirectory()) {
-			         if (!targetLocation.exists() && !targetLocation.mkdirs()) {
-			             throw new IOException("Cannot create dir " + targetLocation.getAbsolutePath());
-			         }
+	         String[] children = sourceLocation.list();
+	         for (int i=0; i<children.length; i++) {
+	             copyDirectory(new File(sourceLocation, children[i]),
+	                     new File(targetLocation, children[i]));
+	         }
+	     } else {
 
-			         String[] children = sourceLocation.list();
-			         for (int i=0; i<children.length; i++) {
-			             copyDirectory(new File(sourceLocation, children[i]),
-			                     new File(targetLocation, children[i]));
-			         }
-			     } else {
+	         // make sure the directory we plan to store the recording in exists
+	         File directory = targetLocation.getParentFile();
+	         if (directory != null && !directory.exists() && !directory.mkdirs()) {
+	             throw new IOException("Cannot create dir " + directory.getAbsolutePath());
+	         }
 
-			         // make sure the directory we plan to store the recording in exists
-			         File directory = targetLocation.getParentFile();
-			         if (directory != null && !directory.exists() && !directory.mkdirs()) {
-			             throw new IOException("Cannot create dir " + directory.getAbsolutePath());
-			         }
+	         InputStream in = new FileInputStream(sourceLocation);
+	         OutputStream out = new FileOutputStream(targetLocation);
 
-			         InputStream in = new FileInputStream(sourceLocation);
-			         OutputStream out = new FileOutputStream(targetLocation);
-
-			         // Copy the bits from instream to outstream
-			         byte[] buf = new byte[1024];
-			         int len;
-			         while ((len = in.read(buf)) > 0) {
-			             out.write(buf, 0, len);
-			         }
-			         in.close();
-			         out.close();
-			     }
-			 }
+	         // Copy the bits from instream to outstream
+	         byte[] buf = new byte[1024];
+	         int len;
+	         while ((len = in.read(buf)) > 0) {
+	             out.write(buf, 0, len);
+	         }
+	         in.close();
+	         out.close();
+	    }
+	 }
 	 
 	 public void setDefaultDataIfNecessary() { 
 		 
@@ -757,24 +685,12 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 			SharedPreferences.Editor editor = preferences.edit();
 			editor.putBoolean("firstInit", true);
 		    editor.putString("ip", ipServer );
-		    
 		    editor.putString("markerName", markerName );
 		    editor.putBoolean("markerFromPath", false );
-		    
-		    
 		    editor.putString("splashName", splashName );
 		    editor.putBoolean("splashNameFromPath", false );
-		    
 		    editor.putFloat("thresholdDistance", thresholdDistance );
-		    
-		    
-		  
 		    editor.putFloat("calibrationOffset", calibrationOffset  );
-		     
-		    
-		    
-		    
-		    
 		    editor.commit(); 
 		    
 		 } 
@@ -789,22 +705,11 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		 
 		 mDataSplash = preferencesRead.getString("splashName", null );
 		 mDataSplashFromPath = preferencesRead.getBoolean("splashNameFromPath", false );
-		 
-		 
+
 		 mDatathresholdDistance = preferencesRead.getFloat("thresholdDistance", 1.0f );
 		 
 		 OgreActivityJNI.SetGyroscopeOffset( preferencesRead.getFloat("calibrationOffset", 1.0f ) );
-		 
-		 
-		 
-		  
-		 
-		 
-		 
-		 
-		 
-		 
-		 
+  
 	 }
 	 
 	 
@@ -813,6 +718,10 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		super.onCreate(savedInstanceState);
 		
 		setDefaultDataIfNecessary();
+ 
+		
+		
+		/* open the camera old fashion way
 		
 		folderPicture = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
 		filePicture =   String.valueOf(System.currentTimeMillis()) + ".jpg";
@@ -821,6 +730,12 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
         startActivityForResult(intent, TAKE_PICTURE); 	
+        */
+		
+		
+		mInstance = this;
+		handler = new Handler();
+		sysInit();			
 		
 	        
 
@@ -1092,6 +1007,12 @@ public void DebugTextureFormatState( State state ){
 	static Boolean createdTexture = false;
 	 static Boolean setsize = false;
 	 
+	 static Boolean launchVuforia = false;
+	 
+	 public static void triggerLaunchVuforia() { 
+		 launchVuforia = true;
+	 }
+	 
 	 
 	 Camera  mCamera;
  
@@ -1105,19 +1026,33 @@ public void DebugTextureFormatState( State state ){
 					renderer = new Runnable() {
 						public void run() {
 
-							if (paused)
+							// 1 PAUSE
+							if( paused ) { 
 								return;
-
-							if (!wndCreate && lastSurface != null) {
+							}
+							
+							if( launchVuforia ) { 
+								Vuforia.onSurfaceCreated();
+								mExtendedTracking = true;// ??? doesnt work
+								vuforiaAppSession = new VuforiaSession(mInstance);
+								vuforiaAppSession.initAR(mInstance, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+								mTextures = new Vector<VuforiaTexture>();// Load any sample specific textures								
+								launchVuforia = false;
 								
-								if(assetMgr == null) {
-									assetMgr = getResources().getAssets();
-									 
+								Log.e("", "Initialized VUFORIA !!");
+								
+							}
+							
+								
+							// 2 INIT
+							if( !wndCreate && lastSurface != null ) {
+								
+								if( assetMgr == null ) {
+									assetMgr = getResources().getAssets(); 
 								}
  
 								String splashName = null;
 								if(mDataSplashFromPath == true) { //check if file exists
-									
 									File testExists = new File( mDataSplash );
 									if( !testExists.exists() ) { // doesnt exists
 										splashName = "NxLogo.jpg";
@@ -1128,44 +1063,40 @@ public void DebugTextureFormatState( State state ){
 								}else { 
 									splashName = "NxLogo.jpg";
 								}
-								//File testSplashExists = new File();
- 
-							   OgreActivityJNI.CreateEngine( lastSurface, assetMgr, splashName ) ;
+
+								OgreActivityJNI.CreateEngine( lastSurface, assetMgr, splashName ) ;
 							   
-							   OgreActivityJNI.SetThreshHoldDistance( mDatathresholdDistance );
+								OgreActivityJNI.SetThreshHoldDistance( mDatathresholdDistance );
 							   
-							   OgreActivityJNI.ViewportSetClearEveryFrame( false );
-			 
-							   Vuforia.onSurfaceCreated();
- 
-							   mExtendedTracking = true;// ??? doesnt work
-							   
-								vuforiaAppSession = new VuforiaSession(mInstance);
-								vuforiaAppSession.initAR(mInstance, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-								// Load any sample specific textures:
-								mTextures = new Vector<VuforiaTexture>();
-								//loadTextures();
+								OgreActivityJNI.ViewportSetClearEveryFrame( false );
+			  
+								
 								mGestureDetector = new GestureDetector(mInstance, new GestureListener());
 								mIsDroidDevice = android.os.Build.MODEL.toLowerCase().startsWith("droid");	
+								
 								wndCreate = true;
 								handler.post(this);
+								
+								TakePictureTask takePictureTask = new TakePictureTask();
+					     		takePictureTask.execute();
+								
  
 								return;
 							}
 							
+							// 3 DELETE
 							if( deleteOGRE ){ 
-								
 								handler.removeCallbacks(renderer);
-			 	
 							}
 
-							 if (initOGRE && wndCreate && initvuforia){ 
-	 
-								 if( !setsize ){
-									 VideoBackgroundConfig  conf =   Renderer.getInstance().getVideoBackgroundConfig( );								
-									 OgreActivityJNI.SetScreenSize(  conf.getSize().getData()[0] , conf.getSize().getData()[1]  );	
-									 setsize = true; 
-								  }			
+							// 4 RENDER
+							if (initOGRE && wndCreate  ){ 
+ 
+								if( initvuforia && !setsize ){
+									VideoBackgroundConfig conf = Renderer.getInstance().getVideoBackgroundConfig( );								
+									OgreActivityJNI.SetScreenSize( conf.getSize().getData()[0], conf.getSize().getData()[1] );	
+									setsize = true; 
+								}			
 								 
  
 								/* never remove !! else context changes, creation of texture in another context.. bad */
@@ -1178,115 +1109,75 @@ public void DebugTextureFormatState( State state ){
 						        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 					 
 						        
-						       // GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+						        State state = null;
+						        if( initvuforia ){
 						        
-						        
-						    	State state = Renderer.getInstance().begin( );
-						    	
-						    	
-						    	//GLES20.glEnable(GLES20.GL_BLEND);
-						    	
-						    	//GLES20.glDepthMask(false);
-
-						         if( !Renderer.getInstance().bindVideoBackground( 0 )) {
-						            Log.e(LOGTAG, "Unable to bind video background texture!!");
-						            Renderer.getInstance().end();
-						             handler.post(this);
-						            return;
-						         }   
+							    	  state = Renderer.getInstance().begin( );
+							    	//GLES20.glEnable(GLES20.GL_BLEND);
+							    	//GLES20.glDepthMask(false);
+							         if( !Renderer.getInstance().bindVideoBackground( 0 )) {
+							            Log.e(LOGTAG, "Unable to bind video background texture!!");
+							            Renderer.getInstance().end();
+							            handler.post(this);
+							            return;
+							         }   
+						         
+						        }// init vuforia
 	
 								if( !createdTexture ){
 									
 									ArrayList<File> files = new ArrayList<File>();
 									listfiles("/sdcard/diego_img/", files);
-									
-									
 									final File[] sortedByDate = files.toArray(new File[files.size()]);
- 		
 									if (sortedByDate != null && sortedByDate.length > 1) {
 								        Arrays.sort(sortedByDate, new Comparator<File>() {
 								             @Override
 								             public int compare(File object1, File object2) {
 								                return (int) ((object1.lastModified() > object2.lastModified()) ? object1.lastModified(): object2.lastModified());
 								             }
-								    });
-								}
-									
-									
-									
-									for(int i = 0 ; i < sortedByDate.length; i++) { 
-										
+								        });
+									}
+ 
+									for( int i = 0 ; i < sortedByDate.length; i++ ) { 
 										if( i+1 == maxPictures ) break;
-										
-										 Log.i( "","FOUND FILE = " + sortedByDate[i].getAbsolutePath()  );
+										Log.i( "","FOUND FILE = " + sortedByDate[i].getAbsolutePath()  );
 										OgreActivityJNI.CreateTextureFromPath( sortedByDate[i].getAbsolutePath() ) ;	
 									}
 									
 									
-									OgreActivityJNI.CreateBackGroundTexture();
+									// OgreActivityJNI.CreateBackGroundTexture();
+									
+									
 									createdTexture = true;
-									
-									//regler perf video...
-									
 									// OgreActivityJNI.OpenTheoraVideo(mVideoFiles.get(0)); // enable when good tracking
-									
-									/////
-									
-														
-									
-									
-									
-								} 
 
-								 // reset viewport
-						         // GLES20.glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
-								//! important !
-								 GLES20.glViewport(viewportPosition_x, viewportPosition_y, viewportSize_x, viewportSize_y);  
-						         
-								 //OgreActivityJNI.ViewportUpdate();
-						         
-								
-								// DebugTextureFormatState( state );
-								 
-								 
-								// dsqdqs mFrontView.
-								 
-								  //mFrontView.requestRender();
-								 
-								// here update here
-				 
-							    refFreeFrame.render();
-	 
-							      boolean ObjectVisible = false;
-							     for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++)
-							     {
-							    	 
-							    	 ObjectVisible = true;
-						        	//synchronized(this) {
-						        	TrackableResult trackableResult = state.getTrackableResult(tIdx);
-						        	Trackable trackable = trackableResult.getTrackable();
-						        	
-						        	 
-						      
-						        	Matrix44F modelViewMatrix_Vuforia = Tool.convertPose2GLMatrix(trackableResult.getPose());
-						        	//float[] modelViewMatrix =  
+								} // if !createdTextures
+
  
-						        	OgreActivityJNI.SetModelPose( modelViewMatrix_Vuforia.getData() ); 
-						        	
-						        	//Log.d("===> ", "VISIBLE" );
-						        	
-						 
-						        	
-							     } 
-							     
-							     //if( !ObjectVisible  ) Log.d("===> ", "NOT VISIBLE" );
+								
+
+								if( initvuforia ){
+									
+									GLES20.glViewport(viewportPosition_x, viewportPosition_y, viewportSize_x, viewportSize_y);  
+									
+								    refFreeFrame.render();
+		 
+								     boolean ObjectVisible = false;
+								     for (int tIdx = 0; tIdx < state.getNumTrackableResults(); tIdx++) {
+								    	 
+								    	ObjectVisible = true;
+							        	TrackableResult trackableResult = state.getTrackableResult(tIdx);
+							        	Trackable trackable = trackableResult.getTrackable();
+							        	Matrix44F modelViewMatrix_Vuforia = Tool.convertPose2GLMatrix(trackableResult.getPose());
+							        	OgreActivityJNI.SetModelPose( modelViewMatrix_Vuforia.getData() ); 
+								     } 
 	 
-								 Renderer.getInstance().end();
+									 Renderer.getInstance().end();
 								 
-								 
-								 //mFrontView.requestRender();
-								 
-								 
+								}
+ 
+								
+								//Log.e( "","RENDERING" );
 								 OgreActivityJNI.renderOneFrame();
 								 
 								//V needed adreno specific, fixing alpha blending!!! else white background or freezing
@@ -1387,18 +1278,6 @@ public void DebugTextureFormatState( State state ){
 		 addContentView(surfaceView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 	
 
-			//TakePictureTask takePictureTask = new TakePictureTask();
-		    //takePictureTask.execute();
-		 
-		 
-	/*
-		 NxVideoSurfaceView test = new NxVideoSurfaceView(this);
-		 test.setZOrderOnTop(true);
-		SurfaceHolder testholder = test.getHolder();
-		testholder.setFormat(PixelFormat.TRANSPARENT);		 
-		 test.OpenVideoFileInt(  R.raw.tester ); 
-		 addContentView(test, new LayoutParams(512, 512 ));
-		 */
  
 	}
 
@@ -1433,19 +1312,36 @@ public void DebugTextureFormatState( State state ){
         @Override
         public boolean onSingleTapUp(MotionEvent e)
         {
-            // Generates a Handler to trigger autofocus
-            // after 1 second
-            autofocusHandler.postDelayed(new Runnable()
-            {
-                public void run()
-                {
-                    boolean result = CameraDevice.getInstance().setFocusMode(
-                        CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO);
-                    
-                    if (!result)
-                        Log.e("SingleTapUp", "Unable to trigger focus");
-                }
-            }, 1000L);
+        	
+        	 if( initvuforia ) { 
+        		 
+                 // Generates a Handler to trigger autofocus after 1 second
+                 autofocusHandler.postDelayed(new Runnable()
+                 {
+                     public void run()
+                     {
+                         boolean result = CameraDevice.getInstance().setFocusMode(
+                             CameraDevice.FOCUS_MODE.FOCUS_MODE_TRIGGERAUTO);
+                         
+                         if (!result)
+                             Log.e("SingleTapUp", "Unable to trigger focus");
+                     }
+                 }, 1000L);        		 
+        		 
+        		 
+        		 
+        	 }else { 
+        		 
+        		 
+        		
+        		 
+        		 
+            	 // triggerLaunchVuforia();
+            	 
+            	 
+        	 }
+        	
+
             
             return true;
         }

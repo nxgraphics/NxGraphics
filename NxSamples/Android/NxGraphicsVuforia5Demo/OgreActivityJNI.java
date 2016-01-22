@@ -29,6 +29,8 @@ public class OgreActivityJNI {
 	public native static void SetTextureFOV( double fovyRadians, double fovRadians ); 
 	public native static void OpenTheoraVideo(String filepath);
 	
+	public native static void SetScreenImage(   String imagePath  );
+	
 	public native static void CreateTextureFromPath(String filepath);
 	
 	public native static void CloseTheoraVideo();

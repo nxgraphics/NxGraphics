@@ -457,6 +457,9 @@ public class VuforiaMenu
      
      public void showDialog() { 
     	 
+    	 
+    	
+    	 
 
 
 		AlertDialog.Builder alert = new AlertDialog.Builder( mActivity  );
@@ -570,14 +573,7 @@ public class VuforiaMenu
 		});		
 		
 		layMain.addView( laySecond );		
-		
-		// SPLASH SCREEN
-		 
-		// mDataSplash = preferencesRead.getString("splashName", null );
-		// mDataSplashFromPath = preferencesRead.getBoolean("splashNameFromPath", false );
-		
-		
-		 
+ 
 		// SPLASH LAYOUT
 		LinearLayout layThird = new LinearLayout( mActivity );
 		layThird.setLayoutParams(  new LinearLayout.LayoutParams( LayoutParams.MATCH_PARENT , LayoutParams.WRAP_CONTENT  ) );
@@ -744,22 +740,15 @@ public class VuforiaMenu
      
      
      @Override
-     public boolean onDoubleTap(MotionEvent e)
-     {
-    	 
-    	 
+     public boolean onDoubleTap( MotionEvent e ) {
+ 
     	 showDialog();
     	 
     	 if( !Example.useLeftMenu ) return true;
-    	 
-    	 
-         if (!isMenuDisplaying())
-         {
-             if (!mIsBelowICS)
-             {
+         if (!isMenuDisplaying()) {
+             if (!mIsBelowICS) {
                  startViewsAnimation(true);
-             } else
-             {
+             } else {
                  setAnimationX(mMaxXSwipe);
                  setMenuDisplaying(true);
              }

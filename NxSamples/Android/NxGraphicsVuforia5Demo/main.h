@@ -31,6 +31,9 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_ViewportSize(JNIEn
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetTextureTransform( JNIEnv * env, jobject obj, jfloatArray trans, jfloatArray rotate, jfloatArray scale ) ;
 JNIEXPORT jfloat JNICALL Java_com_hotstuff_main_OgreActivityJNI_GetGyroscopeY(JNIEnv * env, jobject obj );
 JNIEXPORT jfloat JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetGyroscopeOffset(JNIEnv * env, jobject obj, jfloat value );
+
+JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetScreenImage(JNIEnv * env, jobject obj,  jstring imagePath  );
+
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetModelPose(JNIEnv * env, jobject obj, jfloatArray mat  );
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetTextureFOV(JNIEnv * env, jobject obj, jdouble fovyRadians, jdouble fovRadians );
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_OpenTheoraVideo(JNIEnv * env, jobject obj, jstring filepath  );
