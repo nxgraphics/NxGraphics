@@ -696,7 +696,7 @@ void NxEngine::CreateResources()
 		ConfigFile::SettingsMultiMap::iterator i;
 		for (i = settings->begin(); i != settings->end(); ++i) {
 			typeName = i->first; archName = i->second;
-			bool recursive = false ;
+			bool recursive = false;
 			ResourceGroupManager::getSingleton().addResourceLocation(archName, typeName, secName, recursive);// Load Script Resource Locations
 		}
 	} 
@@ -713,7 +713,7 @@ void NxEngine::CreateResources()
 	// Create location for Video Materials
 	ResourceGroupManager::getSingleton().createResourceGroup("NxMaterialVideo");
 
-	 #ifndef __ANDROID__
+#ifndef __ANDROID__
 
 	ResourceGroupManager::getSingleton().addResourceLocation( NxMediaPath + "media/Models/Characters", "FileSystem", "NxCharacters", false );// recursive ?
 
@@ -723,7 +723,7 @@ void NxEngine::CreateResources()
 		ResourceGroupManager::getSingleton().addResourceLocation( NxMediaPath + "media/Models/Characters/" + Ogre::String( refvecDirectory[i] ), "FileSystem", "NxCharacters", false );
 	}
 
-	#endif
+#endif
 
 }
 
