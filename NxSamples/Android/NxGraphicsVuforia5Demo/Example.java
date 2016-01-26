@@ -371,7 +371,7 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 			        // Sleep for however long, you could store this in a variable and
 			        // have it updated by a menu item which the user selects.
 			        try {
-			            Thread.sleep(5000); // 3 second preview
+			            Thread.sleep(3000); // 3 second preview
 			            
 						 PreviewCallback d = new PreviewCallback();
 						 mCamera.setOneShotPreviewCallback( d );
@@ -451,8 +451,17 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 					e.printStackTrace();
 				}
 		    	 
+		    	 if( !from.exists() ) { 
+		    		 Toast.makeText( Example.this, "the picture doesnt exist !!", Toast.LENGTH_LONG ).show();  
+		    	 }else { 
+		    		//Toast.makeText( Example.this, "exist !!", Toast.LENGTH_LONG ).show(); 
+		    		 
+		    	 }
 		    	 
-		    	OgreActivityJNI.SetScreenImage( Environment.getExternalStorageDirectory() + File.separator + "test2.jpg" );
+		    	 
+		    	 setPhotoReady( false ); // trigger ogre load
+		    	 
+		    	//
 		    	 
 		        	
 		    	
@@ -464,10 +473,10 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		    	    camera.release();
 		    	    camera = null;
 		    		
-		    		from.delete();
+		    		//from.delete();
 		    		to.delete();
 		    		
-					downloadFiles( "http://"+mDataIp+"/img/", folderWithPictures ); // download all pics
+					//downloadFiles( "http://"+mDataIp+"/img/", folderWithPictures ); // download all pics
 					
 					triggerLaunchVuforia();
 					
@@ -735,6 +744,10 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		
 		mInstance = this;
 		handler = new Handler();
+		
+		
+		downloadFiles( "http://"+mDataIp+"/img/", folderWithPictures ); // download all pics
+		
 		sysInit();			
 		
 	        
@@ -1007,6 +1020,14 @@ public void DebugTextureFormatState( State state ){
 	static Boolean createdTexture = false;
 	 static Boolean setsize = false;
 	 
+	 static Boolean photoReady = true;
+	 
+	 
+	 public void setPhotoReady( boolean val ) { 
+		 photoReady = val;
+		 
+	 }
+	 
 	 static Boolean launchVuforia = false;
 	 
 	 public static void triggerLaunchVuforia() { 
@@ -1123,6 +1144,13 @@ public void DebugTextureFormatState( State state ){
 							         }   
 						         
 						        }// init vuforia
+						        
+						        if( !photoReady ) {  
+						        	
+						        	OgreActivityJNI.SetScreenImage( Environment.getExternalStorageDirectory() + File.separator + "test2.jpg" );
+						        	
+						        	photoReady = true;
+						        } 
 	
 								if( !createdTexture ){
 									
@@ -1312,6 +1340,8 @@ public void DebugTextureFormatState( State state ){
         @Override
         public boolean onSingleTapUp(MotionEvent e)
         {
+        	
+        	//OgreActivityJNI.StartFade();
         	
         	 if( initvuforia ) { 
         		 

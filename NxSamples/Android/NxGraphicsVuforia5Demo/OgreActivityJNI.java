@@ -21,7 +21,7 @@ public class OgreActivityJNI {
 	public native static void ViewportUpdate();
 	public native static void ViewportSetCurrent();
 	public native static void ViewportSize( float x, float y, float width, float height );
-	
+	public native static void StartFade();	
 	public native static float GetGyroscopeY();
 	public native static void SetGyroscopeOffset( float degrees );
 	public native static void SetModelPose( float [] mat44  );

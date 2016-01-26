@@ -48,6 +48,10 @@
 
 using namespace Nx;
 
+
+	
+#define logMsg( txt )NxLog::getSingleton().LogMessage( txt )  
+
 NxGraphics * NxGraph = NULL;
 Nx3D_Scene * Scene3DPlayer;
 bool isReady = false;
@@ -82,7 +86,14 @@ NxRectangle2D * mBackgroundRectangle = NULL;
 MaterialNx * mBackGroundMaterial = 0;
 NxTechnique * mBackGroundTechnique = 0;
 NxPass * mBackGroundPass = 0;
-NxTextureUnit * mBackGroundUnit = 0;
+NxTextureUnit * mBackGroundUnit = 0; // white
+
+NxTextureUnit * mFullScreenPhotoUnit = 0; // photo
+
+NxPass * mFullScreenPhotoPass = 0;
+
+
+
 AAssetManager* assetMgr = 0;
 EGLContext context;
 
@@ -199,13 +210,12 @@ JNIEXPORT jfloat JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetGyroscopeOffs
  
 // from http://stackoverflow.com/questions/8989686/access-faster-polling-accelerometer-via-nativeactivity-ndk
 static int get_sensor_events(int fd, int events, void* data) {
-	
-	
-	
-Nx3DSceneDefault  * ptr = (Nx3DSceneDefault*) data;
-  ASensorEvent event;
-  while (ASensorEventQueue_getEvents(sensorEventQueue, &event, 1) > 0) {
-        if(event.type == ASENSOR_TYPE_ACCELEROMETER) {
+
+	Nx3DSceneDefault  * ptr = (Nx3DSceneDefault*) data;
+	ASensorEvent event;
+	while( ASensorEventQueue_getEvents( sensorEventQueue, &event, 1) > 0 ) {
+		
+        if( event.type == ASENSOR_TYPE_ACCELEROMETER ) {
                
         }
         else if( event.type == ASENSOR_TYPE_GYROSCOPE ) {
@@ -244,9 +254,43 @@ Nx3DSceneDefault  * ptr = (Nx3DSceneDefault*) data;
 
 		  
 
-  }
-  //should return 1 to continue receiving callbacks, or 0 to unregister
-  return 1;
+	}
+	//should return 1 to continue receiving callbacks, or 0 to unregister
+	return 1;
+}
+
+
+bool fadePhoto = false;
+float fadePhototimeCurrent = 0.0f;
+float fadePhotoTotalTimeFadeIn =  3.0f; // 5 seconds
+float fadePhotoTotalTimeStay = 5.0f;
+
+
+bool fadeWhite = false;
+float fadeWhitetimeCurrent = 0.0f;
+float fadeWhiteTotalTimeFadeIn = 5.0f; // 5 seconds
+
+
+bool fadeEnd = false;
+float fadeEndtimeCurrent = 0.0f;
+float fadeEndTotalTimeFadeIn = 5.0f; // 5 seconds
+
+bool canShowSecondRoom = false;
+
+bool launchEndingTimer = false;
+float launchEndingTimertimeCurrent = 0.0f;
+
+bool fadeFinal = false;
+float fadeFinalCurrent = 0.0f;
+
+std::vector< Nx::Vector2 > mImagePos ;
+
+JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_StartFade(JNIEnv *env, jobject obj) 
+{
+	
+	
+	fadePhoto = true;
+	
 }
 
 
@@ -256,6 +300,97 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
 	gVM = vm;
 	return JNI_VERSION_1_4;
 }
+
+
+class FrameListener : public NxFrameListener  
+{
+	
+public:
+	bool frameStarted(const NxFrameEvent& evt) { 
+ 
+		return true;
+	}
+
+	bool frameRenderingQueued(const NxFrameEvent& evt) {
+		
+		
+		
+		if( fadePhoto ) { 
+		
+			if( mFullScreenPhotoPass ) { 
+
+				fadePhototimeCurrent += evt.timeSinceLastFrame;
+				if( fadePhototimeCurrent <= fadePhotoTotalTimeFadeIn ) { 
+					float fadeValue = (1.0f * fadePhototimeCurrent) / fadePhotoTotalTimeFadeIn;
+					mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", fadeValue);		 
+				} 
+				
+				if( fadePhototimeCurrent >= (fadePhotoTotalTimeFadeIn + fadePhotoTotalTimeStay)) { 
+					fadePhoto = false;
+					fadeWhite = true;
+					canShowSecondRoom = true;
+				}
+			}
+ 
+		}		
+ 
+		if( fadeWhite ) { 
+			if( mBackGroundPass ) { 
+				float fadeValue = (1.0f * fadeWhitetimeCurrent) / fadeWhiteTotalTimeFadeIn;
+				mBackGroundPass->SetFragmentParameterValue( "alpha", fadeValue ); 
+				fadeWhitetimeCurrent += evt.timeSinceLastFrame;
+				if( fadeWhitetimeCurrent >= fadeWhiteTotalTimeFadeIn ) { 
+					 fadeWhite = false;
+					 fadeEnd = true; 
+				}
+			}
+		}
+ 
+		if( fadeEnd ) { 
+			 
+			float fadeValue = (1.0f * fadeEndtimeCurrent) / fadeEndTotalTimeFadeIn;
+			mBackGroundPass->SetFragmentParameterValue( "alpha", 1.0f - fadeValue );
+			mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", 1.0f - fadeValue );
+			fadeEndtimeCurrent += evt.timeSinceLastFrame;
+			if( fadeEndtimeCurrent >= fadeEndTotalTimeFadeIn ) { 
+				 fadeEnd = false;
+			}
+			 
+		}	
+ 
+		if(launchEndingTimer) { 
+	 
+			launchEndingTimertimeCurrent += evt.timeSinceLastFrame;
+			if( launchEndingTimertimeCurrent >= 30.0f ) { 
+				launchEndingTimer = false;
+				fadeFinal = true;
+				NxTextureManager::getSingleton().LoadTexture( "black.jpg", "Popular" ) ;
+				mBackGroundUnit->SetTextureName("black.jpg");  
+				mBackGroundPass->SetFragmentParameterValue( "alpha", 0.0f ); 
+			}
+	 
+		}
+		
+		if( fadeFinal ) { 
+		
+				float fadeValue = (1.0f * fadeFinalCurrent) / 5.0f;
+				mBackGroundPass->SetFragmentParameterValue( "alpha", fadeValue );
+				fadeFinalCurrent += evt.timeSinceLastFrame;
+				if( fadeFinalCurrent >= 5.0f ) { 
+					 fadeFinal = false; 
+				}
+
+		}
+	
+		return true;
+	}
+
+    bool frameEnded(const NxFrameEvent& evt) { 
+			 return true;
+			 
+	}	
+	
+};
 
 class EngineListener : public NxEngineListener
 {
@@ -340,6 +475,86 @@ JNIEXPORT jlong JNICALL Java_com_hotstuff_main_OgreActivityJNI_GetEngineContext(
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEnv *env, jobject obj, jobject surface, jobject assetManager, jstring splashName ) 
 {
  
+	mImagePos.push_back( Nx::Vector2( 3767 , 700 ) );
+	mImagePos.push_back( Nx::Vector2( 3767 , 610 ) );
+	mImagePos.push_back( Nx::Vector2( 3767 , 526 ) );	
+	mImagePos.push_back( Nx::Vector2( 3767 , 440 ) );	
+	mImagePos.push_back( Nx::Vector2( 3767 , 351 ) );	
+	mImagePos.push_back( Nx::Vector2( 3767 , 267 ) );	
+	mImagePos.push_back( Nx::Vector2( 3767 , 178 ) );	
+	
+	
+	mImagePos.push_back( Nx::Vector2( 3914 , 700 ) );
+	mImagePos.push_back( Nx::Vector2( 3914 , 610 ) );
+	mImagePos.push_back( Nx::Vector2( 3914 , 526 ) );	
+	mImagePos.push_back( Nx::Vector2( 3914 , 440 ) );	
+	mImagePos.push_back( Nx::Vector2( 3914 , 351 ) );	
+	mImagePos.push_back( Nx::Vector2( 3914 , 267 ) );	
+	mImagePos.push_back( Nx::Vector2( 3914 , 178 ) );	
+
+
+	mImagePos.push_back( Nx::Vector2( 4119 , 700 ) );
+	mImagePos.push_back( Nx::Vector2( 4119 , 610 ) );
+	mImagePos.push_back( Nx::Vector2( 4119 , 526 ) );	
+	mImagePos.push_back( Nx::Vector2( 4119 , 440 ) );	
+	mImagePos.push_back( Nx::Vector2( 4119 , 351 ) );	
+	mImagePos.push_back( Nx::Vector2( 4119 , 267 ) );	
+	mImagePos.push_back( Nx::Vector2( 4119 , 178 ) );	
+	
+	
+	mImagePos.push_back( Nx::Vector2( 4325 , 700 ) );
+	mImagePos.push_back( Nx::Vector2( 4325 , 610 ) );
+	mImagePos.push_back( Nx::Vector2( 4325 , 526 ) );	
+	mImagePos.push_back( Nx::Vector2( 4325 , 440 ) );	
+	mImagePos.push_back( Nx::Vector2( 4325 , 351 ) );	
+	mImagePos.push_back( Nx::Vector2( 4325 , 267 ) );	
+	mImagePos.push_back( Nx::Vector2( 4325 , 178 ) );		
+	
+	
+	
+	// right
+	
+	mImagePos.push_back( Nx::Vector2( 3767 , -197 ) );
+	mImagePos.push_back( Nx::Vector2( 3767 , -282 ) );
+	mImagePos.push_back( Nx::Vector2( 3767 , -367 ) );	
+	mImagePos.push_back( Nx::Vector2( 3767 , -452 ) );	
+	mImagePos.push_back( Nx::Vector2( 3767 , -537 ) );	
+	mImagePos.push_back( Nx::Vector2( 3767 , -622 ) );	
+	mImagePos.push_back( Nx::Vector2( 3767 , -707 ) );	
+	
+	mImagePos.push_back( Nx::Vector2( 3914 , -197 ) );
+	mImagePos.push_back( Nx::Vector2( 3914 , -282 ) );
+	mImagePos.push_back( Nx::Vector2( 3914 , -367 ) );	
+	mImagePos.push_back( Nx::Vector2( 3914 , -452 ) );	
+	mImagePos.push_back( Nx::Vector2( 3914 , -537 ) );	
+	mImagePos.push_back( Nx::Vector2( 3914 , -622 ) );	
+	mImagePos.push_back( Nx::Vector2( 3914 , -707 ) );	
+	
+	mImagePos.push_back( Nx::Vector2( 4119 , -197 ) );
+	mImagePos.push_back( Nx::Vector2( 4119 , -282 ) );
+	mImagePos.push_back( Nx::Vector2( 4119 , -367 ) );	
+	mImagePos.push_back( Nx::Vector2( 4119 , -452 ) );	
+	mImagePos.push_back( Nx::Vector2( 4119 , -537 ) );	
+	mImagePos.push_back( Nx::Vector2( 4119 , -622 ) );	
+	mImagePos.push_back( Nx::Vector2( 4119 , -707 ) );		
+	
+	
+	mImagePos.push_back( Nx::Vector2( 4331 , -197 ) );
+	mImagePos.push_back( Nx::Vector2( 4331 , -282 ) );
+	mImagePos.push_back( Nx::Vector2( 4331 , -367 ) );	
+	mImagePos.push_back( Nx::Vector2( 4331 , -452 ) );	
+	mImagePos.push_back( Nx::Vector2( 4331 , -537 ) );	
+	mImagePos.push_back( Nx::Vector2( 4331 , -622 ) );	
+	mImagePos.push_back( Nx::Vector2( 4331 , -707 ) );	
+
+// 3 middles
+mImagePos.push_back( Nx::Vector2( 4331 ,  93 ) );		
+mImagePos.push_back( Nx::Vector2( 4331 ,  2 ) );	
+mImagePos.push_back( Nx::Vector2( 4331 ,  -93 ) );	
+	
+	
+	
+ 
 	LOGD("----> NDK CreateEngine CALLED !!! ");
 
 	if( NxGraph != NULL ){  LOGD("----> NDK CreateEngine already done !!! "); return;}
@@ -384,13 +599,19 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEn
 	NxDeviceManager * DeviceMgr = NxDeviceManager::getSingletonPtr(); 
 	NxSoundManager  * SoundMgr  = NxSoundManager::getSingletonPtr();
 	NxMocapManager  * MocapMgr  = NxMocapManager::getSingletonPtr();
+	
+	
+
+	
+	
+	
+	
   
 	Nx3DSceneDesc Desc;
     Desc.mType = Nx3D_Scene_Default;
 	Desc.mRenderWindow = NxEngine::getSingleton().GetNxWindow();
 	Scene3DPlayer = NxScene3DManager::getSingleton().CreateNx3DScene( Desc );
     Scene3DPlayer->SetViewportColour( NxColourValue(0,0,1,1) ); 
-    //Scene3DPlayer->SetAmbientLight( NxColourValue(1,1,1,1) );	 
 	Desc.mRenderWindow->GetCustomAttribute( "GLCONTEXT", &context  );
 	LOGD("----> GLCONTEXT id : %d ", (int)context );
 
@@ -504,31 +725,75 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEn
 	//Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetFieldOfView( Nx::Degree( FOVDeg ).valueDegrees()  );
 	  
 	  
-	  /*
-	mBackGroundMaterial = NxMaterialManager::getSingleton().CreateMaterial("backgroundMaterial2");
+	// CREATE WHITE FULL SCREEN
+	mBackGroundMaterial = NxMaterialManager::getSingleton().CreateMaterial("whiteMaterial");
 	mBackGroundTechnique = mBackGroundMaterial->CreateTechnique("");
 	mBackGroundPass =  mBackGroundTechnique->CreatePass("");
-	mBackGroundPass->SetSceneBlending(  NXBLEND_TRANSPARENT_ALPHA ); 
+ 
+	mBackGroundPass->SetSceneBlending( NXBLEND_TRANSPARENT_ALPHA ); 
 	mBackGroundPass->SetDepthCheckEnabled(true);
 	mBackGroundPass->SetDepthWriteEnabled(true);
 	mBackGroundPass->SetLightingEnabled(false);
-	mBackGroundPass->SetCullingMode( NXCULL_CLOCKWISE );//NXCULL_NONE);  
+	
+	
+	 
+ 
+	mBackGroundPass->SetCullingMode( NXCULL_CLOCKWISE );  
 	mBackGroundUnit = mBackGroundPass->CreateTextureUnit("");
+	NxTextureManager::getSingleton().LoadTexture( "white.jpg", "Popular" ) ;
+	mBackGroundUnit->SetTextureName("white.jpg");  
 	mBackGroundUnit->SetTextureAddressingMode(TEXTURE_CLAMP);
-	mBackGroundUnit->SetTextureName("NxLogo.jpg"); //<<<<<<<<<====== PK IL TROUVE PAS white.jpg !!!!!!!!!!!!!!!!!!!!!!!!
+	 
+	
+	
+	const char * strVert = 
+	"#version 100\n"
+	"precision mediump int;"
+	"precision mediump float;"
+	"uniform mat4 worldViewProj;"
+	"attribute vec4 vertex;"
+	"attribute vec2 uv0;"
+	"varying vec2 uv;"
+	"void main()"
+	"{"
+	"	gl_Position = worldViewProj * vertex;"
+	"	uv = uv0;"
+	"}"	;
+	
+	const char * strFrag = 
+	"precision mediump float;"
+	"uniform sampler2D tex0;"
+	"uniform float alpha;"
+	"varying vec2 uv;"
+	"void main()"
+	"{"  
+	"vec2 uv2 = vec2(uv.s, 1.0 - uv.t);"
+	"vec4 normalColor = texture2D(tex0, uv2);"
+	"gl_FragColor = vec4( normalColor.r  , normalColor.g  , normalColor.b  , alpha);"
+	"}";
 
-	NxNode * BackgroundNode = Scene3DPlayer->CreateNxNode( "BackgroundNode" );
-	mBackgroundRectangle = BackgroundNode->CreateNxRectangle2D( "rectangle", true );
+
+	//create 2 shaders
+	NxVertexShader * vert = NxMaterialManager::getSingleton().CreateVertexProgram( "whitevert", "glsles" );
+	NxPixelShader * frag = NxMaterialManager::getSingleton().CreateFragmentProgram( "whitefrag", "glsles" ); 
+	vert->SetSource(  strVert );
+	vert->Load();
+	frag->SetSource(  strFrag );
+	frag->Load();
+	
+	mBackGroundPass->SetVertexProgram(vert->GetName());
+	mBackGroundPass->SetFragmentProgram(frag->GetName() ); 
+	mBackGroundPass->SetVertexAutoParameterValue( "worldViewProj", ACT_WORLDVIEWPROJ_MATRIX ); 
+	mBackGroundPass->SetFragmentParameterValue( "tex0", 0 );
+	mBackGroundPass->SetFragmentParameterValue( "alpha", (float)0.0f );	
+ 
+	NxNode * BackgroundNode = Scene3DPlayer->CreateNxNode( "whiteNode" );
+	mBackgroundRectangle = BackgroundNode->CreateNxRectangle2D( "whiteRectangle", true );
 	mBackgroundRectangle->SetMaterialName( mBackGroundMaterial->GetName() );
+	mBackgroundRectangle->SetRenderQueueGroup( 101 );
 	
 	
-	
-	
-	mBackgroundRectangle->SetRenderQueueGroup( 100 );
-	mBackGroundUnit->SetOpacity( 0.0f ); // set to 1.0f to see it !!!!
-	
-*/
-	
+ 
 	
 	
   
@@ -576,12 +841,29 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateEngine(JNIEn
  
 	
 	//////////////////
+	
+	
+ logMsg("=====>>>>>>>ATTTACHING "); 
+	
+	
+	FrameListener * frameListener = new FrameListener();
+	NxEngine::getSingleton().AddFrameListener( frameListener ) ;
+ 
+	//NxGraph->GetEngineManager()->AddFrameListener( frameListener ) ;
  
 	EngineListener * liste = new EngineListener();
 	NxEngine::getSingleton().GetNxWindow()->AddListener(  liste );
 
 	NxInputCallBack  * InputCallback; 
 	NxEngine::getSingleton().GetNxWindow()->AddInputListener( InputCallback = new NxInputCallBack() ); 
+ 
+	   
+	    
+ logMsg("=====>>>>>>>ATTTACHING  DONE"); 		
+	
+	
+	
+
 
 	isReady = true;
 	 
@@ -605,129 +887,146 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_DeleteEngine(JNIEn
 
 
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetScreenImage(JNIEnv * env, jobject obj,  jstring imagePath  ) {
-	
-	
-	 /*
-	  NxNode * triggerNode = Scene3DPlayer->CreateNxNode( "screenNodeManual" + NxVideoUtils::ToString( 0 ) );
-	  triggerNode->SetPosition( Nx::Vector3( 0,225,1300)); 
-	  NxEntity * tester = triggerNode->CreateNxBox( "screenEntityManual" + NxVideoUtils::ToString( 0), Nx::Vector3(450,800,10 ), Nx::Vector3(20,20,1) );
-	   Nx::Quaternion y180 = Nx::Quaternion( Nx::Degree(90.0f), Nx::Vector3::UNIT_Z);// 180.0f
-    
-    tester->SetOrientation(  y180  );*/
-	  
-	  
-	  
+
 
 	const char *Stringp = env->GetStringUTFChars( imagePath, NULL );
 	std::string videofilepath =  std::string( Stringp );
-	
-	
-
+ 
+	// create photo material for shader
 	NxTextureImage * tex =  NxTextureManager::getSingleton().CreateTextureImage( "photo" + NxVideoUtils::ToString( 0 ), videofilepath );
-	
-	
 	MaterialNx * MatLeft1 =  NxMaterialManager::getSingleton().CreateMaterial("photomat" + NxVideoUtils::ToString( 0) );
 	NxTechnique * MatLeftTechnique1 = MatLeft1->CreateTechnique("");
-	
-	 
-	
 	MatLeftPass1 =  MatLeftTechnique1->CreatePass("");
-	
-	
 	MatLeftPass1->SetSceneBlending(  NXBLEND_TRANSPARENT_ALPHA ); 
 	MatLeftPass1->SetDepthCheckEnabled(true);
 	MatLeftPass1->SetDepthWriteEnabled(true);
 	MatLeftPass1->SetLightingEnabled(false);
-	MatLeftPass1->SetCullingMode( NXCULL_NONE );
+	MatLeftPass1->SetCullingMode( NXCULL_CLOCKWISE ); 
 	mScreenTextureUnit = MatLeftPass1->CreateTextureUnit("");
 	mScreenTextureUnit->SetTextureAddressingMode(TEXTURE_CLAMP);
-	
-	
-	
-	
-	
-	
+
 	////////
-	
  
-	
-	
 	const char * strVert = 
-"#version 100\n"
-"precision mediump int;"
-"precision mediump float;"
-"uniform mat4 worldViewProj;"
-"attribute vec4 vertex;"
-"attribute vec2 uv0;"
-"varying vec2 uv;"
-"void main()"
-"{"
-"	gl_Position = worldViewProj * vertex;"
-"	uv = uv0;"
-"}"	;
+	"#version 100\n"
+	"precision mediump int;"
+	"precision mediump float;"
+	"uniform mat4 worldViewProj;"
+	"attribute vec4 vertex;"
+	"attribute vec2 uv0;"
+	"varying vec2 uv;"
+	"void main()"
+	"{"
+	"	gl_Position = worldViewProj * vertex;"
+	"	uv = uv0;"
+	"}"	;
 	
-const char * strFrag = 
-"precision mediump float;"
-"uniform sampler2D tex0;"
-"uniform float alpha;"
-"varying vec2 uv;"
-"void main()"
-"{"  
-"vec2 uv2 = vec2(uv.s, 1.0 - uv.t);"
-"vec4 normalColor = texture2D(tex0, uv2);"
-"float gray = 0.299*normalColor.r + 0.587*normalColor.g + 0.114*normalColor.b;"
-"gl_FragColor = vec4( gray*alpha + ( 1.0*(1.0-alpha) ), gray*alpha+ ( 1.0*(1.0-alpha) ), gray*alpha+ ( 1.0*(1.0-alpha) ),  1.0);"
-"}";
+	const char * strFrag = 
+	"precision mediump float;"
+	"uniform sampler2D tex0;"
+	"uniform float alpha;"
+	"varying vec2 uv;"
+	"void main()"
+	"{"  
+	"vec2 uv2 = vec2(uv.s, 1.0 - uv.t);"
+	"vec4 normalColor = texture2D(tex0, uv2);"
+	"float gray = 0.299*normalColor.r + 0.587*normalColor.g + 0.114*normalColor.b;"
+	"gl_FragColor = vec4( gray*alpha + ( 1.0*(1.0-alpha) ), gray*alpha+ ( 1.0*(1.0-alpha) ), gray*alpha+ ( 1.0*(1.0-alpha) ),  1.0);"
+	"}";
 
 
+	//create 2 shaders
+	NxVertexShader * vert = NxMaterialManager::getSingleton().CreateVertexProgram( "testvert", "glsles" );
+	NxPixelShader * frag = NxMaterialManager::getSingleton().CreateFragmentProgram( "testfrag", "glsles" ); 
+	vert->SetSource(  strVert );
+	vert->Load();
+	frag->SetSource(  strFrag );
+	frag->Load();		
+	MatLeftPass1->SetVertexProgram(vert->GetName());
+	MatLeftPass1->SetFragmentProgram(frag->GetName() ); 
+	mScreenTextureUnit->SetTextureName(  "photo" + NxVideoUtils::ToString( 0 )  );
+	//mScreenTextureUnit->SetTextureScale( 1.0, -1.0f );	
+	MatLeftPass1->SetVertexAutoParameterValue( "worldViewProj", ACT_WORLDVIEWPROJ_MATRIX ); 
+	MatLeftPass1->SetFragmentParameterValue( "tex0", 0 );
+	MatLeftPass1->SetFragmentParameterValue( "alpha", (float)0.0f );
+	// assign material
+	NxScreenModel->SetMaterialName("photomat" + NxVideoUtils::ToString( 0));
 	
-//create 2 shaders
-		NxVertexShader * vert = NxMaterialManager::getSingleton().CreateVertexProgram( "testvert", "glsles" );
-		NxPixelShader * frag = NxMaterialManager::getSingleton().CreateFragmentProgram( "testfrag", "glsles" ); 
-
-		/*
-		vert->SetSourceFile( "vertex.glsles" );// strVert );
-		vert->Load();
-
-		frag->SetSourceFile( "fragment.glsles" ); // strFrag );
-		frag->Load();*/
-		
-		vert->SetSource(  strVert );
-		vert->Load();
-
-		frag->SetSource(  strFrag );
-		frag->Load();		
-		
-
-		MatLeftPass1->SetVertexProgram(vert->GetName());
-		MatLeftPass1->SetFragmentProgram(frag->GetName() ); 
-
-		 
-		mScreenTextureUnit->SetTextureName(  "photo" + NxVideoUtils::ToString( 0 )  );
-		//mScreenTextureUnit->SetTextureScale( 1.0, -1.0f );	
 	
-
-		 MatLeftPass1->SetVertexAutoParameterValue( "worldViewProj", ACT_WORLDVIEWPROJ_MATRIX ); 
-		 MatLeftPass1->SetFragmentParameterValue( "tex0", 0 );
-		  MatLeftPass1->SetFragmentParameterValue( "alpha", (float)0.0f );
+	 //////////////////////////////////////////////////////////////////////////////
+	 
+	  
+	// CREATE PHOTO FULL SCREEN
+	
+	MaterialNx * mFullScreenPhotoMaterial = NxMaterialManager::getSingleton().CreateMaterial("photoMaterial");
+	NxTechnique * mFullScreenPhotoTechnique = mFullScreenPhotoMaterial->CreateTechnique("");
+	  mFullScreenPhotoPass =   mFullScreenPhotoTechnique->CreatePass("");
  
+	mFullScreenPhotoPass->SetSceneBlending( NXBLEND_TRANSPARENT_ALPHA ); 
+	mFullScreenPhotoPass->SetDepthCheckEnabled(true);
+	mFullScreenPhotoPass->SetDepthWriteEnabled(true);
+	mFullScreenPhotoPass->SetLightingEnabled(false);
+ 
+	mFullScreenPhotoPass->SetCullingMode( NXCULL_CLOCKWISE );  
+	mFullScreenPhotoUnit = mFullScreenPhotoPass->CreateTextureUnit("");
+	mFullScreenPhotoUnit->SetTextureAddressingMode(TEXTURE_CLAMP); 
 	
 	
-	//tester->SetMaterialName( "photomat" + NxVideoUtils::ToString( 0) );
+	const char * strVertFullPhoto = 
+	"#version 100\n"
+	"precision mediump int;"
+	"precision mediump float;"
+	"uniform mat4 worldViewProj;"
+	"attribute vec4 vertex;"
+	"attribute vec2 uv0;"
+	"varying vec2 uv;"
+	"void main()"
+	"{"
+	"	gl_Position = worldViewProj * vertex;"
+	"	uv = uv0;"
+	"}"	;
+	
+	const char * strFragFullPhoto = 
+	"precision mediump float;"
+	"uniform sampler2D tex0;"
+	"uniform float alpha;"
+	"varying vec2 uv;"
+	"void main()"
+	"{"  
+	"vec4 normalColor = texture2D(tex0, uv);"
+	"float gray = 0.299*normalColor.r + 0.587*normalColor.g + 0.114*normalColor.b;"
+	"gl_FragColor = vec4( gray*alpha  , gray*alpha , gray*alpha ,  alpha);"
+	"}";
 	
 	
-	 NxScreenModel->SetMaterialName("photomat" + NxVideoUtils::ToString( 0));
+	
+
+	NxNode * mFullScreenPhotoNode = Scene3DPlayer->CreateNxNode( "photoNode" );
+	NxEntity * mFullScreenPhotoRectangle = mFullScreenPhotoNode->CreateNxRectangle2D( "photoRectangle", true );
+	mFullScreenPhotoRectangle->SetMaterialName( mFullScreenPhotoMaterial->GetName() ); 
 	
 	
-	//mScreenTextureUnit->SetOpacity(0.0f);
+	NxVertexShader * vertPhoto = NxMaterialManager::getSingleton().CreateVertexProgram( "photoFullvert", "glsles" );
+	NxPixelShader * fragPhoto = NxMaterialManager::getSingleton().CreateFragmentProgram( "photoFullfrag", "glsles" ); 
+	vertPhoto->SetSource(  strVertFullPhoto );
+	vertPhoto->Load();
+	fragPhoto->SetSource(  strFragFullPhoto );
+	fragPhoto->Load();		
+	mFullScreenPhotoPass->SetVertexProgram(vertPhoto->GetName());
+	mFullScreenPhotoPass->SetFragmentProgram(fragPhoto->GetName() ); 	
+	mFullScreenPhotoUnit->SetTextureName( "photo" + NxVideoUtils::ToString( 0 )  );    
+	mFullScreenPhotoRectangle->SetRenderQueueGroup( 100 );
 	
 	
+	mFullScreenPhotoPass->SetVertexAutoParameterValue( "worldViewProj", ACT_WORLDVIEWPROJ_MATRIX ); 
+	mFullScreenPhotoPass->SetFragmentParameterValue( "tex0", 0 );
+	mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", (float)0.0f );	
 	
+
 	
-	
-	
-	
-	
+	//mFullScreenPhotoUnit->SetOpacity( 0.0f );  
+	  
+	/////////////////////////////////////////////////////////////////////
 	
   
 	env->ReleaseStringUTFChars( imagePath, Stringp );
@@ -857,76 +1156,73 @@ JNIEXPORT jobjectArray JNICALL  Java_com_hotstuff_main_OgreActivityJNI_CopyFiles
   int indexer = 0;
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_CreateTextureFromPath(JNIEnv * env, jobject obj, jstring filepath  ) { 
 
+
+
+	if( mImagePos.size() <= 0 ) return;
+
 	const char *Stringp = env->GetStringUTFChars(  filepath, NULL );
 	std::string videofilepath =  std::string( Stringp );
 	env->ReleaseStringUTFChars( filepath, Stringp );
-    
-    
+ 
+ 
+	int posOutput = 0 + (rand() % (int)( (mImagePos.size()-1) - 0 + 1));
+ 
+	float randX = NxUtils::GetRandom(-5.0f, 5.0f) ;
+	float randY = NxUtils::GetRandom(-5.0f, 5.0f) ;
+
     LOGD( "----- CREATING TEXTURE : "   );
-    
-    
-    float Z = NxUtils::GetRandom(3000, 4500) ;
-     float X = NxUtils::GetRandom(-1000, 1000) ;
-    
-    
-    if( indexer == 0 ){
-   // Scene3DPlayer->AddResourceLocation( "/sdcard/diego_img/", "General" , true );
-    }
-    
+    float Z = mImagePos[posOutput].x + randX;//  3767;//NxUtils::GetRandom(3000, 4500) ;
+    float X =  mImagePos[posOutput].y + randY;//700;//NxUtils::GetRandom(-1000, 1000) ;
+	
+	mImagePos.erase(mImagePos.begin() + posOutput );
+	
  
-    
-      
-     NxNode * triggerNode = Scene3DPlayer->CreateNxNode( "trigger" + NxVideoUtils::ToString( indexer ) );
-	  triggerNode->SetPosition( Nx::Vector3( X , 124 , Z)); 
-	  NxEntity * tester = triggerNode->CreateNxBox( "triggerEntoty" + NxVideoUtils::ToString( indexer), Nx::Vector3(90,160,2 ), Nx::Vector3(1,1,1) );
-    
-     Nx::Quaternion y180 = Nx::Quaternion( Nx::Degree(90.0f), Nx::Vector3::UNIT_Z);// 180.0f
-    
+    NxNode * triggerNode = Scene3DPlayer->CreateNxNode( "trigger" + NxVideoUtils::ToString( indexer ) );
+	triggerNode->SetPosition( Nx::Vector3( X , 100 , Z)); 
+	NxEntity * tester = triggerNode->CreateNxBox( "triggerEntoty" + NxVideoUtils::ToString( indexer), Nx::Vector3(110,85,2 ), Nx::Vector3(1,1,1) );
+    Nx::Quaternion y180 = Nx::Quaternion( Nx::Degree(90.0f), Nx::Vector3::UNIT_Z);// 180.0f
     tester->SetOrientation(  y180  );
-    
-    
-   
     NxTextureImage * tex =  NxTextureManager::getSingleton().CreateTextureImage( "texturePhoto" + NxVideoUtils::ToString( indexer), videofilepath );
-    
-    
- 
 	MaterialNx * MatLeft =  NxMaterialManager::getSingleton().CreateMaterial("photoMaterial" + NxVideoUtils::ToString( indexer) );
 	NxTechnique * MatLeftTechnique = MatLeft->CreateTechnique("");
 	NxPass * MatLeftPass =  MatLeftTechnique->CreatePass("");
-	//MatLeftPass->SetSceneBlending(  NXBLEND_TRANSPARENT_ALPHA ); //<<---- cest ca la merde opengles ne supporte pas glAlphaFunc et GL_ALPHA_TEST
-	 //MatLeftPass->SetDepthCheckEnabled(true);
-	//MatLeftPass->SetDepthWriteEnabled(true); 
 	MatLeftPass->SetLightingEnabled(false);
-	//MatLeftPass->SetCullingMode(NXCULL_CLOCKWISE);
 	NxTextureUnit * MatLeftUnit = MatLeftPass->CreateTextureUnit("");
-	//MatLeftUnit->SetTextureAddressingMode(TEXTURE_BORDER);
 	MatLeftUnit->SetTextureName( "texturePhoto" + NxVideoUtils::ToString( indexer) );
-    
-   // MatLeftUnit->SetTextureFile( videofilepath );
-    
-    
-     tester->SetMaterialName( MatLeft->GetName() ); 
-    
-    
-    indexer++;
-    
-    /*
-    
-    	MatVideo =  NxMaterialManager::getSingleton().CreateMaterial("videomaterial");
-		NxTechnique * MatVideoTechnique = MatVideo->CreateTechnique("");
-		MatVideoPass =  MatVideoTechnique->CreatePass("");
-		//MatVideoPass->SetSceneBlending(  NXBLEND_TRANSPARENT_ALPHA );
-		MatVideoPass->SetCullingMode(NXCULL_NONE);
-		//MatVideoPass->SetDepthCheckEnabled(true);
-		//MatVideoPass->SetDepthWriteEnabled(true);
-        
-        
-       
-        
-        // MatVideoUnit0 = MatVideoPass->CreateTextureUnit(""); */
-    
-    
+	
+	
+	
+	Nx::Matrix4 xform = Nx::Matrix4::IDENTITY;
+	Nx::Quaternion qx, qy, qz, qfinal;
+	qx.FromAngleAxis(Nx::Degree( 0 ), Nx::Vector3::UNIT_X);
+	qy.FromAngleAxis(Nx::Degree( 0 ), Nx::Vector3::UNIT_Y);
+	qz.FromAngleAxis(Nx::Degree( 0 ), Nx::Vector3::UNIT_Z);
+	qfinal = qx * qy * qz;
 
+	Nx::Vector3 translate;
+	translate.x = 0.25;
+	translate.y = 0;
+	translate.z = 0;
+
+	Nx::Matrix3 rot3x3, scale3x3;
+	qfinal.ToRotationMatrix(rot3x3);
+	scale3x3 = Nx::Matrix3::ZERO;
+	scale3x3[0][0] = 0.75f;
+	scale3x3[1][1] = 1.0f;
+	scale3x3[2][2] = 1.0f;
+
+	xform = rot3x3 * scale3x3;
+	xform.setTrans(translate);
+
+	MatLeftUnit->SetTextureTransform( xform );	
+	
+	
+	
+	///MatLeftUnit->SetTextureScale( 1.0f,  1.0f );
+	
+	
+    tester->SetMaterialName( MatLeft->GetName() ); 
+    indexer++;
 
 }
 
@@ -1182,35 +1478,37 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_ViewportUpdate(JNI
 }
 
 
+
+float inc = 0;
+
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_renderOneFrame(JNIEnv * env, jobject obj)
 {
-	if( isReady )//gRenderWnd != NULL && gRenderWnd->isActive())
-	{
-		//try
-		//{
-			if(gVM->AttachCurrentThread(&env, NULL) < 0) 					
-				return;
+	if( isReady ) {
+		
+		if(gVM->AttachCurrentThread(&env, NULL) < 0) return;
 
 
-			 /*
+		/*
 
-			for( int i = 0 ; i < numBoxes; i++ ) {
+		for( int i = 0 ; i < numBoxes; i++ ) {
 
-				Nx::Quaternion quat;
-				float dir = mBoxesDirection[i];
-				quat.FromAngleAxis(Nx::Degree(mBoxesRotValues[i]),Nx::Vector3(dir,dir,dir));
-				mBoxes[i]->Rotate( quat , NxWorld );
-			}*/
+			Nx::Quaternion quat;
+			float dir = mBoxesDirection[i];
+			quat.FromAngleAxis(Nx::Degree(mBoxesRotValues[i]),Nx::Vector3(dir,dir,dir));
+			mBoxes[i]->Rotate( quat , NxWorld );
+		}*/
  
-				 
+		
+	
+
+		
 			
-			NxGraph->Update();
+		NxGraph->Update();
+		
+		
+		
 
-			//gRenderWnd->windowMovedOrResized();
-			//gRoot->renderOneFrame();
 
-			//gVM->DetachCurrentThread();				
-		//}catch(Ogre::RenderingAPIException ex) {}
 	}
 }
 
@@ -1222,22 +1520,11 @@ Nx::Vector2 GetScreenDimensions() {
 	size.y = config.mSize.data[1];
 }
  
- 
-
- 
-
 
 bool misFirstScene = true;
  
 JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetModelPose(JNIEnv * env, jobject obj, jfloatArray mat  ) {
-	
-	
-	// check to see if its the first time we see the marker, in order to calculate the offset rotation
-	
-	 
-	
  
-
 	jfloat* fltmat = env->GetFloatArrayElements( mat ,0);
 	
 	QCAR::Matrix44F modelViewMatrix;
@@ -1265,23 +1552,9 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetModelPose(JNIEn
 	Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetFieldOfView( 90.0f  );//GetFovDegrees() );*/
 	
 	Nx::Matrix4 transform = Nx::Matrix4::IDENTITY;
-	transform.setTrans( Nx::Vector3(0,0,widthBox/2)  ); // << add offset Z here
-	transform.setScale( Nx::Vector3(1,1,1) );
-
-	//here continue
-
-
+	transform.setTrans( Nx::Vector3( 0, 0, widthBox/2 )  ); // << add offset Z here
+	transform.setScale( Nx::Vector3( 1, 1, 1 ) );
 	Nx::Matrix4 res = modelViewMatrixOgre * transform;
-    
-    
-   // faire camera texture front
-
-	
-// ===>longeur : 6.5 metres
-	
-	
-	//float height = 180.0f;
-	//float height = 180.0f;
 	Nx::Vector3 position = Nx::Vector3(res[0][3], -res[1][3]  , -res[2][3]     );
 
 	Nx::Vector3 xr = Nx::Vector3((fltmat[0]), -(fltmat[1]), -(fltmat[2]));
@@ -1295,77 +1568,59 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetModelPose(JNIEn
 	
 	if( NxModel ) { 
         
-        Nx::Quaternion y180 = Nx::Quaternion( Nx::Degree(0.0f), Nx::Vector3::UNIT_Y);// 180.0f
+        //Nx::Quaternion y180 = Nx::Quaternion( Nx::Degree(0.0f), Nx::Vector3::UNIT_Y);// 180.0f
         
 		
         ScreenNode->SetOrientation( Nx::Quaternion::IDENTITY );
         ScreenNode->SetPosition( Nx::Vector3(0,0,0));
-		NxScreenModel->SetOrientation(  y180  ); // right orientation  
+		//NxScreenModel->SetOrientation(  y180  ); // right orientation  
         
         
 		NxModel->SetOrientation( Nx::Quaternion::IDENTITY );
 		NxModel->SetPosition( Nx::Vector3(0,0,0));
-		ModelNode->SetOrientation(  y180  ); // right orientation
+		//ModelNode->SetOrientation(  y180  ); // right orientation
         
         
         float ZReduc = 700.0f;//500.0f;
  
         position.z = position.z + ZReduc ;
  
-        if( misFirstScene && position.z < mThresholdDistance ) {
+        if( !canShowSecondRoom && misFirstScene && position.z < mThresholdDistance ) {
 			
 			position.y = 180.0f; // height
 			position.x = 0.0f;
-			
-			
-			
-			  if( mScreenTextureUnit )  { 
-			  
-			 MatLeftPass1->SetFragmentParameterValue( "alpha", (float) (position.z / mThresholdDistance) +0.5f  );
-		
-			  
-			  //LOGD( "%f" , position.z / mThresholdDistance );
-			  
-			  
-			  }
-				
-            
+
+			if( mScreenTextureUnit )  { 
+		  
+				MatLeftPass1->SetFragmentParameterValue( "alpha", (float) (position.z / mThresholdDistance) +0.5f  );
+				//LOGD( "%f" , position.z / mThresholdDistance );
+
+			}
+
             Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetPosition(  position  );
  
         }else {  // second room
+		
+			if( misFirstScene == true ) fadePhoto = true;
+			misFirstScene = false;
+			
+			
+		
+			if( canShowSecondRoom ) { 
+				Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetPosition(  Nx::Vector3(  -15, 300, 3021 )  );
+				
+				if( !launchEndingTimer ) launchEndingTimer = true;
+			}
             
-            misFirstScene = false;
             
-            Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetPosition(  Nx::Vector3(  -15, 300, 3021 )  );
+            
+            
         
         
             
         }
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-       
-        
-        
-        /*
-        if( position.x > 180.0f )  position.x = 180.0f;
-        if( position.x < -180.0f ) position.x = -180.0f;*/
-        
-       // ScreenNode->SetPosition( position );
-    //    ModelNode->SetPosition( position );	
-	
-        
-        
-
-        
+   
         
 	}
 	
@@ -1374,128 +1629,7 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetModelPose(JNIEn
 	
 	env->ReleaseFloatArrayElements(mat, fltmat, 0);
 	
-	
-//ptr->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetPosition(Nx::Vector3(0,180, 0));	
-	
-	
-return;	 
-	
- /*
-	jfloat* fltmat = env->GetFloatArrayElements( mat ,0);
 
-
- 
-	// Compute the inverse of the model-view matrix, and transpose it:
-	QCAR::Matrix44F modelViewMatrix;
-	for( int i = 0 ; i < 16; i++ ) {
-		modelViewMatrix.data[i] =  fltmat[i];
-	}
-
-	// rotatePoseMatrix(180.0f, 1.0f, 0, 0, &modelViewMatrix.data[0]);
-
-	Nx::Matrix4 modelViewMatrixOgre;
-	VuforiaMatrix2Nx( modelViewMatrix, modelViewMatrixOgre );
- 
-	Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetPosition(Nx::Vector3(0, 0, 0));
-	Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->LookAt(Nx::Vector3(0,0,-2500.0f));
-	Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetNearPlane(10.0f);
-	Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetFarPlane(5000.0f);//500 ok
-	Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetFieldOfView( GetFovDegrees() );
- 
-
-	NxViewport * viewport =  NxEngine::getSingleton().GetNxViewport();
-	double aspect = (double)viewport->GetActualWidth() / (double)viewport->GetActualHeight();
-	 
-
-	float ratio = (float)mScreenWidth/(float)mScreenHeight;
-
-	 Scene3DPlayer->GetNxNode("CameraEditorNode")->GetNxController("CameraEditor")->SetAspectRatio( ratio );//1920.0f/1440.0f );//aspect ); // <<< --- nexus 1920 x 1080     || 1920 x 1440
-
-	 
-
-	
-	Nx::Matrix4 transform = Nx::Matrix4::IDENTITY;
-	transform.setTrans( Nx::Vector3(0,0,widthBox/2)  ); // << add offset Z here
-	transform.setScale( Nx::Vector3(1,1,1) );
-
-	//here continue
-
-
-	Nx::Matrix4 res = modelViewMatrixOgre * transform;
-
-	Nx::Vector3 position = Nx::Vector3(res[0][3], -res[1][3], -res[2][3] );
-
-	Nx::Vector3 xr = Nx::Vector3((fltmat[0]), -(fltmat[1]), -(fltmat[2]));
-	Nx::Vector3 yr = Nx::Vector3(( fltmat[4]), -(fltmat[5]), -(fltmat[6]));
-	Nx::Vector3 zr = Nx::Vector3(( fltmat[8]), -(fltmat[9]), -(fltmat[10]));
-	Nx::Vector3 x = xr.normalisedCopy();
-	Nx::Vector3 y = yr.normalisedCopy();
-	Nx::Vector3 z = zr.normalisedCopy();
-	Nx::Quaternion orientation = Nx::Quaternion(x, y, z);
-	 
-	
-	Nx::Quaternion minusz90 = Nx::Quaternion(Nx::Radian(Nx::Degree(-90.0f)), Nx::Vector3::UNIT_Z);
-	Nx::Quaternion x90 = Nx::Quaternion(Nx::Radian(Nx::Degree(90.0f)), Nx::Vector3::UNIT_X);
-	Nx::Quaternion y90 = Nx::Quaternion(Nx::Radian(Nx::Degree(90.0f)), Nx::Vector3::UNIT_Y);
-	Nx::Quaternion y180 = Nx::Quaternion( Nx::Degree(180.0f), Nx::Vector3::UNIT_Y);
- 
-	if( mBoxes.size() ){
-
-		mBoxes[0]->SetOrientation( Nx::Quaternion::IDENTITY );
-		mBoxes[0]->SetPosition( Nx::Vector3(0,0,0));
-
-		mBoxesNodes[0]->SetOrientation( orientation * x90 ); // right orientation
-		mBoxesNodes[0]->SetPosition(position);
-	}
-	
-	
-	if(  NxModel ) { 
-		
-		NxModel->SetOrientation( Nx::Quaternion::IDENTITY );
-		NxModel->SetPosition( Nx::Vector3(0,0,0));
-
-		ModelNode->SetOrientation( orientation    ); // right orientation
-		ModelNode->SetPosition(position);		
-		
-	
-	}
- 
-
- 
-	  ///////////////////
-
-	//vuforia axis system :
-	//y up
-	//x right
-	//z towards me
-
-	NxPlaneVideo->SetVisible(true);
-
- 
-	  Nx::Matrix4 transformPlane = Nx::Matrix4::IDENTITY;
-	  transformPlane.setTrans( Nx::Vector3((widthVideo/4),0,(widthVideo/2)/2)  ); // << add offset Z here
-	  transformPlane.setScale( Nx::Vector3(1,1,1) );
-	  Nx::Matrix4 planeMatrix = modelViewMatrixOgre * transformPlane;
-	  Nx::Vector3 poser = Nx::Vector3(planeMatrix[0][3], -planeMatrix[1][3], -planeMatrix[2][3] );
-	  if( NxPlaneVideo ) NxPlaneVideo->SetPosition( poser ); 
-
-	  
-	   
-	  //orientation
-	  Nx::Quaternion quat2;
-	  quat2.FromAngleAxis( Nx::Degree( -90 ), Nx::Vector3(0,1,0)   );
-
-	  Nx::Quaternion quat3;
-	  quat3.FromAngleAxis( Nx::Degree( 180.0f ), Nx::Vector3(1,0,0)   );
-
-	  Nx::Quaternion offset = orientation  * quat2 ;//* quat3;
-
-	  if( NxPlaneVideo )
-	  NxPlaneVideo->SetOrientation( offset ); 
-
-	env->ReleaseFloatArrayElements(mat, fltmat, 0);
-	
-	*/
 	return;
 
  
