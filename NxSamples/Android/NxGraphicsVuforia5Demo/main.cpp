@@ -262,18 +262,21 @@ static int get_sensor_events(int fd, int events, void* data) {
 
 bool fadePhoto = false;
 float fadePhototimeCurrent = 0.0f;
-float fadePhotoTotalTimeFadeIn =  3.0f; // 5 seconds
-float fadePhotoTotalTimeStay = 5.0f;
+float fadePhotoTotalTimeFadeIn =  0.5f; // 5 seconds
+float fadePhotoTotalTimeStay = 0.7f;
 
 
 bool fadeWhite = false;
 float fadeWhitetimeCurrent = 0.0f;
-float fadeWhiteTotalTimeFadeIn = 5.0f; // 5 seconds
+float fadeWhiteTotalTimeFadeIn = 0.4f; // 5 seconds
+float fadeWhiteTotalTimeStay = 2.0f;
 
 
 bool fadeEnd = false;
 float fadeEndtimeCurrent = 0.0f;
-float fadeEndTotalTimeFadeIn = 5.0f; // 5 seconds
+float fadeEndTotalTimeFadeIn = 0.4f; // 5 seconds
+
+
 
 bool canShowSecondRoom = false;
 
@@ -322,10 +325,17 @@ public:
 				fadePhototimeCurrent += evt.timeSinceLastFrame;
 				if( fadePhototimeCurrent <= fadePhotoTotalTimeFadeIn ) { 
 					float fadeValue = (1.0f * fadePhototimeCurrent) / fadePhotoTotalTimeFadeIn;
-					mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", fadeValue);		 
+					
+					//mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", fadeValue);	
+
+					
+					
+					mBackGroundPass->SetFragmentParameterValue( "alpha", fadeValue);						
 				} 
 				
 				if( fadePhototimeCurrent >= (fadePhotoTotalTimeFadeIn + fadePhotoTotalTimeStay)) { 
+					mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", 0.0f );
+					mBackGroundPass->SetFragmentParameterValue( "alpha", 1.0f);	
 					fadePhoto = false;
 					fadeWhite = true;
 					canShowSecondRoom = true;
@@ -336,23 +346,69 @@ public:
  
 		if( fadeWhite ) { 
 			if( mBackGroundPass ) { 
+			
+				 fadeWhitetimeCurrent += evt.timeSinceLastFrame;
+				if( fadeWhitetimeCurrent <= fadeWhiteTotalTimeFadeIn ) { 
+					float fadeValue = (1.0f * fadeWhitetimeCurrent) / fadeWhiteTotalTimeFadeIn;
+					
+					
+					//fade white out
+					//mBackGroundPass->SetFragmentParameterValue( "alpha", 1.0f - fadeValue ); 
+					// fade photo in
+					mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", fadeValue );
+					//mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", fadeValue);	
+
+					//mBackGroundPass->SetFragmentParameterValue( "alpha", fadeValue);						
+				} 
+				
+				if( fadeWhitetimeCurrent >= (fadeWhiteTotalTimeFadeIn + fadeWhiteTotalTimeStay)) { 
+						mBackGroundPass->SetFragmentParameterValue( "alpha", 0.0f ); 
+						mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", 1.0f);
+						 fadeWhite = false;
+						 fadeEnd = true; 
+				}
+			
+			
+			
+			
+			/*
+			
 				float fadeValue = (1.0f * fadeWhitetimeCurrent) / fadeWhiteTotalTimeFadeIn;
-				mBackGroundPass->SetFragmentParameterValue( "alpha", fadeValue ); 
+				
+				//fade white out
+				mBackGroundPass->SetFragmentParameterValue( "alpha", 1.0f - fadeValue ); 
+				// fade photo in
+				mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", fadeValue );	
+				
 				fadeWhitetimeCurrent += evt.timeSinceLastFrame;
 				if( fadeWhitetimeCurrent >= fadeWhiteTotalTimeFadeIn ) { 
-					 fadeWhite = false;
-					 fadeEnd = true; 
+				
+					mBackGroundPass->SetFragmentParameterValue( "alpha", 0.0f ); 
+						mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", 1.0f);
+						 fadeWhite = false;
+						 fadeEnd = true; 
 				}
+				
+				*/
+				 
+				
+				
 			}
 		}
  
 		if( fadeEnd ) { 
 			 
 			float fadeValue = (1.0f * fadeEndtimeCurrent) / fadeEndTotalTimeFadeIn;
-			mBackGroundPass->SetFragmentParameterValue( "alpha", 1.0f - fadeValue );
+			mBackGroundPass->SetFragmentParameterValue( "alpha", 0.0f );
 			mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", 1.0f - fadeValue );
 			fadeEndtimeCurrent += evt.timeSinceLastFrame;
 			if( fadeEndtimeCurrent >= fadeEndTotalTimeFadeIn ) { 
+			
+			
+				mBackGroundPass->SetFragmentParameterValue( "alpha", 0.0f );
+			mFullScreenPhotoPass->SetFragmentParameterValue( "alpha", 0.0f );
+			
+			
 				 fadeEnd = false;
 			}
 			 
@@ -790,7 +846,7 @@ mImagePos.push_back( Nx::Vector2( 4331 ,  -93 ) );
 	NxNode * BackgroundNode = Scene3DPlayer->CreateNxNode( "whiteNode" );
 	mBackgroundRectangle = BackgroundNode->CreateNxRectangle2D( "whiteRectangle", true );
 	mBackgroundRectangle->SetMaterialName( mBackGroundMaterial->GetName() );
-	mBackgroundRectangle->SetRenderQueueGroup( 101 );
+	mBackgroundRectangle->SetRenderQueueGroup( 100 );
 	
 	
  
@@ -993,7 +1049,8 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetScreenImage(JNI
 	"varying vec2 uv;"
 	"void main()"
 	"{"  
-	"vec4 normalColor = texture2D(tex0, uv);"
+	"vec2 uv2 = vec2(1.0 - uv.s, uv.t);"
+	"vec4 normalColor = texture2D(tex0, uv2);"
 	"float gray = 0.299*normalColor.r + 0.587*normalColor.g + 0.114*normalColor.b;"
 	"gl_FragColor = vec4( gray*alpha  , gray*alpha , gray*alpha ,  alpha);"
 	"}";
@@ -1015,7 +1072,7 @@ JNIEXPORT void JNICALL Java_com_hotstuff_main_OgreActivityJNI_SetScreenImage(JNI
 	mFullScreenPhotoPass->SetVertexProgram(vertPhoto->GetName());
 	mFullScreenPhotoPass->SetFragmentProgram(fragPhoto->GetName() ); 	
 	mFullScreenPhotoUnit->SetTextureName( "photo" + NxVideoUtils::ToString( 0 )  );    
-	mFullScreenPhotoRectangle->SetRenderQueueGroup( 100 );
+	mFullScreenPhotoRectangle->SetRenderQueueGroup( 101 );
 	
 	
 	mFullScreenPhotoPass->SetVertexAutoParameterValue( "worldViewProj", ACT_WORLDVIEWPROJ_MATRIX ); 
