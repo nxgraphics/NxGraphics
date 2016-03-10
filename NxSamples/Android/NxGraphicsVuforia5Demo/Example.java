@@ -54,6 +54,7 @@ import com.qualcomm.vuforia.VideoBackgroundConfig;
 import com.qualcomm.vuforia.VideoBackgroundTextureInfo;
 import com.qualcomm.vuforia.VideoMode;
 import com.qualcomm.vuforia.Vuforia;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -72,9 +73,12 @@ import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.graphics.YuvImage;
 import android.graphics.drawable.ColorDrawable;
 import android.hardware.Camera;
+import android.hardware.Camera.ErrorCallback;
+import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
@@ -91,6 +95,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -113,6 +118,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.TextureView;
 import android.view.ViewGroup;
 import android.view.SurfaceHolder.Callback;
 import android.view.View.OnClickListener;
@@ -144,6 +150,8 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	public static boolean useLeftMenu = false;
 	
 	String mDataIp = null;
+	
+	SurfaceView surf  = null;
 	
 	
 	String mDataMarker = null;
@@ -304,6 +312,9 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
    ///////////////
  
     private Camera openFrontFacingCameraGingerbread() {
+    	
+    	Log.e("", "Trying to open camera ...");
+    	
 	    int cameraCount = 0;
 	    Camera cam = null;
 	    Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
@@ -318,6 +329,13 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 	            }
 	        }
 	    }
+
+	 	if( cam == null )  { 
+	 		Toast.makeText(  Example.this , "ERROR opening camera", Toast.LENGTH_LONG ).show();
+	 		Log.e("", "====>>> ERROR Trying to open camera");
+	 	}else { 
+	 		Log.e("", "====>>> OK open camera");
+	 	}
 
 	    return cam;
 	}	
@@ -337,19 +355,84 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
         out.close();
     }
     
+ /*
+	private class testSurface extends SurfaceTexture {
 
-	 private class TakePictureTask extends AsyncTask<Void, Void, Void> {
+		@SuppressLint("NewApi")
+		public testSurface(int texName) {
+			super(texName);
+			
+			setOnFrameAvailableListener(new OnFrameAvailableListener() {
+				@Override
+				public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+					
+					
+					
+					
+					 Log.d("ffff", "Frame received!");				
+				}
+			});			
+			
+			
+		 
+		} 
+    	
+    	
+    	
+    	
+    	
+    }*/
+    
+
+	 @SuppressLint("NewApi")
+	private class TakePictureTask extends AsyncTask<Void, Void, Void> {
 
 		 Camera mCamera ;
+		 
+ 
 		 @Override
 		protected void onPreExecute() {
 			 super.onPreExecute();
 		     mCamera = openFrontFacingCameraGingerbread();//Camera.open();
-		     Size previewSize=mCamera.getParameters().getPreviewSize();
-			 int dataBufferSize=(int)(previewSize.height*previewSize.width*(ImageFormat.getBitsPerPixel(mCamera.getParameters().getPreviewFormat())/8.0));
-			 mBuffer = new byte[dataBufferSize];
-			// PreviewCallback d = new PreviewCallback();
-			// mCamera.setPreviewCallback(d);
+		     
+		     
+		     
+		 /*
+		    
+		     List<Camera.Size> resList = mCamera.getParameters().getSupportedPreviewSizes();
+		     int w=0, h=0;
+		     final int desiredRes_W = 800;
+		     for ( Camera.Size size : resList ) {
+		         // find a supported res nearest to desired_Res
+		         if ( w==0 ) {
+		             w = size.width;
+		             h = size.height;
+		         }
+		         else if ( size.width >= desiredRes_W && size.width <= w  ) {
+		             w=size.width;
+		             h = size.height;
+		         }
+		     }   // 176x144, 320x240 ...
+		   // Parameters par = mCamera.getParameters();
+		   //  par.setPreviewSize(w, h);	
+		     
+		     mCamera.getParameters().setPreviewSize(w, h);
+		     
+		     Log.e("","Setting camera preview size to width: " + w);*/
+		    
+		     /*
+		     Parameters params = mCamera.getParameters();
+		     params.setPreviewSize(320, 240);
+		     mCamera.setParameters(params);*/ 
+		     
+		     
+		     
+		     
+		    // Size previewSize=mCamera.getParameters().getPreviewSize();
+			// int dataBufferSize=(int)(previewSize.height*previewSize.width*(ImageFormat.getBitsPerPixel(mCamera.getParameters().getPreviewFormat())/8.0));
+			// mBuffer = new byte[dataBufferSize];
+			//  PreviewCallback d = new PreviewCallback();
+			 // mCamera.setPreviewCallback(d);
 			 // mCamera.startPreview();
 			 
 			 
@@ -368,7 +451,8 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		    
 		    }
 
-		    @Override
+		    @SuppressLint("NewApi")
+			@Override
 		    protected Void doInBackground(Void... params) {
 		    	
 		    	//boolean vari = true;
@@ -379,9 +463,34 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 			        try {
 			            Thread.sleep(3000); // 3 second preview
 			            
-						 PreviewCallback d = new PreviewCallback();
-						 mCamera.setOneShotPreviewCallback( d );
-						 mCamera.startPreview();
+			            Log.e( "","====>>> Started TakePictureTask ....." );
+			            
+			    
+			           // mCamera.takePicture(null, d, null );
+			            
+			            
+			            
+						  PreviewCallback d = new PreviewCallback();
+						  mCamera.setOneShotPreviewCallback( d );
+						  mCamera.setErrorCallback(  new ErrorCallback() {
+							
+							@Override
+							public void onError(int error, Camera camera) {
+								Log.e("", "ERROR CAMERA !!! code: " + error);
+								
+							}
+						} );
+						  mCamera.startPreview(); 
+						  
+						 
+						  try {
+							mCamera.setPreviewDisplay(surf.getHolder());
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						 
+						 Log.e( "","====>>> Started PreviewCallback startPreview ....." );
 			            
 			            
 			        } catch (InterruptedException e) {
@@ -404,6 +513,11 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
     	  private int previewMessage;
 
     	  PreviewCallback( ) {
+    		  super();
+    		  
+    		  
+    		  
+    		  
   
     	  }
 
@@ -414,6 +528,9 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 
     	  @Override
     	  public void onPreviewFrame(byte[] data, Camera camera) {
+    		  
+    		  
+    		  Log.e( "","Started onPreviewFrame ....." );
  
     		  Camera.Parameters parameters = camera.getParameters();
     		    int width = parameters.getPreviewSize().width;
@@ -1397,6 +1514,8 @@ public void DebugTextureFormatState( State state ){
 							// 2 INIT
 							if( !wndCreate && lastSurface != null ) {
 								
+								
+								
 								if( assetMgr == null ) {
 									assetMgr = getResources().getAssets(); 
 								}
@@ -1633,6 +1752,10 @@ public void DebugTextureFormatState( State state ){
 		 
 		 
 		 addContentView(surfaceView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		 
+		 
+		   surf = new SurfaceView( Example.this );
+		    addContentView( surf, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 	
 
  
