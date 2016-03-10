@@ -595,6 +595,8 @@ public class Example extends Activity implements SensorEventListener, VuforiaCon
 		    		camera.stopPreview();
 		    	    camera.release();
 		    	    camera = null;
+		    	    
+		    	    surf.setVisibility(View.GONE);
 		    		
 		    		//from.delete();
 		    		to.delete();
@@ -1698,14 +1700,7 @@ public void DebugTextureFormatState( State state ){
 					//Vuforia.onSurfaceCreated();
 					
 					handler.post(initRunnable);
-					
-					
-					
-					
-					
-			
-					
-					
+	
 					
 				}
 			}
@@ -1749,13 +1744,16 @@ public void DebugTextureFormatState( State state ){
 		
 		 
 		// addContentView(mFrontView, new LayoutParams(100, 100));
-		 
+		
+		
+		   surf = new SurfaceView( Example.this );
+		   addContentView( surf, new LayoutParams( 10, 10));
+		  
 		 
 		 addContentView(surfaceView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		 
 		 
-		   surf = new SurfaceView( Example.this );
-		    addContentView( surf, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		
 	
 
  
